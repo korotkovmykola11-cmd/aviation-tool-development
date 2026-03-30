@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aviation Pro - Flight Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #0f1419;
+      --panel: rgba(15, 22, 30, 0.92);
+      --panel-light: rgba(25, 35, 50, 0.9);
+      --bezel: #2a3444;
+      --bezel-light: #3d4a5c;
+      --cyan: #00d4ff;
+      --green: #00ff88;
+      --amber: #ffcc00;
+      --magenta: #ff66cc;
+      --red: #ff4455;
+      --text: #ffffff;
+      --text-dim: #8899aa;
+      --glow-cyan: 0 0 25px rgba(0, 212, 255, 0.6), 0 0 50px rgba(0, 212, 255, 0.3);
+      --glow-green: 0 0 25px rgba(0, 255, 136, 0.6), 0 0 50px rgba(0, 255, 136, 0.3);
+      --glow-amber: 0 0 25px rgba(255, 204, 0, 0.6);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* BACKGROUNDS */
+    .cockpit-wrapper {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .cockpit-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .cockpit-bg.active { opacity: 1; }
+
+    .cockpit-bg.bg-fuel {
+      background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/boeing-737-800-2%20%281%29-LbOYKtJQVvQ8kiUVJpJlDTfY9OsOJp.jpg');
+    }
+    .cockpit-bg.bg-cost {
+      background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_20230630_140311-scaled-TU2CSdpK7UI90Js3c3G3npJoGyffPN.jpg');
+    }
+    .cockpit-bg.bg-flight {
+      background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kabina-pilotov-boing-757%20%281%29-GliZzq2BwNG320gTxgSzV6w1VMUPWA.webp');
+    }
+    .cockpit-bg.bg-atmo {
+      background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-r2G9ZcrXpFUi8k8pUGXmyzIfAhdUtU.jpg');
+    }
+    .cockpit-bg.bg-safety {
+      background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/766c307cbd8a75db3dbf8ef604beb4a6-0ZSWw4llexGvr3QLSm1qLGOx7DsWBB.webp');
+    }
+    .cockpit-bg.bg-tools {
+      background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-JPPQOguluiUi0O47GfB9Trcio3u5ZW.webp');
+    }
+    .cockpit-bg.bg-system {
+      background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images-f14rRx9YF4noUzFsB8EOZEFRCBVAG7.jpg');
+    }
+
+    .cockpit-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, 
+        rgba(15, 20, 25, 0.6) 0%,
+        rgba(15, 20, 25, 0.4) 30%,
+        rgba(15, 20, 25, 0.5) 70%,
+        rgba(15, 20, 25, 0.75) 100%
+      );
+    }
+
+    .cockpit-vignette {
+      position: absolute;
+      inset: 0;
+      box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.6);
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: linear-gradient(180deg, rgba(15, 20, 25, 0.95) 0%, transparent 100%);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--glow-cyan);
+    }
+
+    .logo-icon svg { width: 26px; height: 26px; fill: #0a0e12; }
+
+    .logo-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .zulu-clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan);
+      letter-spacing: 2px;
+    }
+
+    .local-clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--amber);
+      letter-spacing: 1px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-btn {
+      width: 40px;
+      height: 40px;
+      background: var(--panel);
+      border: 2px solid var(--bezel-light);
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
+    .header-btn.active { background: var(--cyan); color: var(--bg); }
+    .header-btn svg { width: 20px; height: 20px; }
+
+    .lang-select {
+      padding: 8px 12px;
+      background: var(--panel);
+      border: 2px solid var(--bezel-light);
+      border-radius: 8px;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* NAVIGATION */
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 16px;
+      flex-wrap: wrap;
+      background: rgba(15, 20, 25, 0.7);
+    }
+
+    .nav-btn {
+      padding: 10px 18px;
+      background: var(--panel);
+      border: 2px solid var(--bezel);
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .nav-btn:hover { border-color: var(--cyan); color: var(--text); }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 136, 0.15));
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    }
+
+    /* MAIN */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* INSTRUMENT */
+    .instrument {
+      width: 100%;
+      max-width: 480px;
+      background: var(--panel);
+      border-radius: 16px;
+      border: 3px solid var(--bezel);
+      box-shadow: 0 0 0 1px var(--bezel-light), inset 0 2px 8px rgba(0,0,0,0.4), 0 20px 50px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+
+    .instrument-bezel {
+      background: linear-gradient(180deg, var(--bezel-light) 0%, var(--bezel) 100%);
+      padding: 3px;
+      border-radius: 13px;
+    }
+
+    .instrument-screen {
+      background: linear-gradient(180deg, #080c10 0%, #0a0e14 100%);
+      border-radius: 11px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .instrument-screen::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 40%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+      border-radius: 11px 11px 0 0;
+      pointer-events: none;
+    }
+
+    .screws {
+      position: absolute;
+      inset: 6px;
+      pointer-events: none;
+    }
+
+    .screw {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle at 30% 30%, #5a6a7a 0%, #1a2530 100%);
+      border-radius: 50%;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.15), 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .screw::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 5px; height: 1px;
+      background: #080c10;
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .screw.tl { top: 0; left: 0; }
+    .screw.tr { top: 0; right: 0; }
+    .screw.bl { bottom: 0; left: 0; }
+    .screw.br { bottom: 0; right: 0; }
+
+    .instrument-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .instrument-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cyan);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    .instrument-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      letter-spacing: 1px;
+    }
+
+    /* FORMS */
+    .form-group { margin-bottom: 14px; }
+
+    .form-label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid var(--bezel);
+      border-radius: 8px;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+    }
+
+    .form-input::placeholder { color: var(--text-dim); opacity: 0.5; }
+
+    .form-select {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid var(--bezel);
+      border-radius: 8px;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300d4ff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+    /* RESULTS */
+    .result-box {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 255, 136, 0.08) 100%);
+      border: 2px solid var(--cyan);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .result-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 212, 255, 0.02) 2px, rgba(0, 212, 255, 0.02) 4px);
+      pointer-events: none;
+    }
+
+    .result-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .result-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--green);
+      text-shadow: var(--glow-green);
+      line-height: 1;
+    }
+
+    .result-unit {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-left: 6px;
+    }
+
+    .result-secondary {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .result-item { text-align: center; }
+
+    .result-item-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .result-item-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+    }
+
+    /* TABS */
+    .sub-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .sub-tab {
+      flex: 1;
+      min-width: 60px;
+      padding: 8px 6px;
+      background: transparent;
+      border: 2px solid var(--bezel);
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .sub-tab.active {
+      background: rgba(0, 212, 255, 0.15);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* WIND ROSE */
+    .wind-rose-box {
+      display: flex;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    .wind-rose {
+      width: 180px;
+      height: 180px;
+      position: relative;
+    }
+
+    .wind-rose-bg {
+      position: absolute;
+      inset: 0;
+      border: 3px solid var(--bezel);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.05) 0%, transparent 70%);
+    }
+
+    .wind-rose-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 10px;
+      height: 10px;
+      background: var(--cyan);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .wind-rose-runway {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 6px;
+      height: 70px;
+      background: linear-gradient(180deg, var(--magenta), transparent);
+      transform-origin: center bottom;
+      transform: translate(-50%, -100%);
+      border-radius: 3px;
+    }
+
+    .wind-rose-wind {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 4px;
+      height: 65px;
+      background: linear-gradient(180deg, var(--cyan), transparent);
+      transform-origin: center bottom;
+      transform: translate(-50%, -100%) rotate(45deg);
+      border-radius: 2px;
+    }
+
+    .wind-rose-labels {
+      position: absolute;
+      inset: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+
+    .wind-rose-labels span { position: absolute; }
+    .wind-rose-labels .n { top: 4px; left: 50%; transform: translateX(-50%); color: var(--cyan); }
+    .wind-rose-labels .s { bottom: 4px; left: 50%; transform: translateX(-50%); }
+    .wind-rose-labels .e { right: 4px; top: 50%; transform: translateY(-50%); }
+    .wind-rose-labels .w { left: 4px; top: 50%; transform: translateY(-50%); }
+
+    /* CG ENVELOPE */
+    .cg-envelope {
+      height: 160px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--bezel);
+      border-radius: 8px;
+      margin: 16px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cg-area {
+      position: absolute;
+      bottom: 25px; left: 25px; right: 25px;
+      height: 100px;
+      background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.08));
+      border: 2px solid var(--green);
+      clip-path: polygon(15% 100%, 0% 40%, 25% 0%, 75% 0%, 100% 40%, 85% 100%);
+    }
+
+    .cg-point {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: var(--glow-green);
+      transform: translate(-50%, -50%);
+      top: 55%;
+      left: 50%;
+    }
+
+    .cg-labels {
+      position: absolute;
+      bottom: 6px; left: 25px; right: 25px;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+
+    /* TIMER */
+    .timer-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 56px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--green);
+      text-shadow: var(--glow-green);
+      padding: 28px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 10px;
+      margin-bottom: 20px;
+      letter-spacing: 4px;
+    }
+
+    .timer-controls { display: flex; gap: 10px; justify-content: center; }
+
+    .timer-btn {
+      padding: 12px 28px;
+      background: var(--panel);
+      border: 2px solid var(--bezel);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .timer-btn:hover { border-color: var(--cyan); }
+    .timer-btn.start { border-color: var(--green); color: var(--green); }
+    .timer-btn.stop { border-color: var(--red); color: var(--red); }
+
+    /* NOTES */
+    .notes-area {
+      width: 100%;
+      min-height: 180px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid var(--bezel);
+      border-radius: 8px;
+      padding: 14px;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    .notes-area:focus { outline: none; border-color: var(--cyan); }
+
+    /* CONVERTER */
+    .conv-grid { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 10px; align-items: end; margin-bottom: 14px; }
+    .conv-arrow { font-size: 20px; color: var(--cyan); text-align: center; padding-bottom: 12px; }
+
+    /* SECTIONS */
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* NIGHT MODE */
+    .night-mode {
+      --cyan: #ff3333;
+      --green: #ff4444;
+      --amber: #ff2222;
+      --magenta: #ff5555;
+      --text: #ff8888;
+      --text-dim: #882222;
+      --glow-cyan: 0 0 20px rgba(255, 50, 50, 0.5);
+      --glow-green: 0 0 20px rgba(255, 60, 60, 0.5);
+    }
+
+    .night-mode .cockpit-bg { filter: saturate(0.3) brightness(0.3); }
+    .night-mode .cockpit-overlay { background: rgba(10, 0, 0, 0.85); }
+
+    /* BG INDICATOR */
+    .bg-indicator {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+    }
+
+    .bg-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--bezel);
+      border: 2px solid var(--bezel-light);
+      transition: all 0.3s;
+    }
+
+    .bg-dot.active {
+      background: var(--cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 540px) {
+      .header { padding: 10px 14px; }
+      .logo-text { font-size: 14px; }
+      .nav-btn { padding: 8px 12px; font-size: 10px; }
+      .main-content { padding: 14px; }
+      .instrument-screen { padding: 16px; }
+      .result-value { font-size: 32px; }
+      .timer-display { font-size: 40px; padding: 20px; }
+      .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cockpit-wrapper">
+    <div class="cockpit-bg bg-fuel active"></div>
+    <div class="cockpit-bg bg-cost"></div>
+    <div class="cockpit-bg bg-flight"></div>
+    <div class="cockpit-bg bg-atmo"></div>
+    <div class="cockpit-bg bg-safety"></div>
+    <div class="cockpit-bg bg-tools"></div>
+    <div class="cockpit-bg bg-system"></div>
+    <div class="cockpit-overlay"></div>
+    <div class="cockpit-vignette"></div>
+  </div>
+
+  <div class="bg-indicator">
+    <div class="bg-dot active" data-sec="fuel"></div>
+    <div class="bg-dot" data-sec="cost"></div>
+    <div class="bg-dot" data-sec="flight"></div>
+    <div class="bg-dot" data-sec="atmo"></div>
+    <div class="bg-dot" data-sec="safety"></div>
+    <div class="bg-dot" data-sec="tools"></div>
+    <div class="bg-dot" data-sec="system"></div>
+  </div>
+
+  <div class="app-container">
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+        </div>
+        <span class="logo-text">AVIATION PRO</span>
+      </div>
+
+      <div class="header-center">
+        <div class="zulu-clock" id="zuluClock">00:00:00Z</div>
+        <div class="local-clock" id="localClock">LOCAL 00:00</div>
+      </div>
+
+      <div class="header-controls">
+        <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+          <option value="en">EN</option>
+          <option value="ru">RU</option>
+          <option value="ar">AR</option>
+          <option value="hi">HI</option>
+          <option value="fil">FIL</option>
+        </select>
+        <button class="header-btn" id="nightBtn" onclick="toggleNight()" title="Night Mode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <nav class="nav-bar">
+      <button class="nav-btn active" onclick="showSec('fuel')" data-i18n="nav_fuel">FUEL</button>
+      <button class="nav-btn" onclick="showSec('cost')" data-i18n="nav_cost">COST</button>
+      <button class="nav-btn" onclick="showSec('flight')" data-i18n="nav_flight">FLIGHT</button>
+      <button class="nav-btn" onclick="showSec('atmo')" data-i18n="nav_atmo">ATMO</button>
+      <button class="nav-btn" onclick="showSec('safety')" data-i18n="nav_safety">SAFETY</button>
+      <button class="nav-btn" onclick="showSec('tools')" data-i18n="nav_tools">TOOLS</button>
+      <button class="nav-btn" onclick="showSec('system')" data-i18n="nav_system">SYSTEM</button>
+    </nav>
+
+    <main class="main-content">
+      <!-- FUEL -->
+      <section class="section active" id="sec-fuel">
+        <div class="instrument">
+          <div class="instrument-bezel">
+            <div class="instrument-screen">
+              <div class="screws"><div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div></div>
+              <div class="instrument-header">
+                <span class="instrument-title" data-i18n="fuel_title">FUEL CALCULATOR</span>
+                <span class="instrument-status">READY</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="fuel_type">Fuel Type</label>
+                <select class="form-select" id="fuelType" onchange="calcFuel()">
+                  <option value="jeta1">Jet A-1 (0.800 kg/L @ 15C)</option>
+                  <option value="jeta">Jet A (0.804 kg/L)</option>
+                  <option value="jp8">JP-8 (0.800 kg/L)</option>
+                  <option value="avgas">Avgas 100LL (0.721 kg/L)</option>
+                  <option value="mogas">Mogas (0.745 kg/L)</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-i18n="fuel_volume">Volume (L)</label>
+                  <input type="number" class="form-input" id="fuelVol" placeholder="0" oninput="calcFuel()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="fuel_temp">Temperature (C)</label>
+                  <input type="number" class="form-input" id="fuelTemp" value="15" oninput="calcFuel()">
+                </div>
+              </div>
+              <div class="result-box">
+                <div class="result-label" data-i18n="fuel_mass">FUEL MASS</div>
+                <div class="result-value"><span id="fuelMass">0</span><span class="result-unit">KG</span></div>
+                <div class="result-secondary">
+                  <div class="result-item"><div class="result-item-label">LBS</div><div class="result-item-value" id="fuelLbs">0</div></div>
+                  <div class="result-item"><div class="result-item-label">USG</div><div class="result-item-value" id="fuelUsg">0</div></div>
+                  <div class="result-item"><div class="result-item-label">IMP GAL</div><div class="result-item-value" id="fuelImp">0</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COST -->
+      <section class="section" id="sec-cost">
+        <div class="instrument">
+          <div class="instrument-bezel">
+            <div class="instrument-screen">
+              <div class="screws"><div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div></div>
+              <div class="instrument-header">
+                <span class="instrument-title" data-i18n="cost_title">COST CALCULATOR</span>
+                <span class="instrument-status">READY</span>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-i18n="cost_flow">Fuel Flow (L/h)</label>
+                  <input type="number" class="form-input" id="costFlow" placeholder="0" oninput="calcCost()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="cost_price">Price per Liter</label>
+                  <input type="number" class="form-input" id="costPrice" placeholder="0" step="0.01" oninput="calcCost()">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="cost_currency">Currency</label>
+                <select class="form-select" id="costCurr" onchange="calcCost()">
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="RUB">RUB</option>
+                  <option value="INR">INR</option>
+                  <option value="AED">AED</option>
+                </select>
+              </div>
+              <div class="result-box">
+                <div class="result-label" data-i18n="cost_hour">COST PER HOUR</div>
+                <div class="result-value"><span id="costHour">0</span></div>
+                <div class="result-secondary">
+                  <div class="result-item"><div class="result-item-label" data-i18n="cost_min">PER MIN</div><div class="result-item-value" id="costMin">0</div></div>
+                  <div class="result-item"><div class="result-item-label" data-i18n="cost_nm">PER NM</div><div class="result-item-value" id="costNm">0</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FLIGHT -->
+      <section class="section" id="sec-flight">
+        <div class="instrument">
+          <div class="instrument-bezel">
+            <div class="instrument-screen">
+              <div class="screws"><div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div></div>
+              <div class="instrument-header">
+                <span class="instrument-title" data-i18n="flight_title">FLIGHT PLANNING</span>
+                <span class="instrument-status">READY</span>
+              </div>
+              <div class="sub-tabs">
+                <button class="sub-tab active" onclick="showFlightTab('basic')" data-i18n="flight_basic">BASIC</button>
+                <button class="sub-tab" onclick="showFlightTab('fuel')" data-i18n="flight_fuel_req">FUEL REQ</button>
+                <button class="sub-tab" onclick="showFlightTab('endur')" data-i18n="flight_endur">ENDURANCE</button>
+              </div>
+              <div id="flight-basic">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="flight_tas">TAS (kt)</label>
+                    <input type="number" class="form-input" id="flightTas" placeholder="0" oninput="calcFlight()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="flight_dist">Distance (NM)</label>
+                    <input type="number" class="form-input" id="flightDist" placeholder="0" oninput="calcFlight()">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="flight_wind">Wind (kt)</label>
+                    <input type="number" class="form-input" id="flightWind" placeholder="0" oninput="calcFlight()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="flight_wdir">Wind Dir</label>
+                    <input type="number" class="form-input" id="flightWdir" placeholder="0" oninput="calcFlight()">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="flight_hdg">Heading</label>
+                  <input type="number" class="form-input" id="flightHdg" placeholder="0" oninput="calcFlight()">
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="flight_gs">GROUND SPEED</div>
+                  <div class="result-value"><span id="flightGs">0</span><span class="result-unit">KT</span></div>
+                  <div class="result-secondary">
+                    <div class="result-item"><div class="result-item-label" data-i18n="flight_time">TIME</div><div class="result-item-value" id="flightTime">00:00</div></div>
+                    <div class="result-item"><div class="result-item-label">WCA</div><div class="result-item-value" id="flightWca">0</div></div>
+                    <div class="result-item"><div class="result-item-label">HDG</div><div class="result-item-value" id="flightHdgRes">0</div></div>
+                  </div>
+                </div>
+              </div>
+              <div id="flight-fuel" style="display:none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="flight_gs">Ground Speed (kt)</label>
+                    <input type="number" class="form-input" id="fuelReqGs" placeholder="0" oninput="calcFuelReq()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="flight_dist">Distance (NM)</label>
+                    <input type="number" class="form-input" id="fuelReqDist" placeholder="0" oninput="calcFuelReq()">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="flight_flow">Fuel Flow (L/h)</label>
+                  <input type="number" class="form-input" id="fuelReqFlow" placeholder="0" oninput="calcFuelReq()">
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="flight_fuel_need">FUEL REQUIRED</div>
+                  <div class="result-value"><span id="fuelReqRes">0</span><span class="result-unit">L</span></div>
+                </div>
+              </div>
+              <div id="flight-endur" style="display:none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="flight_avail">Fuel Available (L)</label>
+                    <input type="number" class="form-input" id="endurFuel" placeholder="0" oninput="calcEndur()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="flight_flow">Fuel Flow (L/h)</label>
+                    <input type="number" class="form-input" id="endurFlow" placeholder="0" oninput="calcEndur()">
+                  </div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="flight_endurance">ENDURANCE</div>
+                  <div class="result-value"><span id="endurRes">00:00</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ATMO -->
+      <section class="section" id="sec-atmo">
+        <div class="instrument">
+          <div class="instrument-bezel">
+            <div class="instrument-screen">
+              <div class="screws"><div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div></div>
+              <div class="instrument-header">
+                <span class="instrument-title" data-i18n="atmo_title">ATMOSPHERE</span>
+                <span class="instrument-status">READY</span>
+              </div>
+              <div class="sub-tabs">
+                <button class="sub-tab active" onclick="showAtmoTab('da')" data-i18n="atmo_da">DENSITY ALT</button>
+                <button class="sub-tab" onclick="showAtmoTab('qnh')" data-i18n="atmo_qnh_conv">QNH/QFE</button>
+                <button class="sub-tab" onclick="showAtmoTab('tas')" data-i18n="atmo_tas">TAS</button>
+              </div>
+              <div id="atmo-da">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="atmo_elev">Elevation (ft)</label>
+                    <input type="number" class="form-input" id="atmoElev" placeholder="0" oninput="calcAtmo()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="atmo_oat">OAT (C)</label>
+                    <input type="number" class="form-input" id="atmoOat" placeholder="15" oninput="calcAtmo()">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="atmo_qnh">QNH (hPa)</label>
+                  <input type="number" class="form-input" id="atmoQnh" value="1013.25" oninput="calcAtmo()">
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="atmo_da_res">DENSITY ALTITUDE</div>
+                  <div class="result-value"><span id="atmoDa">0</span><span class="result-unit">FT</span></div>
+                  <div class="result-secondary">
+                    <div class="result-item"><div class="result-item-label" data-i18n="atmo_isa">ISA DEV</div><div class="result-item-value" id="atmoIsa">0C</div></div>
+                    <div class="result-item"><div class="result-item-label" data-i18n="atmo_pa">PRESS ALT</div><div class="result-item-value" id="atmoPa">0</div></div>
+                  </div>
+                </div>
+              </div>
+              <div id="atmo-qnh" style="display:none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">QNH (hPa)</label>
+                    <input type="number" class="form-input" id="qnhHpa" placeholder="1013.25" oninput="convQnh('hpa')">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">QNH (inHg)</label>
+                    <input type="number" class="form-input" id="qnhInhg" placeholder="29.92" oninput="convQnh('inhg')">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">QNH (mmHg)</label>
+                  <input type="number" class="form-input" id="qnhMmhg" placeholder="760" oninput="convQnh('mmhg')">
+                </div>
+              </div>
+              <div id="atmo-tas" style="display:none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="atmo_ias">IAS (kt)</label>
+                    <input type="number" class="form-input" id="tasIas" placeholder="0" oninput="calcTas()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="atmo_alt">Altitude (ft)</label>
+                    <input type="number" class="form-input" id="tasAlt" placeholder="0" oninput="calcTas()">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="atmo_oat">OAT (C)</label>
+                  <input type="number" class="form-input" id="tasOat" placeholder="0" oninput="calcTas()">
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="atmo_tas_res">TRUE AIRSPEED</div>
+                  <div class="result-value"><span id="tasRes">0</span><span class="result-unit">KT</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SAFETY -->
+      <section class="section" id="sec-safety">
+        <div class="instrument">
+          <div class="instrument-bezel">
+            <div class="instrument-screen">
+              <div class="screws"><div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div></div>
+              <div class="instrument-header">
+                <span class="instrument-title" data-i18n="safety_title">SAFETY</span>
+                <span class="instrument-status">READY</span>
+              </div>
+              <div class="sub-tabs">
+                <button class="sub-tab active" onclick="showSafetyTab('wb')" data-i18n="safety_wb">W&B</button>
+                <button class="sub-tab" onclick="showSafetyTab('wind')" data-i18n="safety_wind">WIND</button>
+                <button class="sub-tab" onclick="showSafetyTab('desc')" data-i18n="safety_desc">DESCENT</button>
+                <button class="sub-tab" onclick="showSafetyTab('pnr')" data-i18n="safety_pnr">PNR</button>
+              </div>
+              <div id="safety-wb">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="wb_weight">Weight (kg)</label>
+                    <input type="number" class="form-input" id="wbWeight" placeholder="0" oninput="calcWb()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="wb_arm">Arm (m)</label>
+                    <input type="number" class="form-input" id="wbArm" placeholder="0" step="0.01" oninput="calcWb()">
+                  </div>
+                </div>
+                <div class="cg-envelope">
+                  <div class="cg-area"></div>
+                  <div class="cg-point" id="cgPoint"></div>
+                  <div class="cg-labels"><span>FWD</span><span>AFT</span></div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="wb_moment">MOMENT</div>
+                  <div class="result-value"><span id="wbMoment">0</span><span class="result-unit">KG-M</span></div>
+                </div>
+              </div>
+              <div id="safety-wind" style="display:none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="wind_rwy">Runway</label>
+                    <input type="number" class="form-input" id="windRwy" placeholder="360" oninput="calcWind()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="wind_dir">Wind Dir</label>
+                    <input type="number" class="form-input" id="windDir" placeholder="0" oninput="calcWind()">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="wind_spd">Wind Speed (kt)</label>
+                  <input type="number" class="form-input" id="windSpd" placeholder="0" oninput="calcWind()">
+                </div>
+                <div class="wind-rose-box">
+                  <div class="wind-rose">
+                    <div class="wind-rose-bg"></div>
+                    <div class="wind-rose-runway" id="windRoseRwy"></div>
+                    <div class="wind-rose-wind" id="windRoseWind"></div>
+                    <div class="wind-rose-center"></div>
+                    <div class="wind-rose-labels"><span class="n">N</span><span class="s">S</span><span class="e">E</span><span class="w">W</span></div>
+                  </div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="wind_head">HEADWIND</div>
+                  <div class="result-value"><span id="windHead">0</span><span class="result-unit">KT</span></div>
+                  <div class="result-secondary">
+                    <div class="result-item"><div class="result-item-label" data-i18n="wind_cross">CROSSWIND</div><div class="result-item-value" id="windCross">0 kt</div></div>
+                  </div>
+                </div>
+              </div>
+              <div id="safety-desc" style="display:none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="desc_alt">Cruise Alt (ft)</label>
+                    <input type="number" class="form-input" id="descAlt" placeholder="35000" oninput="calcDesc()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="desc_tgt">Target Alt (ft)</label>
+                    <input type="number" class="form-input" id="descTgt" placeholder="3000" oninput="calcDesc()">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="desc_gs">Ground Speed (kt)</label>
+                    <input type="number" class="form-input" id="descGs" placeholder="450" oninput="calcDesc()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="desc_angle">Descent Angle</label>
+                    <input type="number" class="form-input" id="descAngle" value="3" step="0.1" oninput="calcDesc()">
+                  </div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="desc_tod">TOP OF DESCENT</div>
+                  <div class="result-value"><span id="descTod">0</span><span class="result-unit">NM</span></div>
+                  <div class="result-secondary">
+                    <div class="result-item"><div class="result-item-label" data-i18n="desc_vs">V/S</div><div class="result-item-value" id="descVs">0 fpm</div></div>
+                    <div class="result-item"><div class="result-item-label" data-i18n="desc_time">TIME</div><div class="result-item-value" id="descTime">00:00</div></div>
+                  </div>
+                </div>
+              </div>
+              <div id="safety-pnr" style="display:none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="pnr_fuel">Total Fuel (L)</label>
+                    <input type="number" class="form-input" id="pnrFuel" placeholder="0" oninput="calcPnr()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="pnr_reserve">Reserve (L)</label>
+                    <input type="number" class="form-input" id="pnrRes" placeholder="0" oninput="calcPnr()">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="pnr_flow_out">Flow Out (L/h)</label>
+                    <input type="number" class="form-input" id="pnrFlowOut" placeholder="0" oninput="calcPnr()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="pnr_flow_back">Flow Back (L/h)</label>
+                    <input type="number" class="form-input" id="pnrFlowBack" placeholder="0" oninput="calcPnr()">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="pnr_gs_out">GS Out (kt)</label>
+                    <input type="number" class="form-input" id="pnrGsOut" placeholder="0" oninput="calcPnr()">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="pnr_gs_back">GS Back (kt)</label>
+                    <input type="number" class="form-input" id="pnrGsBack" placeholder="0" oninput="calcPnr()">
+                  </div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label" data-i18n="pnr_result">POINT OF NO RETURN</div>
+                  <div class="result-value"><span id="pnrDist">0</span><span class="result-unit">NM</span></div>
+                  <div class="result-secondary">
+                    <div class="result-item"><div class="result-item-label" data-i18n="pnr_time">TIME</div><div class="result-item-value" id="pnrTime">00:00</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOLS -->
+      <section class="section" id="sec-tools">
+        <div class="instrument">
+          <div class="instrument-bezel">
+            <div class="instrument-screen">
+              <div class="screws"><div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div></div>
+              <div class="instrument-header">
+                <span class="instrument-title" data-i18n="tools_title">CONVERTERS</span>
+                <span class="instrument-status">READY</span>
+              </div>
+              <div class="sub-tabs">
+                <button class="sub-tab active" onclick="showToolTab('speed')" data-i18n="tools_speed">SPEED</button>
+                <button class="sub-tab" onclick="showToolTab('press')" data-i18n="tools_press">PRESS</button>
+                <button class="sub-tab" onclick="showToolTab('temp')" data-i18n="tools_temp">TEMP</button>
+                <button class="sub-tab" onclick="showToolTab('dist')" data-i18n="tools_dist">DIST</button>
+                <button class="sub-tab" onclick="showToolTab('vol')" data-i18n="tools_vol">VOL</button>
+              </div>
+              <div id="tool-speed">
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">KNOTS</label><input type="number" class="form-input" id="convKt" placeholder="0" oninput="convSpeed('kt')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">KM/H</label><input type="number" class="form-input" id="convKmh" placeholder="0" oninput="convSpeed('kmh')"></div>
+                </div>
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">MPH</label><input type="number" class="form-input" id="convMph" placeholder="0" oninput="convSpeed('mph')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">M/S</label><input type="number" class="form-input" id="convMs" placeholder="0" oninput="convSpeed('ms')"></div>
+                </div>
+              </div>
+              <div id="tool-press" style="display:none;">
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">hPa</label><input type="number" class="form-input" id="convHpa" placeholder="1013" oninput="convPress('hpa')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">inHg</label><input type="number" class="form-input" id="convInhg" placeholder="29.92" oninput="convPress('inhg')"></div>
+                </div>
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">mmHg</label><input type="number" class="form-input" id="convMmhg" placeholder="760" oninput="convPress('mmhg')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">PSI</label><input type="number" class="form-input" id="convPsi" placeholder="14.7" oninput="convPress('psi')"></div>
+                </div>
+              </div>
+              <div id="tool-temp" style="display:none;">
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">C</label><input type="number" class="form-input" id="convC" placeholder="0" oninput="convTemp('c')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">F</label><input type="number" class="form-input" id="convF" placeholder="32" oninput="convTemp('f')"></div>
+                </div>
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">K</label><input type="number" class="form-input" id="convK" placeholder="273" oninput="convTemp('k')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">R</label><input type="number" class="form-input" id="convR" placeholder="492" oninput="convTemp('r')"></div>
+                </div>
+              </div>
+              <div id="tool-dist" style="display:none;">
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">NM</label><input type="number" class="form-input" id="convNm" placeholder="0" oninput="convDist('nm')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">KM</label><input type="number" class="form-input" id="convKm" placeholder="0" oninput="convDist('km')"></div>
+                </div>
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">MI</label><input type="number" class="form-input" id="convMi" placeholder="0" oninput="convDist('mi')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">FT</label><input type="number" class="form-input" id="convFt" placeholder="0" oninput="convDist('ft')"></div>
+                </div>
+              </div>
+              <div id="tool-vol" style="display:none;">
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">LITERS</label><input type="number" class="form-input" id="convL" placeholder="0" oninput="convVol('l')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">US GAL</label><input type="number" class="form-input" id="convUsg" placeholder="0" oninput="convVol('usg')"></div>
+                </div>
+                <div class="conv-grid">
+                  <div class="form-group"><label class="form-label">IMP GAL</label><input type="number" class="form-input" id="convImpg" placeholder="0" oninput="convVol('impg')"></div>
+                  <span class="conv-arrow">=</span>
+                  <div class="form-group"><label class="form-label">QT</label><input type="number" class="form-input" id="convQt" placeholder="0" oninput="convVol('qt')"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SYSTEM -->
+      <section class="section" id="sec-system">
+        <div class="instrument">
+          <div class="instrument-bezel">
+            <div class="instrument-screen">
+              <div class="screws"><div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div></div>
+              <div class="instrument-header">
+                <span class="instrument-title" data-i18n="system_title">SYSTEM</span>
+                <span class="instrument-status">READY</span>
+              </div>
+              <div class="sub-tabs">
+                <button class="sub-tab active" onclick="showSysTab('timer')" data-i18n="sys_timer">TIMER</button>
+                <button class="sub-tab" onclick="showSysTab('notes')" data-i18n="sys_notes">NOTES</button>
+              </div>
+              <div id="sys-timer">
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <div class="timer-controls">
+                  <button class="timer-btn start" id="timerStartBtn" onclick="toggleTimer()" data-i18n="timer_start">START</button>
+                  <button class="timer-btn" onclick="resetTimer()" data-i18n="timer_reset">RESET</button>
+                </div>
+              </div>
+              <div id="sys-notes" style="display:none;">
+                <textarea class="notes-area" id="notesArea" data-i18n-placeholder="notes_placeholder" placeholder="Enter notes..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const T = {
+  en: {
+    nav_fuel:'FUEL',nav_cost:'COST',nav_flight:'FLIGHT',nav_atmo:'ATMO',nav_safety:'SAFETY',nav_tools:'TOOLS',nav_system:'SYSTEM',
+    fuel_title:'FUEL CALCULATOR',fuel_type:'Fuel Type',fuel_volume:'Volume (L)',fuel_temp:'Temperature (C)',fuel_mass:'FUEL MASS',
+    cost_title:'COST CALCULATOR',cost_flow:'Fuel Flow (L/h)',cost_price:'Price per Liter',cost_currency:'Currency',cost_hour:'COST PER HOUR',cost_min:'PER MIN',cost_nm:'PER NM',
+    flight_title:'FLIGHT PLANNING',flight_basic:'BASIC',flight_fuel_req:'FUEL REQ',flight_endur:'ENDURANCE',flight_tas:'TAS (kt)',flight_dist:'Distance (NM)',flight_wind:'Wind (kt)',flight_wdir:'Wind Dir',flight_hdg:'Heading',flight_gs:'GROUND SPEED',flight_time:'TIME',flight_flow:'Fuel Flow (L/h)',flight_fuel_need:'FUEL REQUIRED',flight_avail:'Fuel Available (L)',flight_endurance:'ENDURANCE',
+    atmo_title:'ATMOSPHERE',atmo_da:'DENSITY ALT',atmo_qnh_conv:'QNH/QFE',atmo_tas:'TAS',atmo_elev:'Elevation (ft)',atmo_oat:'OAT (C)',atmo_qnh:'QNH (hPa)',atmo_da_res:'DENSITY ALTITUDE',atmo_isa:'ISA DEV',atmo_pa:'PRESS ALT',atmo_ias:'IAS (kt)',atmo_alt:'Altitude (ft)',atmo_tas_res:'TRUE AIRSPEED',
+    safety_title:'SAFETY',safety_wb:'W&B',safety_wind:'WIND',safety_desc:'DESCENT',safety_pnr:'PNR',
+    wb_weight:'Weight (kg)',wb_arm:'Arm (m)',wb_moment:'MOMENT',
+    wind_rwy:'Runway',wind_dir:'Wind Dir',wind_spd:'Wind Speed (kt)',wind_head:'HEADWIND',wind_cross:'CROSSWIND',
+    desc_alt:'Cruise Alt (ft)',desc_tgt:'Target Alt (ft)',desc_gs:'Ground Speed (kt)',desc_angle:'Descent Angle',desc_tod:'TOP OF DESCENT',desc_vs:'V/S',desc_time:'TIME',
+    pnr_fuel:'Total Fuel (L)',pnr_reserve:'Reserve (L)',pnr_flow_out:'Flow Out (L/h)',pnr_flow_back:'Flow Back (L/h)',pnr_gs_out:'GS Out (kt)',pnr_gs_back:'GS Back (kt)',pnr_result:'POINT OF NO RETURN',pnr_time:'TIME',
+    tools_title:'CONVERTERS',tools_speed:'SPEED',tools_press:'PRESS',tools_temp:'TEMP',tools_dist:'DIST',tools_vol:'VOL',
+    system_title:'SYSTEM',sys_timer:'TIMER',sys_notes:'NOTES',timer_start:'START',timer_stop:'STOP',timer_reset:'RESET',notes_placeholder:'Enter notes...'
+  },
+  ru: {
+    nav_fuel:'ТОПЛИВО',nav_cost:'СТОИМ',nav_flight:'ПОЛЁТ',nav_atmo:'АТМОСФ',nav_safety:'БЕЗОП',nav_tools:'ИНСТР',nav_system:'СИСТЕМА',
+    fuel_title:'РАСЧЁТ ТОПЛИВА',fuel_type:'Тип топлива',fuel_volume:'Объём (л)',fuel_temp:'Температура (C)',fuel_mass:'МАССА ТОПЛИВА',
+    cost_title:'РАСЧЁТ СТОИМОСТИ',cost_flow:'Расход (л/ч)',cost_price:'Цена за литр',cost_currency:'Валюта',cost_hour:'СТОИМОСТЬ В ЧАС',cost_min:'В МИН',cost_nm:'ЗА NM',
+    flight_title:'ПЛАНИРОВАНИЕ ПОЛЁТА',flight_basic:'ОСНОВ',flight_fuel_req:'ТОПЛИВ',flight_endur:'ЗАПАС',flight_tas:'TAS (уз)',flight_dist:'Дистанция (NM)',flight_wind:'Ветер (уз)',flight_wdir:'Напр ветра',flight_hdg:'Курс',flight_gs:'ПУТЕВАЯ СКОР',flight_time:'ВРЕМЯ',flight_flow:'Расход (л/ч)',flight_fuel_need:'ТРЕБУЕТСЯ ТОПЛИВА',flight_avail:'Топливо (л)',flight_endurance:'ЗАПАС ХОДА',
+    atmo_title:'АТМОСФЕРА',atmo_da:'ВЫСОТА ПЛОТН',atmo_qnh_conv:'QNH/QFE',atmo_tas:'TAS',atmo_elev:'Высота (фт)',atmo_oat:'Температура (C)',atmo_qnh:'QNH (гПа)',atmo_da_res:'ВЫСОТА ПЛОТНОСТИ',atmo_isa:'ОТКЛ ISA',atmo_pa:'ВЫСОТА ДАВЛ',atmo_ias:'IAS (уз)',atmo_alt:'Высота (фт)',atmo_tas_res:'ИСТИННАЯ СКОРОСТЬ',
+    safety_title:'БЕЗОПАСНОСТЬ',safety_wb:'ВЕС/ЦТ',safety_wind:'ВЕТЕР',safety_desc:'СНИЖ',safety_pnr:'ТНВ',
+    wb_weight:'Масса (кг)',wb_arm:'Плечо (м)',wb_moment:'МОМЕНТ',
+    wind_rwy:'ВПП',wind_dir:'Напр ветра',wind_spd:'Скорость ветра (уз)',wind_head:'ВСТРЕЧНЫЙ',wind_cross:'БОКОВОЙ',
+    desc_alt:'Крейс высота (фт)',desc_tgt:'Целев высота (фт)',desc_gs:'Путевая скор (уз)',desc_angle:'Угол снижения',desc_tod:'ТОЧКА НАЧАЛА СНИЖЕНИЯ',desc_vs:'В/С',desc_time:'ВРЕМЯ',
+    pnr_fuel:'Всего топлива (л)',pnr_reserve:'Резерв (л)',pnr_flow_out:'Расход туда (л/ч)',pnr_flow_back:'Расход обратно (л/ч)',pnr_gs_out:'Скор туда (уз)',pnr_gs_back:'Скор обратно (уз)',pnr_result:'ТОЧКА НЕВОЗВРАТА',pnr_time:'ВРЕМЯ',
+    tools_title:'КОНВЕРТЕРЫ',tools_speed:'СКОР',tools_press:'ДАВЛ',tools_temp:'ТЕМП',tools_dist:'РАССТ',tools_vol:'ОБЪЁМ',
+    system_title:'СИСТЕМА',sys_timer:'ТАЙМЕР',sys_notes:'ЗАМЕТКИ',timer_start:'СТАРТ',timer_stop:'СТОП',timer_reset:'СБРОС',notes_placeholder:'Введите заметки...'
+  },
+  ar: {
+    nav_fuel:'الوقود',nav_cost:'التكلفة',nav_flight:'الرحلة',nav_atmo:'الجو',nav_safety:'السلامة',nav_tools:'أدوات',nav_system:'النظام',
+    fuel_title:'حاسبة الوقود',fuel_type:'نوع الوقود',fuel_volume:'الحجم (لتر)',fuel_temp:'درجة الحرارة',fuel_mass:'كتلة الوقود',
+    cost_title:'حاسبة التكلفة',cost_flow:'استهلاك الوقود',cost_price:'السعر لكل لتر',cost_currency:'العملة',cost_hour:'التكلفة بالساعة',cost_min:'بالدقيقة',cost_nm:'لكل NM',
+    flight_title:'تخطيط الرحلة',flight_basic:'أساسي',flight_fuel_req:'الوقود',flight_endur:'المدى',flight_tas:'TAS',flight_dist:'المسافة',flight_wind:'الرياح',flight_wdir:'اتجاه الرياح',flight_hdg:'الاتجاه',flight_gs:'السرعة الأرضية',flight_time:'الوقت',flight_flow:'استهلاك الوقود',flight_fuel_need:'الوقود المطلوب',flight_avail:'الوقود المتاح',flight_endurance:'المدى',
+    atmo_title:'الغلاف الجوي',atmo_da:'ارتفاع الكثافة',atmo_qnh_conv:'QNH/QFE',atmo_tas:'TAS',atmo_elev:'الارتفاع',atmo_oat:'درجة الحرارة',atmo_qnh:'QNH',atmo_da_res:'ارتفاع الكثافة',atmo_isa:'انحراف ISA',atmo_pa:'ارتفاع الضغط',atmo_ias:'IAS',atmo_alt:'الارتفاع',atmo_tas_res:'السرعة الحقيقية',
+    safety_title:'السلامة',safety_wb:'الوزن/التوازن',safety_wind:'الرياح',safety_desc:'الهبوط',safety_pnr:'PNR',
+    wb_weight:'الوزن',wb_arm:'الذراع',wb_moment:'العزم',
+    wind_rwy:'المدرج',wind_dir:'اتجاه الرياح',wind_spd:'سرعة الرياح',wind_head:'رياح أمامية',wind_cross:'رياح جانبية',
+    desc_alt:'ارتفاع الطيران',desc_tgt:'الارتفاع المستهدف',desc_gs:'السرعة الأرضية',desc_angle:'زاوية الهبوط',desc_tod:'بداية الهبوط',desc_vs:'V/S',desc_time:'الوقت',
+    pnr_fuel:'إجمالي الوقود',pnr_reserve:'الاحتياطي',pnr_flow_out:'استهلاك الذهاب',pnr_flow_back:'استهلاك العودة',pnr_gs_out:'سرعة الذهاب',pnr_gs_back:'سرعة العودة',pnr_result:'نقطة اللاعودة',pnr_time:'الوقت',
+    tools_title:'المحولات',tools_speed:'السرعة',tools_press:'الضغط',tools_temp:'الحرارة',tools_dist:'المسافة',tools_vol:'الحجم',
+    system_title:'النظام',sys_timer:'المؤقت',sys_notes:'ملاحظات',timer_start:'بدء',timer_stop:'إيقاف',timer_reset:'إعادة',notes_placeholder:'أدخل الملاحظات...'
+  },
+  hi: {
+    nav_fuel:'ईंधन',nav_cost:'लागत',nav_flight:'उड़ान',nav_atmo:'वायुमंडल',nav_safety:'सुरक्षा',nav_tools:'उपकरण',nav_system:'सिस्टम',
+    fuel_title:'ईंधन कैलकुलेटर',fuel_type:'ईंधन प्रकार',fuel_volume:'आयतन (ली)',fuel_temp:'तापमान',fuel_mass:'ईंधन द्रव्यमान',
+    cost_title:'लागत कैलकुलेटर',cost_flow:'ईंधन प्रवाह',cost_price:'प्रति लीटर कीमत',cost_currency:'मुद्रा',cost_hour:'प्रति घंटा लागत',cost_min:'प्रति मिनट',cost_nm:'प्रति NM',
+    flight_title:'उड़ान योजना',flight_basic:'मूल',flight_fuel_req:'ईंधन',flight_endur:'सहनशक्ति',flight_tas:'TAS',flight_dist:'दूरी',flight_wind:'हवा',flight_wdir:'हवा दिशा',flight_hdg:'हेडिंग',flight_gs:'ग्राउंड स्पीड',flight_time:'समय',flight_flow:'ईंधन प्रवाह',flight_fuel_need:'आवश्यक ईंधन',flight_avail:'उपलब्ध ईंधन',flight_endurance:'सहनशक्ति',
+    atmo_title:'वायुमंडल',atmo_da:'घनत्व ऊंचाई',atmo_qnh_conv:'QNH/QFE',atmo_tas:'TAS',atmo_elev:'ऊंचाई',atmo_oat:'तापमान',atmo_qnh:'QNH',atmo_da_res:'घनत्व ऊंचाई',atmo_isa:'ISA विचलन',atmo_pa:'दबाव ऊंचाई',atmo_ias:'IAS',atmo_alt:'ऊंचाई',atmo_tas_res:'सच्ची वायुगति',
+    safety_title:'सुरक्षा',safety_wb:'वजन/संतुलन',safety_wind:'हवा',safety_desc:'अवरोहण',safety_pnr:'PNR',
+    wb_weight:'वजन',wb_arm:'आर्म',wb_moment:'मोमेंट',
+    wind_rwy:'रनवे',wind_dir:'हवा दिशा',wind_spd:'हवा गति',wind_head:'सामने की हवा',wind_cross:'क्रॉसविंड',
+    desc_alt:'क्रूज ऊंचाई',desc_tgt:'लक्ष्य ऊंचाई',desc_gs:'ग्राउंड स्पीड',desc_angle:'अवरोहण कोण',desc_tod:'TOD',desc_vs:'V/S',desc_time:'समय',
+    pnr_fuel:'कुल ईंधन',pnr_reserve:'रिज़र्व',pnr_flow_out:'जाने का प्रवाह',pnr_flow_back:'वापसी प्रवाह',pnr_gs_out:'जाने की गति',pnr_gs_back:'वापसी गति',pnr_result:'वापसी का बिंदु नहीं',pnr_time:'समय',
+    tools_title:'कन्वर्टर',tools_speed:'गति',tools_press:'दबाव',tools_temp:'तापमान',tools_dist:'दूरी',tools_vol:'आयतन',
+    system_title:'सिस्टम',sys_timer:'टाइमर',sys_notes:'नोट्स',timer_start:'शुरू',timer_stop:'रोकें',timer_reset:'रीसेट',notes_placeholder:'नोट्स दर्ज करें...'
+  },
+  fil: {
+    nav_fuel:'GASOLINA',nav_cost:'GASTOS',nav_flight:'LIPAD',nav_atmo:'ATMO',nav_safety:'KALIGTASAN',nav_tools:'KASANGKAPAN',nav_system:'SISTEMA',
+    fuel_title:'FUEL CALCULATOR',fuel_type:'Uri ng Fuel',fuel_volume:'Dami (L)',fuel_temp:'Temperatura',fuel_mass:'BIGAT NG FUEL',
+    cost_title:'GASTOS CALCULATOR',cost_flow:'Fuel Flow',cost_price:'Presyo bawat Litro',cost_currency:'Pera',cost_hour:'GASTOS BAWAT ORAS',cost_min:'BAWAT MIN',cost_nm:'BAWAT NM',
+    flight_title:'FLIGHT PLANNING',flight_basic:'BASIC',flight_fuel_req:'FUEL',flight_endur:'ENDURANCE',flight_tas:'TAS',flight_dist:'Distansya',flight_wind:'Hangin',flight_wdir:'Dir ng Hangin',flight_hdg:'Heading',flight_gs:'GROUND SPEED',flight_time:'ORAS',flight_flow:'Fuel Flow',flight_fuel_need:'KAILANGAN NA FUEL',flight_avail:'Available na Fuel',flight_endurance:'ENDURANCE',
+    atmo_title:'ATMOSPHERE',atmo_da:'DENSITY ALT',atmo_qnh_conv:'QNH/QFE',atmo_tas:'TAS',atmo_elev:'Taas',atmo_oat:'Temperatura',atmo_qnh:'QNH',atmo_da_res:'DENSITY ALTITUDE',atmo_isa:'ISA DEV',atmo_pa:'PRESS ALT',atmo_ias:'IAS',atmo_alt:'Taas',atmo_tas_res:'TRUE AIRSPEED',
+    safety_title:'KALIGTASAN',safety_wb:'W&B',safety_wind:'HANGIN',safety_desc:'DESCENT',safety_pnr:'PNR',
+    wb_weight:'Timbang',wb_arm:'Arm',wb_moment:'MOMENT',
+    wind_rwy:'Runway',wind_dir:'Dir ng Hangin',wind_spd:'Bilis ng Hangin',wind_head:'HEADWIND',wind_cross:'CROSSWIND',
+    desc_alt:'Cruise Alt',desc_tgt:'Target Alt',desc_gs:'Ground Speed',desc_angle:'Descent Angle',desc_tod:'TOP OF DESCENT',desc_vs:'V/S',desc_time:'ORAS',
+    pnr_fuel:'Kabuuang Fuel',pnr_reserve:'Reserve',pnr_flow_out:'Flow Palabas',pnr_flow_back:'Flow Pabalik',pnr_gs_out:'GS Palabas',pnr_gs_back:'GS Pabalik',pnr_result:'POINT OF NO RETURN',pnr_time:'ORAS',
+    tools_title:'CONVERTERS',tools_speed:'BILIS',tools_press:'PRESYON',tools_temp:'TEMP',tools_dist:'LAYO',tools_vol:'DAMI',
+    system_title:'SISTEMA',sys_timer:'TIMER',sys_notes:'NOTES',timer_start:'START',timer_stop:'STOP',timer_reset:'RESET',notes_placeholder:'Ilagay ang notes...'
+  }
+};
+
+let lang='en';
+function setLang(l){lang=l;document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(T[l]&&T[l][k])e.textContent=T[l][k];});document.querySelectorAll('[data-i18n-placeholder]').forEach(e=>{const k=e.getAttribute('data-i18n-placeholder');if(T[l]&&T[l][k])e.placeholder=T[l][k];});}
+
+function showSec(id){
+  // Switch sections
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  event.target.classList.add('active');
+  
+  // Switch backgrounds with crossfade
+  document.querySelectorAll('.cockpit-bg').forEach(bg=>bg.classList.remove('active'));
+  document.querySelector('.cockpit-bg.bg-'+id).classList.add('active');
+  
+  // Update indicator dots
+  document.querySelectorAll('.bg-dot').forEach(d=>d.classList.remove('active'));
+  document.querySelector('.bg-dot[data-sec="'+id+'"]').classList.add('active');
+  
+  playClick();
+}
+
+function showFlightTab(t){document.querySelectorAll('#sec-flight [id^="flight-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-flight .sub-tab').forEach(b=>b.classList.remove('active'));document.getElementById('flight-'+t).style.display='block';event.target.classList.add('active');playClick();}
+function showAtmoTab(t){document.querySelectorAll('#sec-atmo [id^="atmo-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-atmo .sub-tab').forEach(b=>b.classList.remove('active'));document.getElementById('atmo-'+t).style.display='block';event.target.classList.add('active');playClick();}
+function showSafetyTab(t){document.querySelectorAll('#sec-safety [id^="safety-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-safety .sub-tab').forEach(b=>b.classList.remove('active'));document.getElementById('safety-'+t).style.display='block';event.target.classList.add('active');playClick();}
+function showToolTab(t){document.querySelectorAll('#sec-tools [id^="tool-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-tools .sub-tab').forEach(b=>b.classList.remove('active'));document.getElementById('tool-'+t).style.display='block';event.target.classList.add('active');playClick();}
+function showSysTab(t){document.querySelectorAll('#sec-system [id^="sys-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-system .sub-tab').forEach(b=>b.classList.remove('active'));document.getElementById('sys-'+t).style.display='block';event.target.classList.add('active');playClick();}
+
+function toggleNight(){document.body.classList.toggle('night-mode');document.getElementById('nightBtn').classList.toggle('active');playClick();}
+
+function updateClocks(){const n=new Date();document.getElementById('zuluClock').textContent=String(n.getUTCHours()).padStart(2,'0')+':'+String(n.getUTCMinutes()).padStart(2,'0')+':'+String(n.getUTCSeconds()).padStart(2,'0')+'Z';document.getElementById('localClock').textContent='LOCAL '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
+setInterval(updateClocks,1000);updateClocks();
+
+function playClick(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=900;g.gain.setValueAtTime(0.08,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.04);o.start(c.currentTime);o.stop(c.currentTime+0.04);}catch(e){}}
+
+function calcFuel(){const t=document.getElementById('fuelType').value;const v=parseFloat(document.getElementById('fuelVol').value)||0;const temp=parseFloat(document.getElementById('fuelTemp').value)||15;let d=0.8;if(t==='jeta1')d=0.8-(temp-15)*0.00084;else if(t==='jeta')d=0.804;else if(t==='jp8')d=0.8;else if(t==='avgas')d=0.721;else if(t==='mogas')d=0.745;const m=v*d;document.getElementById('fuelMass').textContent=Math.round(m);document.getElementById('fuelLbs').textContent=Math.round(m*2.20462);document.getElementById('fuelUsg').textContent=(v*0.264172).toFixed(1);document.getElementById('fuelImp').textContent=(v*0.219969).toFixed(1);}
+
+function calcCost(){const f=parseFloat(document.getElementById('costFlow').value)||0;const p=parseFloat(document.getElementById('costPrice').value)||0;const c=document.getElementById('costCurr').value;const h=f*p;const sym={USD:'$',EUR:'E',GBP:'P',RUB:'R',INR:'Rs',AED:'AED'}[c]||'';document.getElementById('costHour').textContent=sym+(h).toFixed(2);document.getElementById('costMin').textContent=sym+(h/60).toFixed(2);document.getElementById('costNm').textContent=sym+(h/200).toFixed(2);}
+
+function calcFlight(){const tas=parseFloat(document.getElementById('flightTas').value)||0;const dist=parseFloat(document.getElementById('flightDist').value)||0;const wind=parseFloat(document.getElementById('flightWind').value)||0;const wdir=parseFloat(document.getElementById('flightWdir').value)||0;const hdg=parseFloat(document.getElementById('flightHdg').value)||0;const a=(wdir-hdg)*Math.PI/180;const hw=wind*Math.cos(a);const cw=wind*Math.sin(a);const gs=Math.max(0,tas-hw);const wca=tas>0?Math.asin(cw/tas)*180/Math.PI:0;const t=gs>0?dist/gs:0;const h=Math.floor(t);const m=Math.round((t-h)*60);document.getElementById('flightGs').textContent=Math.round(gs);document.getElementById('flightTime').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');document.getElementById('flightWca').textContent=(wca>=0?'+':'')+wca.toFixed(1)+'°';document.getElementById('flightHdgRes').textContent=Math.round(hdg+wca)+'°';}
+
+function calcFuelReq(){const gs=parseFloat(document.getElementById('fuelReqGs').value)||0;const dist=parseFloat(document.getElementById('fuelReqDist').value)||0;const flow=parseFloat(document.getElementById('fuelReqFlow').value)||0;const t=gs>0?dist/gs:0;document.getElementById('fuelReqRes').textContent=Math.round(t*flow);}
+
+function calcEndur(){const f=parseFloat(document.getElementById('endurFuel').value)||0;const fl=parseFloat(document.getElementById('endurFlow').value)||0;const t=fl>0?f/fl:0;const h=Math.floor(t);const m=Math.round((t-h)*60);document.getElementById('endurRes').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
+
+function calcAtmo(){const e=parseFloat(document.getElementById('atmoElev').value)||0;const oat=parseFloat(document.getElementById('atmoOat').value)||15;const qnh=parseFloat(document.getElementById('atmoQnh').value)||1013.25;const pa=e+(1013.25-qnh)*30;const isa=15-(e/1000)*1.98;const dev=oat-isa;const da=pa+(120*dev);document.getElementById('atmoDa').textContent=Math.round(da);document.getElementById('atmoIsa').textContent=(dev>=0?'+':'')+dev.toFixed(1)+'C';document.getElementById('atmoPa').textContent=Math.round(pa);}
+
+function convQnh(f){const hpa=parseFloat(document.getElementById('qnhHpa').value)||0;const inhg=parseFloat(document.getElementById('qnhInhg').value)||0;const mmhg=parseFloat(document.getElementById('qnhMmhg').value)||0;if(f==='hpa'){document.getElementById('qnhInhg').value=(hpa*0.02953).toFixed(2);document.getElementById('qnhMmhg').value=(hpa*0.75006).toFixed(2);}else if(f==='inhg'){document.getElementById('qnhHpa').value=(inhg/0.02953).toFixed(2);document.getElementById('qnhMmhg').value=(inhg*25.4).toFixed(2);}else{document.getElementById('qnhHpa').value=(mmhg/0.75006).toFixed(2);document.getElementById('qnhInhg').value=(mmhg/25.4).toFixed(2);}}
+
+function calcTas(){const ias=parseFloat(document.getElementById('tasIas').value)||0;const alt=parseFloat(document.getElementById('tasAlt').value)||0;const oat=parseFloat(document.getElementById('tasOat').value)||0;const tas=ias*(1+alt*0.00002)*(1+(15-oat)*0.002);document.getElementById('tasRes').textContent=Math.round(tas);}
+
+function calcWb(){const w=parseFloat(document.getElementById('wbWeight').value)||0;const a=parseFloat(document.getElementById('wbArm').value)||0;document.getElementById('wbMoment').textContent=(w*a).toFixed(0);}
+
+function calcWind(){const r=parseFloat(document.getElementById('windRwy').value)||0;const d=parseFloat(document.getElementById('windDir').value)||0;const s=parseFloat(document.getElementById('windSpd').value)||0;const a=(d-r)*Math.PI/180;const h=s*Math.cos(a);const c=Math.abs(s*Math.sin(a));document.getElementById('windHead').textContent=Math.round(h);document.getElementById('windCross').textContent=Math.round(c)+' kt';document.getElementById('windRoseRwy').style.transform='translate(-50%,-100%) rotate('+r+'deg)';document.getElementById('windRoseWind').style.transform='translate(-50%,-100%) rotate('+d+'deg)';}
+
+function calcDesc(){const alt=parseFloat(document.getElementById('descAlt').value)||0;const tgt=parseFloat(document.getElementById('descTgt').value)||0;const gs=parseFloat(document.getElementById('descGs').value)||0;const ang=parseFloat(document.getElementById('descAngle').value)||3;const diff=alt-tgt;const tod=diff/(Math.tan(ang*Math.PI/180)*6076.12);const vs=gs>0?(ang*gs*101.3):0;const t=gs>0?tod/gs:0;const h=Math.floor(t);const m=Math.round((t-h)*60);document.getElementById('descTod').textContent=tod.toFixed(1);document.getElementById('descVs').textContent=Math.round(vs)+' fpm';document.getElementById('descTime').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
+
+function calcPnr(){const f=parseFloat(document.getElementById('pnrFuel').value)||0;const res=parseFloat(document.getElementById('pnrRes').value)||0;const fo=parseFloat(document.getElementById('pnrFlowOut').value)||0;const fb=parseFloat(document.getElementById('pnrFlowBack').value)||0;const go=parseFloat(document.getElementById('pnrGsOut').value)||0;const gb=parseFloat(document.getElementById('pnrGsBack').value)||0;if(fo===0||fb===0||go===0||gb===0){document.getElementById('pnrDist').textContent='0';document.getElementById('pnrTime').textContent='00:00';return;}const usable=f-res;const tOut=usable/(fo+fb*(go/gb));const dist=tOut*go;const h=Math.floor(tOut);const m=Math.round((tOut-h)*60);document.getElementById('pnrDist').textContent=Math.round(dist);document.getElementById('pnrTime').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
+
+function convSpeed(f){const kt=parseFloat(document.getElementById('convKt').value)||0;const kmh=parseFloat(document.getElementById('convKmh').value)||0;const mph=parseFloat(document.getElementById('convMph').value)||0;const ms=parseFloat(document.getElementById('convMs').value)||0;if(f==='kt'){document.getElementById('convKmh').value=(kt*1.852).toFixed(2);document.getElementById('convMph').value=(kt*1.15078).toFixed(2);document.getElementById('convMs').value=(kt*0.514444).toFixed(2);}else if(f==='kmh'){document.getElementById('convKt').value=(kmh/1.852).toFixed(2);document.getElementById('convMph').value=(kmh/1.60934).toFixed(2);document.getElementById('convMs').value=(kmh/3.6).toFixed(2);}else if(f==='mph'){document.getElementById('convKt').value=(mph/1.15078).toFixed(2);document.getElementById('convKmh').value=(mph*1.60934).toFixed(2);document.getElementById('convMs').value=(mph*0.44704).toFixed(2);}else{document.getElementById('convKt').value=(ms/0.514444).toFixed(2);document.getElementById('convKmh').value=(ms*3.6).toFixed(2);document.getElementById('convMph').value=(ms/0.44704).toFixed(2);}}
+
+function convPress(f){const hpa=parseFloat(document.getElementById('convHpa').value)||0;const inhg=parseFloat(document.getElementById('convInhg').value)||0;const mmhg=parseFloat(document.getElementById('convMmhg').value)||0;const psi=parseFloat(document.getElementById('convPsi').value)||0;if(f==='hpa'){document.getElementById('convInhg').value=(hpa*0.02953).toFixed(2);document.getElementById('convMmhg').value=(hpa*0.75006).toFixed(2);document.getElementById('convPsi').value=(hpa*0.0145038).toFixed(3);}else if(f==='inhg'){document.getElementById('convHpa').value=(inhg/0.02953).toFixed(2);document.getElementById('convMmhg').value=(inhg*25.4).toFixed(2);document.getElementById('convPsi').value=(inhg*0.49115).toFixed(3);}else if(f==='mmhg'){document.getElementById('convHpa').value=(mmhg/0.75006).toFixed(2);document.getElementById('convInhg').value=(mmhg/25.4).toFixed(2);document.getElementById('convPsi').value=(mmhg*0.01934).toFixed(3);}else{document.getElementById('convHpa').value=(psi/0.0145038).toFixed(2);document.getElementById('convInhg').value=(psi/0.49115).toFixed(2);document.getElementById('convMmhg').value=(psi/0.01934).toFixed(2);}}
+
+function convTemp(f){const c=parseFloat(document.getElementById('convC').value)||0;const F=parseFloat(document.getElementById('convF').value)||0;const k=parseFloat(document.getElementById('convK').value)||0;const r=parseFloat(document.getElementById('convR').value)||0;if(f==='c'){document.getElementById('convF').value=(c*9/5+32).toFixed(2);document.getElementById('convK').value=(c+273.15).toFixed(2);document.getElementById('convR').value=((c+273.15)*9/5).toFixed(2);}else if(f==='f'){document.getElementById('convC').value=((F-32)*5/9).toFixed(2);document.getElementById('convK').value=((F-32)*5/9+273.15).toFixed(2);document.getElementById('convR').value=(F+459.67).toFixed(2);}else if(f==='k'){document.getElementById('convC').value=(k-273.15).toFixed(2);document.getElementById('convF').value=(k*9/5-459.67).toFixed(2);document.getElementById('convR').value=(k*9/5).toFixed(2);}else{document.getElementById('convC').value=((r-491.67)*5/9).toFixed(2);document.getElementById('convF').value=(r-459.67).toFixed(2);document.getElementById('convK').value=(r*5/9).toFixed(2);}}
+
+function convDist(f){const nm=parseFloat(document.getElementById('convNm').value)||0;const km=parseFloat(document.getElementById('convKm').value)||0;const mi=parseFloat(document.getElementById('convMi').value)||0;const ft=parseFloat(document.getElementById('convFt').value)||0;if(f==='nm'){document.getElementById('convKm').value=(nm*1.852).toFixed(2);document.getElementById('convMi').value=(nm*1.15078).toFixed(2);document.getElementById('convFt').value=Math.round(nm*6076.12);}else if(f==='km'){document.getElementById('convNm').value=(km/1.852).toFixed(2);document.getElementById('convMi').value=(km/1.60934).toFixed(2);document.getElementById('convFt').value=Math.round(km*3280.84);}else if(f==='mi'){document.getElementById('convNm').value=(mi/1.15078).toFixed(2);document.getElementById('convKm').value=(mi*1.60934).toFixed(2);document.getElementById('convFt').value=Math.round(mi*5280);}else{document.getElementById('convNm').value=(ft/6076.12).toFixed(4);document.getElementById('convKm').value=(ft/3280.84).toFixed(4);document.getElementById('convMi').value=(ft/5280).toFixed(4);}}
+
+function convVol(f){const l=parseFloat(document.getElementById('convL').value)||0;const usg=parseFloat(document.getElementById('convUsg').value)||0;const impg=parseFloat(document.getElementById('convImpg').value)||0;const qt=parseFloat(document.getElementById('convQt').value)||0;if(f==='l'){document.getElementById('convUsg').value=(l*0.264172).toFixed(2);document.getElementById('convImpg').value=(l*0.219969).toFixed(2);document.getElementById('convQt').value=(l*1.05669).toFixed(2);}else if(f==='usg'){document.getElementById('convL').value=(usg/0.264172).toFixed(2);document.getElementById('convImpg').value=(usg*0.832674).toFixed(2);document.getElementById('convQt').value=(usg*4).toFixed(2);}else if(f==='impg'){document.getElementById('convL').value=(impg/0.219969).toFixed(2);document.getElementById('convUsg').value=(impg/0.832674).toFixed(2);document.getElementById('convQt').value=(impg*4.8038).toFixed(2);}else{document.getElementById('convL').value=(qt/1.05669).toFixed(2);document.getElementById('convUsg').value=(qt/4).toFixed(2);document.getElementById('convImpg').value=(qt/4.8038).toFixed(2);}}
+
+let timerInt=null,timerSec=0,timerRun=false;
+function toggleTimer(){const b=document.getElementById('timerStartBtn');if(timerRun){clearInterval(timerInt);timerRun=false;b.textContent=T[lang].timer_start||'START';b.classList.remove('stop');b.classList.add('start');}else{timerInt=setInterval(()=>{timerSec++;updTimer();},1000);timerRun=true;b.textContent=T[lang].timer_stop||'STOP';b.classList.remove('start');b.classList.add('stop');}playClick();}
+function resetTimer(){clearInterval(timerInt);timerRun=false;timerSec=0;updTimer();const b=document.getElementById('timerStartBtn');b.textContent=T[lang].timer_start||'START';b.classList.remove('stop');b.classList.add('start');playClick();}
+function updTimer(){const h=Math.floor(timerSec/3600);const m=Math.floor((timerSec%3600)/60);const s=timerSec%60;document.getElementById('timerDisplay').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+
+setLang('en');
+</script>
+</body>
+</html>
