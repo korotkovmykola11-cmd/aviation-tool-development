@@ -1,240 +1,339 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Aviation Pro</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0b1220;
+  --card:#ffffff;
+  --text:#121826;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --accent:#3b82f6;
+  --green:#43c463;
 }
 
-body {
-  background: #0b0f14;
-  color: white;
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+  background:linear-gradient(180deg,#0b1220,#0f1b30);
+  color:#fff;
 }
 
-/* ФОН (сюда завтра вставишь фото) */
-.background {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(rgba(10,15,20,0.8), rgba(10,15,20,0.95));
-  z-index: -1;
+/* ---------- APP ---------- */
+
+.app{
+  max-width:420px;
+  margin:auto;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-/* HEADER */
-.header {
-  padding: 20px;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 600;
+/* ---------- HEADER ---------- */
+
+.header{
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:sticky;
+  top:0;
+  background:rgba(10,16,28,.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.06);
 }
 
-/* SECTION TITLE */
-.section-title {
-  padding: 10px 20px;
-  font-size: 12px;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,0.5);
+.header h1{
+  font-size:18px;
+  font-weight:700;
 }
 
-/* CARD */
-.card {
-  margin: 10px 15px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 16px;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
+/* ---------- CONTENT ---------- */
+
+.content{
+  padding:16px;
 }
 
-.item {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+/* ---------- GROUP ---------- */
+
+.group{
+  margin-bottom:18px;
 }
 
-.item:last-child {
-  border-bottom: none;
+.group-title{
+  font-size:12px;
+  color:rgba(255,255,255,.7);
+  letter-spacing:1px;
+  margin-bottom:8px;
 }
 
-/* ICON */
-.icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  background: rgba(255,255,255,0.08);
+/* ---------- CARD LIST ---------- */
+
+.list{
+  background:var(--card);
+  border-radius:18px;
+  overflow:hidden;
 }
 
-/* TEXT */
-.text {
-  flex: 1;
+/* ---------- ITEM ---------- */
+
+.item{
+  display:flex;
+  align-items:center;
+  padding:16px;
+  gap:14px;
+  border-bottom:1px solid var(--line);
+  cursor:pointer;
 }
 
-.title {
-  font-size: 16px;
-  font-weight: 500;
+.item:last-child{
+  border-bottom:none;
 }
 
-.subtitle {
-  font-size: 12px;
-  color: rgba(255,255,255,0.6);
+.icon{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eef3ff;
 }
 
-/* ARROW */
-.arrow {
-  color: rgba(255,255,255,0.3);
+.icon svg{
+  width:20px;
+  height:20px;
+  stroke:#3b82f6;
+  stroke-width:2;
+  fill:none;
 }
 
-/* BOTTOM NAV */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 70px;
-  background: rgba(15,20,25,0.95);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255,255,255,0.08);
+.text{
+  flex:1;
 }
 
-.nav-item {
-  text-align: center;
-  font-size: 12px;
-  color: rgba(255,255,255,0.6);
+.title{
+  font-size:16px;
+  font-weight:700;
+  color:var(--text);
 }
 
-.nav-item.active {
-  color: #4cd964;
+.sub{
+  font-size:13px;
+  color:var(--muted);
 }
 
-.nav-item svg {
-  display: block;
-  margin: 0 auto 3px;
+.arrow{
+  width:8px;
+  height:8px;
+  border-right:2px solid #9aa3b2;
+  border-top:2px solid #9aa3b2;
+  transform:rotate(45deg);
+}
+
+/* ---------- TABBAR ---------- */
+
+.tabbar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:70px;
+  background:rgba(10,16,28,.9);
+  backdrop-filter:blur(20px);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+
+.tab{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  font-size:11px;
+  color:#aaa;
+}
+
+.tab.active{
+  color:#fff;
+}
+
+.tab svg{
+  width:22px;
+  height:22px;
+  stroke:currentColor;
+  stroke-width:2;
+  fill:none;
+}
+
+.dot{
+  width:5px;
+  height:5px;
+  background:var(--green);
+  border-radius:50%;
+  margin-top:3px;
+}
+
+/* ---------- SPACING FIX ---------- */
+
+.spacer{
+  height:80px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="background"></div>
+<div class="app">
 
-<div class="header">Aviation Pro</div>
+<div class="header">
+  <h1>Aviation Pro</h1>
+</div>
 
-<div class="section-title">TIME, SPEED & DISTANCE</div>
+<div class="content">
 
-<div class="card">
-  <div class="item">
-    <div class="icon">⏱</div>
-    <div class="text">
-      <div class="title">Finding Time</div>
-      <div class="subtitle">Calculate time from distance & speed</div>
+<div class="group">
+  <div class="group-title">TIME, SPEED & DISTANCE</div>
+  <div class="list">
+
+    <div class="item">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+      </div>
+      <div class="text">
+        <div class="title">Finding Time</div>
+        <div class="sub">Calculate time from distance & speed</div>
+      </div>
+      <div class="arrow"></div>
     </div>
-    <div class="arrow">›</div>
-  </div>
 
-  <div class="item">
-    <div class="icon">📈</div>
-    <div class="text">
-      <div class="title">Finding Speed</div>
-      <div class="subtitle">Calculate speed from distance & time</div>
+    <div class="item">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-7"/></svg>
+      </div>
+      <div class="text">
+        <div class="title">Finding Speed</div>
+        <div class="sub">Calculate speed from distance & time</div>
+      </div>
+      <div class="arrow"></div>
     </div>
-    <div class="arrow">›</div>
-  </div>
 
-  <div class="item">
-    <div class="icon">📍</div>
-    <div class="text">
-      <div class="title">Point of No Return</div>
-      <div class="subtitle">Fuel & return calculation</div>
+    <div class="item">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M4 18h16"/><path d="M6 18V9m6 9V6m6 12v-5"/></svg>
+      </div>
+      <div class="text">
+        <div class="title">Point of No Return</div>
+        <div class="sub">Fuel & return calculation</div>
+      </div>
+      <div class="arrow"></div>
     </div>
-    <div class="arrow">›</div>
+
   </div>
 </div>
 
-<div class="section-title">UNIT CONVERSIONS</div>
+<div class="group">
+  <div class="group-title">UNIT CONVERSIONS</div>
+  <div class="list">
 
-<div class="card">
-  <div class="item">
-    <div class="icon">🌡</div>
-    <div class="text">
-      <div class="title">Temperature</div>
-      <div class="subtitle">Celsius, Fahrenheit, Kelvin</div>
+    <div class="item">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/></svg>
+      </div>
+      <div class="text">
+        <div class="title">Temperature</div>
+        <div class="sub">Celsius, Fahrenheit, Kelvin</div>
+      </div>
+      <div class="arrow"></div>
     </div>
-    <div class="arrow">›</div>
-  </div>
 
-  <div class="item">
-    <div class="icon">📏</div>
-    <div class="text">
-      <div class="title">Distance</div>
-      <div class="subtitle">NM, KM, miles</div>
+    <div class="item">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>
+      </div>
+      <div class="text">
+        <div class="title">Distance</div>
+        <div class="sub">NM, KM, miles</div>
+      </div>
+      <div class="arrow"></div>
     </div>
-    <div class="arrow">›</div>
-  </div>
-</div>
 
-<div class="section-title">AIRCRAFT & PERFORMANCE</div>
-
-<div class="card">
-  <div class="item">
-    <div class="icon">⛽</div>
-    <div class="text">
-      <div class="title">Fuel Calculator</div>
-      <div class="subtitle">Fuel burn & endurance</div>
-    </div>
-    <div class="arrow">›</div>
-  </div>
-
-  <div class="item">
-    <div class="icon">⬆</div>
-    <div class="text">
-      <div class="title">Altitude</div>
-      <div class="subtitle">Pressure & density altitude</div>
-    </div>
-    <div class="arrow">›</div>
-  </div>
-
-  <div class="item">
-    <div class="icon">🌬</div>
-    <div class="text">
-      <div class="title">Wind</div>
-      <div class="subtitle">Wind correction & components</div>
-    </div>
-    <div class="arrow">›</div>
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <div class="nav-item active">
-    🧭
+<div class="group">
+  <div class="group-title">AIRCRAFT & PERFORMANCE</div>
+  <div class="list">
+
+    <div class="item">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/></svg>
+      </div>
+      <div class="text">
+        <div class="title">Fuel Calculator</div>
+        <div class="sub">Burn & endurance</div>
+      </div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="item">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M12 4v16"/></svg>
+      </div>
+      <div class="text">
+        <div class="title">Altitude</div>
+        <div class="sub">Pressure & density altitude</div>
+      </div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="item">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M3 8h10"/></svg>
+      </div>
+      <div class="text">
+        <div class="title">Wind</div>
+        <div class="sub">Headwind & crosswind</div>
+      </div>
+      <div class="arrow"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="spacer"></div>
+
+</div>
+
+<div class="tabbar">
+  <div class="tab active">
+    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     Menu
+    <div class="dot"></div>
   </div>
-  <div class="nav-item">
-    ⛽
+
+  <div class="tab">
+    <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/></svg>
     Fuel
   </div>
-  <div class="nav-item">
-    ⏱
+
+  <div class="tab">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
     Time
   </div>
-  <div class="nav-item">
-    🌬
+
+  <div class="tab">
+    <svg viewBox="0 0 24 24"><path d="M3 8h10"/></svg>
     Wind
   </div>
+</div>
+
 </div>
 
 </body>
