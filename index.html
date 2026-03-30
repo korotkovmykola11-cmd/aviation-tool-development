@@ -3,385 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aviation Pro</title>
+  <title>Aviation Pro - Flight Calculator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    :root {
-      --primary: #0066FF;
-      --primary-light: #E8F0FE;
-      --secondary: #00C896;
-      --accent: #FF6B35;
-      --white: #FFFFFF;
-      --bg: #F8FAFC;
-      --gray-50: #F8FAFC;
-      --gray-100: #F1F5F9;
-      --gray-200: #E2E8F0;
-      --gray-300: #CBD5E1;
-      --gray-400: #94A3B8;
-      --gray-500: #64748B;
-      --gray-600: #475569;
-      --gray-700: #334155;
-      --gray-800: #1E293B;
-      --gray-900: #0F172A;
-      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-      --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--gray-900);
-      min-height: 100vh;
-    }
-
-    /* BG SYSTEM */
-    .bg-wrapper { position: fixed; inset: 0; z-index: 0; }
-    .bg-layer {
-      position: absolute; inset: 0;
-      background-size: cover; background-position: center;
-      opacity: 0; transition: opacity 0.8s ease;
-    }
-    .bg-layer.active { opacity: 1; }
-    .bg-layer.bg-fuel { background: linear-gradient(135deg, #E8F4FD 0%, #D1E8FA 100%); }
-    .bg-layer.bg-cost { background: linear-gradient(135deg, #E8FDF5 0%, #D1FAE5 100%); }
-    .bg-layer.bg-flight { background: linear-gradient(135deg, #EDE8FD 0%, #DDD6FE 100%); }
-    .bg-layer.bg-atmo { background: linear-gradient(135deg, #FEF3E8 0%, #FED7AA 100%); }
-    .bg-layer.bg-safety { background: linear-gradient(135deg, #FDE8E8 0%, #FECACA 100%); }
-    .bg-layer.bg-tools { background: linear-gradient(135deg, #E8F8FD 0%, #A5F3FC 100%); }
-    .bg-layer.bg-system { background: linear-gradient(135deg, #F3E8FD 0%, #E9D5FF 100%); }
-
-    .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
-
-    /* HEADER - LIGHT */
-    .header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 24px;
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-200);
-      box-shadow: var(--shadow);
-    }
-
-    .logo { display: flex; align-items: center; gap: 10px; }
-    .logo-icon {
-      width: 40px; height: 40px;
-      background: linear-gradient(135deg, var(--primary) 0%, #0052CC 100%);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .logo-icon svg { width: 22px; height: 22px; fill: white; }
-    .logo-text { font-size: 18px; font-weight: 800; color: var(--gray-900); }
-    .logo-text span { color: var(--primary); }
-
-    .header-center { display: flex; align-items: center; gap: 8px; }
-    .clock {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px; font-weight: 600;
-      color: var(--primary);
-      background: var(--primary-light);
-      padding: 6px 12px; border-radius: 8px;
-    }
-    .clock-local { font-size: 11px; color: var(--gray-500); margin-left: 8px; }
-
-    .header-right { display: flex; align-items: center; gap: 12px; }
-    .lang-select {
-      padding: 8px 12px;
-      background: var(--white);
-      border: 1px solid var(--gray-300);
-      border-radius: 8px;
-      font-size: 13px; font-weight: 600;
-      color: var(--gray-700);
-      cursor: pointer;
-    }
-    .lang-select:focus { outline: none; border-color: var(--primary); }
-
-    .night-btn {
-      width: 36px; height: 36px;
-      background: var(--gray-100);
-      border: 1px solid var(--gray-200);
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
-    .night-btn:hover { background: var(--gray-200); }
-    .night-btn svg { width: 18px; height: 18px; stroke: var(--gray-600); }
-
-    /* NAV - LIGHT PILLS */
-    .nav {
-      display: flex; justify-content: center; gap: 8px;
-      padding: 16px 24px; flex-wrap: wrap;
-    }
-    .nav-pill {
-      padding: 10px 18px;
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: 100px;
-      color: var(--gray-600);
-      font-size: 13px; font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex; align-items: center; gap: 6px;
-      box-shadow: var(--shadow);
-    }
-    .nav-pill svg { width: 16px; height: 16px; }
-    .nav-pill:hover { border-color: var(--primary); color: var(--primary); }
-    .nav-pill.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-      box-shadow: 0 4px 14px rgba(0, 102, 255, 0.4);
-    }
-
-    /* MAIN */
-    .main { flex: 1; padding: 20px 24px 40px; display: flex; justify-content: center; }
-
-    /* CARD - LIGHT */
-    .card {
-      width: 100%; max-width: 480px;
-      background: var(--white);
-      border-radius: 20px;
-      border: 1px solid var(--gray-200);
-      box-shadow: var(--shadow-xl);
-      overflow: hidden;
-    }
-    .card-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--gray-100);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .card-title { font-size: 16px; font-weight: 700; color: var(--gray-900); display: flex; align-items: center; gap: 10px; }
-    .card-icon {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--primary) 0%, #0052CC 100%);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .card-icon svg { width: 18px; height: 18px; fill: white; }
-    .card-badge {
-      padding: 4px 10px;
-      background: #DCFCE7;
-      border-radius: 100px;
-      font-size: 11px; font-weight: 600;
-      color: #16A34A;
-      text-transform: uppercase;
-    }
-    .card-body { padding: 24px; }
-
-    /* TABS */
-    .tabs {
-      display: flex; gap: 4px;
-      background: var(--gray-100);
-      padding: 4px; border-radius: 12px;
-      margin-bottom: 20px;
-    }
-    .tab {
-      flex: 1; padding: 8px 12px;
-      background: transparent; border: none; border-radius: 8px;
-      color: var(--gray-500);
-      font-size: 12px; font-weight: 600;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .tab:hover { color: var(--gray-700); }
-    .tab.active { background: var(--white); color: var(--primary); box-shadow: var(--shadow); }
-
-    /* FORM */
-    .field { margin-bottom: 16px; }
-    .field-label {
-      display: block;
-      font-size: 12px; font-weight: 600;
-      color: var(--gray-500);
-      margin-bottom: 6px;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .field-input {
-      width: 100%; padding: 12px 16px;
-      background: var(--gray-50);
-      border: 2px solid var(--gray-200);
-      border-radius: 12px;
-      color: var(--gray-900);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 15px; font-weight: 600;
-      transition: all 0.2s;
-    }
-    .field-input:focus { outline: none; border-color: var(--primary); background: var(--white); }
-    .field-input::placeholder { color: var(--gray-400); }
-    .field-select {
-      width: 100%; padding: 12px 16px;
-      background: var(--gray-50);
-      border: 2px solid var(--gray-200);
-      border-radius: 12px;
-      color: var(--gray-900);
-      font-size: 14px; font-weight: 600;
-      cursor: pointer;
-    }
-    .field-select:focus { outline: none; border-color: var(--primary); }
-
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    /* RESULT */
-    .result {
-      background: linear-gradient(135deg, var(--primary-light) 0%, #DBEAFE 100%);
-      border: 2px solid var(--primary);
-      border-radius: 16px;
-      padding: 24px; text-align: center;
-      margin-top: 20px;
-    }
-    .result-label {
-      font-size: 11px; font-weight: 600;
-      color: var(--gray-500);
-      text-transform: uppercase; letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-    .result-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 42px; font-weight: 700;
-      color: var(--primary);
-    }
-    .result-unit { font-size: 16px; color: var(--gray-500); margin-left: 6px; }
-    .result-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-      margin-top: 16px; padding-top: 16px;
-      border-top: 1px solid rgba(0,102,255,0.2);
-    }
-    .result-item { text-align: center; }
-    .result-item-label { font-size: 10px; color: var(--gray-500); text-transform: uppercase; }
-    .result-item-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: var(--gray-800); margin-top: 2px; }
-
-    /* WIND COMPASS */
-    .wind-display { display: flex; justify-content: center; padding: 16px 0; }
-    .wind-compass {
-      width: 180px; height: 180px; position: relative;
-      background: var(--gray-50);
-      border: 3px solid var(--gray-200);
-      border-radius: 50%;
-    }
-    .compass-center {
-      position: absolute; top: 50%; left: 50%;
-      width: 10px; height: 10px;
-      background: var(--primary);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .compass-runway {
-      position: absolute; top: 50%; left: 50%;
-      width: 4px; height: 65px;
-      background: linear-gradient(180deg, var(--accent), transparent);
-      transform-origin: center bottom;
-      transform: translate(-50%, -100%);
-      border-radius: 2px;
-    }
-    .compass-wind {
-      position: absolute; top: 50%; left: 50%;
-      width: 3px; height: 60px;
-      background: linear-gradient(180deg, var(--primary), transparent);
-      transform-origin: center bottom;
-      transform: translate(-50%, -100%) rotate(45deg);
-      border-radius: 2px;
-    }
-    .compass-labels { position: absolute; inset: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--gray-400); }
-    .compass-labels span { position: absolute; }
-    .compass-labels .n { top: 6px; left: 50%; transform: translateX(-50%); color: var(--primary); }
-    .compass-labels .s { bottom: 6px; left: 50%; transform: translateX(-50%); }
-    .compass-labels .e { right: 6px; top: 50%; transform: translateY(-50%); }
-    .compass-labels .w { left: 6px; top: 50%; transform: translateY(-50%); }
-
-    /* CG DISPLAY */
-    .cg-display {
-      height: 120px; background: var(--gray-50);
-      border: 2px solid var(--gray-200);
-      border-radius: 12px; margin: 16px 0; position: relative;
-    }
-    .cg-envelope {
-      position: absolute; bottom: 16px; left: 16px; right: 16px; height: 80px;
-      background: linear-gradient(135deg, rgba(0,200,150,0.1), rgba(0,102,255,0.05));
-      border: 2px solid var(--secondary);
-      clip-path: polygon(10% 100%, 0% 35%, 20% 0%, 80% 0%, 100% 35%, 90% 100%);
-    }
-    .cg-point {
-      position: absolute; width: 14px; height: 14px;
-      background: var(--secondary);
-      border-radius: 50%; box-shadow: 0 0 10px rgba(0,200,150,0.5);
-      transform: translate(-50%, -50%);
-      top: 50%; left: 50%;
-    }
-    .cg-labels { position: absolute; bottom: 2px; left: 16px; right: 16px; display: flex; justify-content: space-between; font-size: 9px; color: var(--gray-400); }
-
-    /* TIMER */
-    .timer-display {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 56px; font-weight: 700;
-      text-align: center;
-      color: var(--primary);
-      padding: 28px;
-      background: var(--gray-50);
-      border-radius: 16px;
-      margin-bottom: 20px;
-    }
-    .timer-btns { display: flex; gap: 12px; justify-content: center; }
-    .timer-btn {
-      padding: 12px 28px;
-      background: var(--white);
-      border: 2px solid var(--gray-200);
-      border-radius: 12px;
-      font-size: 14px; font-weight: 600;
-      color: var(--gray-700);
-      cursor: pointer; transition: all 0.2s;
-    }
-    .timer-btn:hover { border-color: var(--primary); }
-    .timer-btn.start { border-color: var(--secondary); color: var(--secondary); }
-    .timer-btn.stop { border-color: var(--accent); color: var(--accent); }
-
-    /* NOTES */
-    .notes-box {
-      width: 100%; min-height: 180px;
-      background: var(--gray-50);
-      border: 2px solid var(--gray-200);
-      border-radius: 12px; padding: 14px;
-      color: var(--gray-900);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px; resize: vertical;
-    }
-    .notes-box:focus { outline: none; border-color: var(--primary); }
-
-    /* CONVERTER */
-    .conv-row { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 8px; align-items: end; margin-bottom: 14px; }
-    .conv-arrow { font-size: 20px; color: var(--primary); text-align: center; padding-bottom: 12px; }
-
-    /* SECTIONS */
-    .section { display: none; }
-    .section.active { display: block; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* NIGHT MODE */
-    .night-mode { --bg: #0F172A; --white: #1E293B; --gray-50: #1E293B; --gray-100: #334155; --gray-200: #475569; --gray-300: #64748B; --gray-400: #94A3B8; --gray-500: #CBD5E1; --gray-600: #E2E8F0; --gray-700: #F1F5F9; --gray-800: #F8FAFC; --gray-900: #FFFFFF; --primary-light: rgba(0,102,255,0.2); }
-    .night-mode .bg-layer { filter: brightness(0.3) saturate(0.5); }
-    .night-mode .result { background: rgba(0,102,255,0.15); }
-
-    /* RTL for Arabic */
-    [dir="rtl"] { direction: rtl; }
-    [dir="rtl"] .header { flex-direction: row-reverse; }
-    [dir="rtl"] .logo { flex-direction: row-reverse; }
-    [dir="rtl"] .header-right { flex-direction: row-reverse; }
-    [dir="rtl"] .card-header { flex-direction: row-reverse; }
-    [dir="rtl"] .card-title { flex-direction: row-reverse; }
-    [dir="rtl"] .field-label { text-align: right; }
-
-    @media (max-width: 600px) {
-      .header { padding: 10px 16px; }
-      .logo-text { display: none; }
-      .header-center { display: none; }
-      .nav { padding: 12px 16px; }
-      .nav-pill { padding: 8px 14px; font-size: 11px; }
-      .nav-pill svg { display: none; }
-      .main { padding: 16px; }
-      .card-body { padding: 20px; }
-      .result-value { font-size: 32px; }
-      .timer-display { font-size: 40px; padding: 20px; }
-      .row { grid-template-columns: 1fr; }
-    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary:#0066FF;--primary-light:#E8F0FE;--secondary:#00C896;--accent:#FF6B35;--white:#FFFFFF;--bg:#F8FAFC;--gray-50:#F8FAFC;--gray-100:#F1F5F9;--gray-200:#E2E8F0;--gray-300:#CBD5E1;--gray-400:#94A3B8;--gray-500:#64748B;--gray-600:#475569;--gray-700:#334155;--gray-800:#1E293B;--gray-900:#0F172A;--shadow:0 4px 6px -1px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);--shadow-xl:0 25px 50px -12px rgba(0,0,0,0.25)}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--gray-900);min-height:100vh}
+    .bg-wrapper{position:fixed;inset:0;z-index:0}
+    .bg-layer{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 0.8s ease}
+    .bg-layer.active{opacity:1}
+    .bg-layer.bg-fuel{background:linear-gradient(135deg,#E8F4FD 0%,#D1E8FA 100%)}
+    .bg-layer.bg-cost{background:linear-gradient(135deg,#E8FDF5 0%,#D1FAE5 100%)}
+    .bg-layer.bg-flight{background:linear-gradient(135deg,#EDE8FD 0%,#DDD6FE 100%)}
+    .bg-layer.bg-atmo{background:linear-gradient(135deg,#FEF3E8 0%,#FED7AA 100%)}
+    .bg-layer.bg-safety{background:linear-gradient(135deg,#FDE8E8 0%,#FECACA 100%)}
+    .bg-layer.bg-tools{background:linear-gradient(135deg,#E8F8FD 0%,#A5F3FC 100%)}
+    .bg-layer.bg-system{background:linear-gradient(135deg,#F3E8FD 0%,#E9D5FF 100%)}
+    .app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+    .header{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:var(--white);border-bottom:1px solid var(--gray-200);box-shadow:var(--shadow)}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--primary) 0%,#0052CC 100%);border-radius:10px;display:flex;align-items:center;justify-content:center}
+    .logo-icon svg{width:22px;height:22px;fill:white}
+    .logo-text{font-size:18px;font-weight:800;color:var(--gray-900)}
+    .logo-text span{color:var(--primary)}
+    .header-center{display:flex;align-items:center;gap:8px}
+    .clock{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--primary);background:var(--primary-light);padding:6px 12px;border-radius:8px}
+    .clock-local{font-size:11px;color:var(--gray-500);margin-left:8px}
+    .header-right{display:flex;align-items:center;gap:12px}
+    .lang-select{padding:8px 12px;background:var(--white);border:1px solid var(--gray-300);border-radius:8px;font-size:13px;font-weight:600;color:var(--gray-700);cursor:pointer}
+    .lang-select:focus{outline:none;border-color:var(--primary)}
+    .night-btn{width:36px;height:36px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+    .night-btn:hover{background:var(--gray-200)}
+    .night-btn svg{width:18px;height:18px;stroke:var(--gray-600)}
+    .nav{display:flex;justify-content:center;gap:8px;padding:16px 24px;flex-wrap:wrap}
+    .nav-pill{padding:10px 18px;background:var(--white);border:1px solid var(--gray-200);border-radius:100px;color:var(--gray-600);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;box-shadow:var(--shadow)}
+    .nav-pill svg{width:16px;height:16px}
+    .nav-pill:hover{border-color:var(--primary);color:var(--primary)}
+    .nav-pill.active{background:var(--primary);border-color:var(--primary);color:white;box-shadow:0 4px 14px rgba(0,102,255,0.4)}
+    .main{flex:1;padding:20px 24px 40px;display:flex;justify-content:center}
+    .card{width:100%;max-width:480px;background:var(--white);border-radius:20px;border:1px solid var(--gray-200);box-shadow:var(--shadow-xl);overflow:hidden}
+    .card-header{padding:20px 24px;border-bottom:1px solid var(--gray-100);display:flex;justify-content:space-between;align-items:center}
+    .card-title{font-size:16px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:10px}
+    .card-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--primary) 0%,#0052CC 100%);border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .card-icon svg{width:18px;height:18px;fill:white}
+    .card-badge{padding:4px 10px;background:#DCFCE7;border-radius:100px;font-size:11px;font-weight:600;color:#16A34A;text-transform:uppercase}
+    .card-body{padding:24px}
+    .tabs{display:flex;gap:4px;background:var(--gray-100);padding:4px;border-radius:12px;margin-bottom:20px}
+    .tab{flex:1;padding:8px 12px;background:transparent;border:none;border-radius:8px;color:var(--gray-500);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s}
+    .tab:hover{color:var(--gray-700)}
+    .tab.active{background:var(--white);color:var(--primary);box-shadow:var(--shadow)}
+    .field{margin-bottom:16px}
+    .field-label{display:block;font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+    .field-input{width:100%;padding:12px 16px;background:var(--gray-50);border:2px solid var(--gray-200);border-radius:12px;color:var(--gray-900);font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;transition:all 0.2s}
+    .field-input:focus{outline:none;border-color:var(--primary);background:var(--white)}
+    .field-input::placeholder{color:var(--gray-400)}
+    .field-select{width:100%;padding:12px 16px;background:var(--gray-50);border:2px solid var(--gray-200);border-radius:12px;color:var(--gray-900);font-size:14px;font-weight:600;cursor:pointer}
+    .field-select:focus{outline:none;border-color:var(--primary)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .result{background:linear-gradient(135deg,var(--primary-light) 0%,#DBEAFE 100%);border:2px solid var(--primary);border-radius:16px;padding:24px;text-align:center;margin-top:20px}
+    .result-label{font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+    .result-value{font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:700;color:var(--primary)}
+    .result-unit{font-size:16px;color:var(--gray-500);margin-left:6px}
+    .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(0,102,255,0.2)}
+    .result-item{text-align:center}
+    .result-item-label{font-size:10px;color:var(--gray-500);text-transform:uppercase}
+    .result-item-value{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--gray-800);margin-top:2px}
+    .wind-display{display:flex;justify-content:center;padding:16px 0}
+    .wind-compass{width:180px;height:180px;position:relative;background:var(--gray-50);border:3px solid var(--gray-200);border-radius:50%}
+    .compass-center{position:absolute;top:50%;left:50%;width:10px;height:10px;background:var(--primary);border-radius:50%;transform:translate(-50%,-50%)}
+    .compass-runway{position:absolute;top:50%;left:50%;width:4px;height:65px;background:linear-gradient(180deg,var(--accent),transparent);transform-origin:center bottom;transform:translate(-50%,-100%);border-radius:2px}
+    .compass-wind{position:absolute;top:50%;left:50%;width:3px;height:60px;background:linear-gradient(180deg,var(--primary),transparent);transform-origin:center bottom;transform:translate(-50%,-100%) rotate(45deg);border-radius:2px}
+    .compass-labels{position:absolute;inset:0;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--gray-400)}
+    .compass-labels span{position:absolute}
+    .compass-labels .n{top:6px;left:50%;transform:translateX(-50%);color:var(--primary)}
+    .compass-labels .s{bottom:6px;left:50%;transform:translateX(-50%)}
+    .compass-labels .e{right:6px;top:50%;transform:translateY(-50%)}
+    .compass-labels .w{left:6px;top:50%;transform:translateY(-50%)}
+    .cg-display{height:120px;background:var(--gray-50);border:2px solid var(--gray-200);border-radius:12px;margin:16px 0;position:relative}
+    .cg-envelope{position:absolute;bottom:16px;left:16px;right:16px;height:80px;background:linear-gradient(135deg,rgba(0,200,150,0.1),rgba(0,102,255,0.05));border:2px solid var(--secondary);clip-path:polygon(10% 100%,0% 35%,20% 0%,80% 0%,100% 35%,90% 100%)}
+    .cg-point{position:absolute;width:14px;height:14px;background:var(--secondary);border-radius:50%;box-shadow:0 0 10px rgba(0,200,150,0.5);transform:translate(-50%,-50%);top:50%;left:50%}
+    .cg-labels{position:absolute;bottom:2px;left:16px;right:16px;display:flex;justify-content:space-between;font-size:9px;color:var(--gray-400)}
+    .timer-display{font-family:'JetBrains Mono',monospace;font-size:56px;font-weight:700;text-align:center;color:var(--primary);padding:28px;background:var(--gray-50);border-radius:16px;margin-bottom:20px}
+    .timer-btns{display:flex;gap:12px;justify-content:center}
+    .timer-btn{padding:12px 28px;background:var(--white);border:2px solid var(--gray-200);border-radius:12px;font-size:14px;font-weight:600;color:var(--gray-700);cursor:pointer;transition:all 0.2s}
+    .timer-btn:hover{border-color:var(--primary)}
+    .timer-btn.start{border-color:var(--secondary);color:var(--secondary)}
+    .timer-btn.stop{border-color:var(--accent);color:var(--accent)}
+    .notes-box{width:100%;min-height:180px;background:var(--gray-50);border:2px solid var(--gray-200);border-radius:12px;padding:14px;color:var(--gray-900);font-family:'JetBrains Mono',monospace;font-size:13px;resize:vertical}
+    .notes-box:focus{outline:none;border-color:var(--primary)}
+    .conv-row{display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;align-items:end;margin-bottom:14px}
+    .conv-arrow{font-size:20px;color:var(--primary);text-align:center;padding-bottom:12px}
+    .section{display:none}
+    .section.active{display:block;animation:fadeIn 0.3s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .night-mode{--bg:#0F172A;--white:#1E293B;--gray-50:#1E293B;--gray-100:#334155;--gray-200:#475569;--gray-300:#64748B;--gray-400:#94A3B8;--gray-500:#CBD5E1;--gray-600:#E2E8F0;--gray-700:#F1F5F9;--gray-800:#F8FAFC;--gray-900:#FFFFFF;--primary-light:rgba(0,102,255,0.2)}
+    .night-mode .bg-layer{filter:brightness(0.3) saturate(0.5)}
+    .night-mode .result{background:rgba(0,102,255,0.15)}
+    [dir="rtl"]{direction:rtl}
+    [dir="rtl"] .header{flex-direction:row-reverse}
+    [dir="rtl"] .logo{flex-direction:row-reverse}
+    [dir="rtl"] .header-right{flex-direction:row-reverse}
+    [dir="rtl"] .card-header{flex-direction:row-reverse}
+    [dir="rtl"] .card-title{flex-direction:row-reverse}
+    [dir="rtl"] .field-label{text-align:right}
+    @media(max-width:600px){.header{padding:10px 16px}.logo-text{display:none}.header-center{display:none}.nav{padding:12px 16px}.nav-pill{padding:8px 14px;font-size:11px}.nav-pill svg{display:none}.main{padding:16px}.card-body{padding:20px}.result-value{font-size:32px}.timer-display{font-size:40px;padding:20px}.row{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -394,21 +119,16 @@
     <div class="bg-layer bg-tools"></div>
     <div class="bg-layer bg-system"></div>
   </div>
-
   <div class="app">
     <header class="header">
       <div class="logo">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
-        </div>
+        <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>
         <span class="logo-text">Aviation<span>Pro</span></span>
       </div>
-
       <div class="header-center">
         <div class="clock" id="zuluClock">00:00:00Z</div>
         <span class="clock-local" id="localClock">LOCAL 00:00</span>
       </div>
-
       <div class="header-right">
         <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
           <option value="en">English</option>
@@ -417,821 +137,173 @@
           <option value="hi">हिन्दी</option>
           <option value="fil">Filipino</option>
         </select>
-        <button class="night-btn" id="nightBtn" onclick="toggleNight()" title="Night Mode">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
+        <button class="night-btn" onclick="toggleNight()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
       </div>
     </header>
-
     <nav class="nav">
-      <button class="nav-pill active" onclick="showSec('fuel')" data-i18n="nav_fuel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22h12M5 22V8l-3-3 3-3v6m8-6L10 5m3-3l3 3"/><rect x="7" y="10" width="6" height="12" rx="1"/></svg>
-        <span>FUEL</span>
-      </button>
-      <button class="nav-pill" onclick="showSec('cost')" data-i18n="nav_cost">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h6M9 15h6"/></svg>
-        <span>COST</span>
-      </button>
-      <button class="nav-pill" onclick="showSec('flight')" data-i18n="nav_flight">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-        <span>FLIGHT</span>
-      </button>
-      <button class="nav-pill" onclick="showSec('atmo')" data-i18n="nav_atmo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        <span>ATMO</span>
-      </button>
-      <button class="nav-pill" onclick="showSec('safety')" data-i18n="nav_safety">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>SAFETY</span>
-      </button>
-      <button class="nav-pill" onclick="showSec('tools')" data-i18n="nav_tools">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-        <span>TOOLS</span>
-      </button>
-      <button class="nav-pill" onclick="showSec('system')" data-i18n="nav_system">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>SYSTEM</span>
-      </button>
+      <button class="nav-pill active" onclick="showSec('fuel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="10" width="6" height="12" rx="1"/></svg><span data-i18n="nav_fuel">FUEL</span></button>
+      <button class="nav-pill" onclick="showSec('cost')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h6"/></svg><span data-i18n="nav_cost">COST</span></button>
+      <button class="nav-pill" onclick="showSec('flight')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg><span data-i18n="nav_flight">FLIGHT</span></button>
+      <button class="nav-pill" onclick="showSec('atmo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M1 12h2M21 12h2"/></svg><span data-i18n="nav_atmo">ATMO</span></button>
+      <button class="nav-pill" onclick="showSec('safety')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span data-i18n="nav_safety">SAFETY</span></button>
+      <button class="nav-pill" onclick="showSec('tools')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg><span data-i18n="nav_tools">TOOLS</span></button>
+      <button class="nav-pill" onclick="showSec('system')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg><span data-i18n="nav_system">SYSTEM</span></button>
     </nav>
-
     <main class="main">
-      <!-- FUEL -->
       <section class="section active" id="sec-fuel">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M3 22h12M5 22V8l-3-3 3-3v6m8-6L10 5m3-3l3 3"/><rect x="7" y="10" width="6" height="12" rx="1"/></svg></div>
-              <span data-i18n="fuel_title">Fuel Calculator</span>
-            </div>
-            <span class="card-badge" data-i18n="ready">Ready</span>
-          </div>
+          <div class="card-header"><div class="card-title"><div class="card-icon"><svg viewBox="0 0 24 24"><rect x="7" y="10" width="6" height="12" rx="1"/></svg></div><span data-i18n="fuel_title">Fuel Calculator</span></div><span class="card-badge" data-i18n="ready">Ready</span></div>
           <div class="card-body">
-            <div class="field">
-              <label class="field-label" data-i18n="fuel_type">Fuel Type</label>
-              <select class="field-select" id="fuelType" onchange="calcFuel()">
-                <option value="jeta1">Jet A-1 (0.800 kg/L @ 15C)</option>
-                <option value="jeta">Jet A (0.804 kg/L)</option>
-                <option value="jp8">JP-8 (0.800 kg/L)</option>
-                <option value="avgas">Avgas 100LL (0.721 kg/L)</option>
-                <option value="mogas">Mogas (0.745 kg/L)</option>
-              </select>
-            </div>
-            <div class="row">
-              <div class="field">
-                <label class="field-label" data-i18n="volume">Volume (L)</label>
-                <input type="number" class="field-input" id="fuelVol" placeholder="0" oninput="calcFuel()">
-              </div>
-              <div class="field">
-                <label class="field-label" data-i18n="temperature">Temperature (C)</label>
-                <input type="number" class="field-input" id="fuelTemp" value="15" oninput="calcFuel()">
-              </div>
-            </div>
-            <div class="result">
-              <div class="result-label" data-i18n="fuel_mass">Fuel Mass</div>
-              <div class="result-value"><span id="fuelMass">0</span><span class="result-unit">KG</span></div>
-              <div class="result-grid">
-                <div class="result-item"><div class="result-item-label">LBS</div><div class="result-item-value" id="fuelLbs">0</div></div>
-                <div class="result-item"><div class="result-item-label">US GAL</div><div class="result-item-value" id="fuelUsg">0</div></div>
-                <div class="result-item"><div class="result-item-label">IMP GAL</div><div class="result-item-value" id="fuelImp">0</div></div>
-              </div>
-            </div>
+            <div class="field"><label class="field-label" data-i18n="fuel_type">Fuel Type</label><select class="field-select" id="fuelType" onchange="calcFuel()"><option value="jeta1">Jet A-1 (0.800 kg/L)</option><option value="jeta">Jet A (0.804 kg/L)</option><option value="jp8">JP-8 (0.800 kg/L)</option><option value="avgas">Avgas 100LL (0.721 kg/L)</option><option value="mogas">Mogas (0.745 kg/L)</option></select></div>
+            <div class="row"><div class="field"><label class="field-label" data-i18n="volume">Volume (L)</label><input type="number" class="field-input" id="fuelVol" placeholder="0" oninput="calcFuel()"></div><div class="field"><label class="field-label" data-i18n="temperature">Temperature (C)</label><input type="number" class="field-input" id="fuelTemp" value="15" oninput="calcFuel()"></div></div>
+            <div class="result"><div class="result-label" data-i18n="fuel_mass">Fuel Mass</div><div class="result-value"><span id="fuelMass">0</span><span class="result-unit">KG</span></div><div class="result-grid"><div class="result-item"><div class="result-item-label">LBS</div><div class="result-item-value" id="fuelLbs">0</div></div><div class="result-item"><div class="result-item-label">US GAL</div><div class="result-item-value" id="fuelUsg">0</div></div><div class="result-item"><div class="result-item-label">IMP GAL</div><div class="result-item-value" id="fuelImp">0</div></div></div></div>
           </div>
         </div>
       </section>
-
-      <!-- COST -->
       <section class="section" id="sec-cost">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6v12M9 9h6M9 15h6" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="cost_title">Cost Calculator</span>
-            </div>
-            <span class="card-badge" data-i18n="ready">Ready</span>
-          </div>
+          <div class="card-header"><div class="card-title"><div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><span data-i18n="cost_title">Cost Calculator</span></div><span class="card-badge">Ready</span></div>
           <div class="card-body">
-            <div class="row">
-              <div class="field">
-                <label class="field-label" data-i18n="fuel_flow">Fuel Flow (L/h)</label>
-                <input type="number" class="field-input" id="costFlow" placeholder="0" oninput="calcCost()">
-              </div>
-              <div class="field">
-                <label class="field-label" data-i18n="price_liter">Price per Liter</label>
-                <input type="number" class="field-input" id="costPrice" placeholder="0" step="0.01" oninput="calcCost()">
-              </div>
-            </div>
-            <div class="field">
-              <label class="field-label" data-i18n="currency">Currency</label>
-              <select class="field-select" id="costCurr" onchange="calcCost()">
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                <option value="RUB">RUB</option>
-                <option value="INR">INR</option>
-                <option value="PHP">PHP</option>
-                <option value="SAR">SAR</option>
-              </select>
-            </div>
-            <div class="result">
-              <div class="result-label" data-i18n="cost_hour">Cost Per Hour</div>
-              <div class="result-value"><span id="costHour">$0</span></div>
-              <div class="result-grid">
-                <div class="result-item"><div class="result-item-label" data-i18n="per_min">Per Min</div><div class="result-item-value" id="costMin">$0</div></div>
-                <div class="result-item"><div class="result-item-label" data-i18n="per_nm">Per NM</div><div class="result-item-value" id="costNm">$0</div></div>
-              </div>
-            </div>
+            <div class="row"><div class="field"><label class="field-label" data-i18n="fuel_flow">Fuel Flow (L/h)</label><input type="number" class="field-input" id="costFlow" placeholder="0" oninput="calcCost()"></div><div class="field"><label class="field-label" data-i18n="price_liter">Price/Liter</label><input type="number" class="field-input" id="costPrice" placeholder="0" step="0.01" oninput="calcCost()"></div></div>
+            <div class="field"><label class="field-label" data-i18n="currency">Currency</label><select class="field-select" id="costCurr" onchange="calcCost()"><option value="USD">USD ($)</option><option value="EUR">EUR</option><option value="RUB">RUB</option><option value="INR">INR</option><option value="PHP">PHP</option><option value="SAR">SAR</option></select></div>
+            <div class="result"><div class="result-label" data-i18n="cost_hour">Cost Per Hour</div><div class="result-value"><span id="costHour">$0</span></div><div class="result-grid"><div class="result-item"><div class="result-item-label">Per Min</div><div class="result-item-value" id="costMin">$0</div></div><div class="result-item"><div class="result-item-label">Per NM</div><div class="result-item-value" id="costNm">$0</div></div></div></div>
           </div>
         </div>
       </section>
-
-      <!-- FLIGHT -->
       <section class="section" id="sec-flight">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="flight_title">Flight Planning</span>
-            </div>
-            <span class="card-badge" data-i18n="ready">Ready</span>
-          </div>
+          <div class="card-header"><div class="card-title"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><span data-i18n="flight_title">Flight Planning</span></div><span class="card-badge">Ready</span></div>
           <div class="card-body">
-            <div class="tabs">
-              <button class="tab active" onclick="showFlightTab('basic')" data-i18n="basic">Basic</button>
-              <button class="tab" onclick="showFlightTab('fuel')" data-i18n="fuel_req">Fuel Req</button>
-              <button class="tab" onclick="showFlightTab('endur')" data-i18n="endurance">Endurance</button>
-            </div>
+            <div class="tabs"><button class="tab active" onclick="showFlightTab('basic')">Basic</button><button class="tab" onclick="showFlightTab('fuel')">Fuel Req</button><button class="tab" onclick="showFlightTab('endur')">Endurance</button></div>
             <div id="flight-basic">
-              <div class="row">
-                <div class="field"><label class="field-label">TAS (kt)</label><input type="number" class="field-input" id="flightTas" placeholder="0" oninput="calcFlight()"></div>
-                <div class="field"><label class="field-label" data-i18n="distance">Distance (NM)</label><input type="number" class="field-input" id="flightDist" placeholder="0" oninput="calcFlight()"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="wind">Wind (kt)</label><input type="number" class="field-input" id="flightWind" placeholder="0" oninput="calcFlight()"></div>
-                <div class="field"><label class="field-label" data-i18n="wind_dir">Wind Dir</label><input type="number" class="field-input" id="flightWdir" placeholder="0" oninput="calcFlight()"></div>
-              </div>
-              <div class="field"><label class="field-label" data-i18n="heading">Heading</label><input type="number" class="field-input" id="flightHdg" placeholder="0" oninput="calcFlight()"></div>
-              <div class="result">
-                <div class="result-label" data-i18n="ground_speed">Ground Speed</div>
-                <div class="result-value"><span id="flightGs">0</span><span class="result-unit">KT</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label" data-i18n="time">Time</div><div class="result-item-value" id="flightTime">00:00</div></div>
-                  <div class="result-item"><div class="result-item-label">WCA</div><div class="result-item-value" id="flightWca">0</div></div>
-                  <div class="result-item"><div class="result-item-label">HDG</div><div class="result-item-value" id="flightHdgRes">0</div></div>
-                </div>
-              </div>
+              <div class="row"><div class="field"><label class="field-label">TAS (kt)</label><input type="number" class="field-input" id="flightTas" placeholder="0" oninput="calcFlight()"></div><div class="field"><label class="field-label">Distance (NM)</label><input type="number" class="field-input" id="flightDist" placeholder="0" oninput="calcFlight()"></div></div>
+              <div class="row"><div class="field"><label class="field-label">Wind (kt)</label><input type="number" class="field-input" id="flightWind" placeholder="0" oninput="calcFlight()"></div><div class="field"><label class="field-label">Wind Dir</label><input type="number" class="field-input" id="flightWdir" placeholder="0" oninput="calcFlight()"></div></div>
+              <div class="field"><label class="field-label">Heading</label><input type="number" class="field-input" id="flightHdg" placeholder="0" oninput="calcFlight()"></div>
+              <div class="result"><div class="result-label">Ground Speed</div><div class="result-value"><span id="flightGs">0</span><span class="result-unit">KT</span></div><div class="result-grid"><div class="result-item"><div class="result-item-label">Time</div><div class="result-item-value" id="flightTime">00:00</div></div><div class="result-item"><div class="result-item-label">WCA</div><div class="result-item-value" id="flightWca">0</div></div><div class="result-item"><div class="result-item-label">HDG</div><div class="result-item-value" id="flightHdgRes">0</div></div></div></div>
             </div>
-            <div id="flight-fuel" style="display:none;">
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="ground_speed">Ground Speed (kt)</label><input type="number" class="field-input" id="fuelReqGs" placeholder="0" oninput="calcFuelReq()"></div>
-                <div class="field"><label class="field-label" data-i18n="distance">Distance (NM)</label><input type="number" class="field-input" id="fuelReqDist" placeholder="0" oninput="calcFuelReq()"></div>
-              </div>
-              <div class="field"><label class="field-label" data-i18n="fuel_flow">Fuel Flow (L/h)</label><input type="number" class="field-input" id="fuelReqFlow" placeholder="0" oninput="calcFuelReq()"></div>
-              <div class="result">
-                <div class="result-label" data-i18n="fuel_required">Fuel Required</div>
-                <div class="result-value"><span id="fuelReqRes">0</span><span class="result-unit">L</span></div>
-              </div>
+            <div id="flight-fuel" style="display:none">
+              <div class="row"><div class="field"><label class="field-label">GS (kt)</label><input type="number" class="field-input" id="fuelReqGs" placeholder="0" oninput="calcFuelReq()"></div><div class="field"><label class="field-label">Distance (NM)</label><input type="number" class="field-input" id="fuelReqDist" placeholder="0" oninput="calcFuelReq()"></div></div>
+              <div class="field"><label class="field-label">Fuel Flow (L/h)</label><input type="number" class="field-input" id="fuelReqFlow" placeholder="0" oninput="calcFuelReq()"></div>
+              <div class="result"><div class="result-label">Fuel Required</div><div class="result-value"><span id="fuelReqRes">0</span><span class="result-unit">L</span></div></div>
             </div>
-            <div id="flight-endur" style="display:none;">
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="fuel_available">Fuel Available (L)</label><input type="number" class="field-input" id="endurFuel" placeholder="0" oninput="calcEndur()"></div>
-                <div class="field"><label class="field-label" data-i18n="fuel_flow">Fuel Flow (L/h)</label><input type="number" class="field-input" id="endurFlow" placeholder="0" oninput="calcEndur()"></div>
-              </div>
-              <div class="result">
-                <div class="result-label" data-i18n="endurance">Endurance</div>
-                <div class="result-value"><span id="endurRes">00:00</span></div>
-              </div>
+            <div id="flight-endur" style="display:none">
+              <div class="row"><div class="field"><label class="field-label">Fuel (L)</label><input type="number" class="field-input" id="endurFuel" placeholder="0" oninput="calcEndur()"></div><div class="field"><label class="field-label">Flow (L/h)</label><input type="number" class="field-input" id="endurFlow" placeholder="0" oninput="calcEndur()"></div></div>
+              <div class="result"><div class="result-label">Endurance</div><div class="result-value"><span id="endurRes">00:00</span></div></div>
             </div>
           </div>
         </div>
       </section>
-
-      <!-- ATMO -->
       <section class="section" id="sec-atmo">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="atmo_title">Atmosphere</span>
-            </div>
-            <span class="card-badge" data-i18n="ready">Ready</span>
-          </div>
+          <div class="card-header"><div class="card-title"><div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><span data-i18n="atmo_title">Atmosphere</span></div><span class="card-badge">Ready</span></div>
           <div class="card-body">
-            <div class="tabs">
-              <button class="tab active" onclick="showAtmoTab('da')" data-i18n="density_alt">Density Alt</button>
-              <button class="tab" onclick="showAtmoTab('qnh')">QNH/QFE</button>
-              <button class="tab" onclick="showAtmoTab('tas')">TAS</button>
-            </div>
+            <div class="tabs"><button class="tab active" onclick="showAtmoTab('da')">Density Alt</button><button class="tab" onclick="showAtmoTab('qnh')">QNH</button><button class="tab" onclick="showAtmoTab('tas')">TAS</button></div>
             <div id="atmo-da">
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="elevation">Elevation (ft)</label><input type="number" class="field-input" id="atmoElev" placeholder="0" oninput="calcAtmo()"></div>
-                <div class="field"><label class="field-label">OAT (C)</label><input type="number" class="field-input" id="atmoOat" placeholder="15" oninput="calcAtmo()"></div>
-              </div>
+              <div class="row"><div class="field"><label class="field-label">Elevation (ft)</label><input type="number" class="field-input" id="atmoElev" placeholder="0" oninput="calcAtmo()"></div><div class="field"><label class="field-label">OAT (C)</label><input type="number" class="field-input" id="atmoOat" placeholder="15" oninput="calcAtmo()"></div></div>
               <div class="field"><label class="field-label">QNH (hPa)</label><input type="number" class="field-input" id="atmoQnh" value="1013.25" oninput="calcAtmo()"></div>
-              <div class="result">
-                <div class="result-label" data-i18n="density_alt">Density Altitude</div>
-                <div class="result-value"><span id="atmoDa">0</span><span class="result-unit">FT</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label">ISA Dev</div><div class="result-item-value" id="atmoIsa">0C</div></div>
-                  <div class="result-item"><div class="result-item-label">Press Alt</div><div class="result-item-value" id="atmoPa">0</div></div>
-                </div>
-              </div>
+              <div class="result"><div class="result-label">Density Altitude</div><div class="result-value"><span id="atmoDa">0</span><span class="result-unit">FT</span></div><div class="result-grid"><div class="result-item"><div class="result-item-label">ISA Dev</div><div class="result-item-value" id="atmoIsa">0C</div></div><div class="result-item"><div class="result-item-label">Press Alt</div><div class="result-item-value" id="atmoPa">0</div></div></div></div>
             </div>
-            <div id="atmo-qnh" style="display:none;">
-              <div class="row">
-                <div class="field"><label class="field-label">QNH (hPa)</label><input type="number" class="field-input" id="qnhHpa" placeholder="1013.25" oninput="convQnh('hpa')"></div>
-                <div class="field"><label class="field-label">QNH (inHg)</label><input type="number" class="field-input" id="qnhInhg" placeholder="29.92" oninput="convQnh('inhg')"></div>
-              </div>
-              <div class="field"><label class="field-label">QNH (mmHg)</label><input type="number" class="field-input" id="qnhMmhg" placeholder="760" oninput="convQnh('mmhg')"></div>
+            <div id="atmo-qnh" style="display:none">
+              <div class="row"><div class="field"><label class="field-label">hPa</label><input type="number" class="field-input" id="qnhHpa" placeholder="1013" oninput="convQnh('hpa')"></div><div class="field"><label class="field-label">inHg</label><input type="number" class="field-input" id="qnhInhg" placeholder="29.92" oninput="convQnh('inhg')"></div></div>
+              <div class="field"><label class="field-label">mmHg</label><input type="number" class="field-input" id="qnhMmhg" placeholder="760" oninput="convQnh('mmhg')"></div>
             </div>
-            <div id="atmo-tas" style="display:none;">
-              <div class="row">
-                <div class="field"><label class="field-label">IAS (kt)</label><input type="number" class="field-input" id="tasIas" placeholder="0" oninput="calcTas()"></div>
-                <div class="field"><label class="field-label" data-i18n="altitude">Altitude (ft)</label><input type="number" class="field-input" id="tasAlt" placeholder="0" oninput="calcTas()"></div>
-              </div>
+            <div id="atmo-tas" style="display:none">
+              <div class="row"><div class="field"><label class="field-label">IAS (kt)</label><input type="number" class="field-input" id="tasIas" placeholder="0" oninput="calcTas()"></div><div class="field"><label class="field-label">Altitude (ft)</label><input type="number" class="field-input" id="tasAlt" placeholder="0" oninput="calcTas()"></div></div>
               <div class="field"><label class="field-label">OAT (C)</label><input type="number" class="field-input" id="tasOat" placeholder="0" oninput="calcTas()"></div>
-              <div class="result">
-                <div class="result-label">True Airspeed</div>
-                <div class="result-value"><span id="tasRes">0</span><span class="result-unit">KT</span></div>
-              </div>
+              <div class="result"><div class="result-label">True Airspeed</div><div class="result-value"><span id="tasRes">0</span><span class="result-unit">KT</span></div></div>
             </div>
           </div>
         </div>
       </section>
-
-      <!-- SAFETY -->
       <section class="section" id="sec-safety">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="safety_title">Safety</span>
-            </div>
-            <span class="card-badge" data-i18n="ready">Ready</span>
-          </div>
+          <div class="card-header"><div class="card-title"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><span data-i18n="safety_title">Safety</span></div><span class="card-badge">Ready</span></div>
           <div class="card-body">
-            <div class="tabs">
-              <button class="tab active" onclick="showSafetyTab('wb')">W&B</button>
-              <button class="tab" onclick="showSafetyTab('wind')" data-i18n="wind">Wind</button>
-              <button class="tab" onclick="showSafetyTab('desc')" data-i18n="descent">Descent</button>
-              <button class="tab" onclick="showSafetyTab('pnr')">PNR</button>
-            </div>
+            <div class="tabs"><button class="tab active" onclick="showSafetyTab('wb')">W&B</button><button class="tab" onclick="showSafetyTab('wind')">Wind</button><button class="tab" onclick="showSafetyTab('desc')">Descent</button><button class="tab" onclick="showSafetyTab('pnr')">PNR</button></div>
             <div id="safety-wb">
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="weight">Weight (kg)</label><input type="number" class="field-input" id="wbWeight" placeholder="0" oninput="calcWb()"></div>
-                <div class="field"><label class="field-label">Arm (m)</label><input type="number" class="field-input" id="wbArm" placeholder="0" step="0.01" oninput="calcWb()"></div>
-              </div>
-              <div class="cg-display">
-                <div class="cg-envelope"></div>
-                <div class="cg-point" id="cgPoint"></div>
-                <div class="cg-labels"><span>FWD</span><span>AFT</span></div>
-              </div>
-              <div class="result">
-                <div class="result-label" data-i18n="moment">Moment</div>
-                <div class="result-value"><span id="wbMoment">0</span><span class="result-unit">KG-M</span></div>
-              </div>
+              <div class="row"><div class="field"><label class="field-label">Weight (kg)</label><input type="number" class="field-input" id="wbWeight" placeholder="0" oninput="calcWb()"></div><div class="field"><label class="field-label">Arm (m)</label><input type="number" class="field-input" id="wbArm" placeholder="0" step="0.01" oninput="calcWb()"></div></div>
+              <div class="cg-display"><div class="cg-envelope"></div><div class="cg-point" id="cgPoint"></div><div class="cg-labels"><span>FWD</span><span>AFT</span></div></div>
+              <div class="result"><div class="result-label">Moment</div><div class="result-value"><span id="wbMoment">0</span><span class="result-unit">KG-M</span></div></div>
             </div>
-            <div id="safety-wind" style="display:none;">
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="runway">Runway</label><input type="number" class="field-input" id="windRwy" placeholder="360" oninput="calcWind()"></div>
-                <div class="field"><label class="field-label" data-i18n="wind_dir">Wind Dir</label><input type="number" class="field-input" id="windDir" placeholder="0" oninput="calcWind()"></div>
-              </div>
-              <div class="field"><label class="field-label" data-i18n="wind_speed">Wind Speed (kt)</label><input type="number" class="field-input" id="windSpd" placeholder="0" oninput="calcWind()"></div>
-              <div class="wind-display">
-                <div class="wind-compass">
-                  <div class="compass-runway" id="windRoseRwy"></div>
-                  <div class="compass-wind" id="windRoseWind"></div>
-                  <div class="compass-center"></div>
-                  <div class="compass-labels"><span class="n">N</span><span class="s">S</span><span class="e">E</span><span class="w">W</span></div>
-                </div>
-              </div>
-              <div class="result">
-                <div class="result-label" data-i18n="headwind">Headwind</div>
-                <div class="result-value"><span id="windHead">0</span><span class="result-unit">KT</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label" data-i18n="crosswind">Crosswind</div><div class="result-item-value" id="windCross">0 kt</div></div>
-                </div>
-              </div>
+            <div id="safety-wind" style="display:none">
+              <div class="row"><div class="field"><label class="field-label">Runway</label><input type="number" class="field-input" id="windRwy" placeholder="360" oninput="calcWind()"></div><div class="field"><label class="field-label">Wind Dir</label><input type="number" class="field-input" id="windDir" placeholder="0" oninput="calcWind()"></div></div>
+              <div class="field"><label class="field-label">Wind Speed (kt)</label><input type="number" class="field-input" id="windSpd" placeholder="0" oninput="calcWind()"></div>
+              <div class="wind-display"><div class="wind-compass"><div class="compass-runway" id="windRoseRwy"></div><div class="compass-wind" id="windRoseWind"></div><div class="compass-center"></div><div class="compass-labels"><span class="n">N</span><span class="s">S</span><span class="e">E</span><span class="w">W</span></div></div></div>
+              <div class="result"><div class="result-label">Headwind</div><div class="result-value"><span id="windHead">0</span><span class="result-unit">KT</span></div><div class="result-grid"><div class="result-item"><div class="result-item-label">Crosswind</div><div class="result-item-value" id="windCross">0 kt</div></div></div></div>
             </div>
-            <div id="safety-desc" style="display:none;">
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="cruise_alt">Cruise Alt (ft)</label><input type="number" class="field-input" id="descAlt" placeholder="35000" oninput="calcDesc()"></div>
-                <div class="field"><label class="field-label" data-i18n="target_alt">Target Alt (ft)</label><input type="number" class="field-input" id="descTgt" placeholder="3000" oninput="calcDesc()"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="ground_speed">Ground Speed (kt)</label><input type="number" class="field-input" id="descGs" placeholder="450" oninput="calcDesc()"></div>
-                <div class="field"><label class="field-label" data-i18n="descent_angle">Descent Angle</label><input type="number" class="field-input" id="descAngle" value="3" step="0.1" oninput="calcDesc()"></div>
-              </div>
-              <div class="result">
-                <div class="result-label" data-i18n="tod">Top of Descent</div>
-                <div class="result-value"><span id="descTod">0</span><span class="result-unit">NM</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label">V/S</div><div class="result-item-value" id="descVs">0 fpm</div></div>
-                  <div class="result-item"><div class="result-item-label" data-i18n="time">Time</div><div class="result-item-value" id="descTime">00:00</div></div>
-                </div>
-              </div>
+            <div id="safety-desc" style="display:none">
+              <div class="row"><div class="field"><label class="field-label">Cruise Alt (ft)</label><input type="number" class="field-input" id="descAlt" placeholder="35000" oninput="calcDesc()"></div><div class="field"><label class="field-label">Target Alt (ft)</label><input type="number" class="field-input" id="descTgt" placeholder="3000" oninput="calcDesc()"></div></div>
+              <div class="row"><div class="field"><label class="field-label">GS (kt)</label><input type="number" class="field-input" id="descGs" placeholder="450" oninput="calcDesc()"></div><div class="field"><label class="field-label">Angle</label><input type="number" class="field-input" id="descAngle" value="3" step="0.1" oninput="calcDesc()"></div></div>
+              <div class="result"><div class="result-label">Top of Descent</div><div class="result-value"><span id="descTod">0</span><span class="result-unit">NM</span></div><div class="result-grid"><div class="result-item"><div class="result-item-label">V/S</div><div class="result-item-value" id="descVs">0 fpm</div></div><div class="result-item"><div class="result-item-label">Time</div><div class="result-item-value" id="descTime">00:00</div></div></div></div>
             </div>
-            <div id="safety-pnr" style="display:none;">
-              <div class="row">
-                <div class="field"><label class="field-label" data-i18n="total_fuel">Total Fuel (L)</label><input type="number" class="field-input" id="pnrFuel" placeholder="0" oninput="calcPnr()"></div>
-                <div class="field"><label class="field-label" data-i18n="reserve">Reserve (L)</label><input type="number" class="field-input" id="pnrRes" placeholder="0" oninput="calcPnr()"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label">Flow Out (L/h)</label><input type="number" class="field-input" id="pnrFlowOut" placeholder="0" oninput="calcPnr()"></div>
-                <div class="field"><label class="field-label">Flow Back (L/h)</label><input type="number" class="field-input" id="pnrFlowBack" placeholder="0" oninput="calcPnr()"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label">GS Out (kt)</label><input type="number" class="field-input" id="pnrGsOut" placeholder="0" oninput="calcPnr()"></div>
-                <div class="field"><label class="field-label">GS Back (kt)</label><input type="number" class="field-input" id="pnrGsBack" placeholder="0" oninput="calcPnr()"></div>
-              </div>
-              <div class="result">
-                <div class="result-label" data-i18n="pnr">Point of No Return</div>
-                <div class="result-value"><span id="pnrDist">0</span><span class="result-unit">NM</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label" data-i18n="time">Time</div><div class="result-item-value" id="pnrTime">00:00</div></div>
-                </div>
-              </div>
+            <div id="safety-pnr" style="display:none">
+              <div class="row"><div class="field"><label class="field-label">Total Fuel (L)</label><input type="number" class="field-input" id="pnrFuel" placeholder="0" oninput="calcPnr()"></div><div class="field"><label class="field-label">Reserve (L)</label><input type="number" class="field-input" id="pnrRes" placeholder="0" oninput="calcPnr()"></div></div>
+              <div class="row"><div class="field"><label class="field-label">Flow Out</label><input type="number" class="field-input" id="pnrFlowOut" placeholder="0" oninput="calcPnr()"></div><div class="field"><label class="field-label">Flow Back</label><input type="number" class="field-input" id="pnrFlowBack" placeholder="0" oninput="calcPnr()"></div></div>
+              <div class="row"><div class="field"><label class="field-label">GS Out</label><input type="number" class="field-input" id="pnrGsOut" placeholder="0" oninput="calcPnr()"></div><div class="field"><label class="field-label">GS Back</label><input type="number" class="field-input" id="pnrGsBack" placeholder="0" oninput="calcPnr()"></div></div>
+              <div class="result"><div class="result-label">Point of No Return</div><div class="result-value"><span id="pnrDist">0</span><span class="result-unit">NM</span></div><div class="result-grid"><div class="result-item"><div class="result-item-label">Time</div><div class="result-item-value" id="pnrTime">00:00</div></div></div></div>
             </div>
           </div>
         </div>
       </section>
-
-      <!-- TOOLS -->
       <section class="section" id="sec-tools">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="tools_title">Converters</span>
-            </div>
-            <span class="card-badge" data-i18n="ready">Ready</span>
-          </div>
+          <div class="card-header"><div class="card-title"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><span data-i18n="tools_title">Converters</span></div><span class="card-badge">Ready</span></div>
           <div class="card-body">
-            <div class="tabs">
-              <button class="tab active" onclick="showToolTab('speed')" data-i18n="speed">Speed</button>
-              <button class="tab" onclick="showToolTab('press')" data-i18n="pressure">Press</button>
-              <button class="tab" onclick="showToolTab('temp')" data-i18n="temp">Temp</button>
-              <button class="tab" onclick="showToolTab('dist')" data-i18n="dist">Dist</button>
-              <button class="tab" onclick="showToolTab('vol')" data-i18n="vol">Vol</button>
-            </div>
-            <div id="tool-speed">
-              <div class="conv-row">
-                <div class="field"><label class="field-label">Knots</label><input type="number" class="field-input" id="convKt" placeholder="0" oninput="convSpeed('kt')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">KM/H</label><input type="number" class="field-input" id="convKmh" placeholder="0" oninput="convSpeed('kmh')"></div>
-              </div>
-              <div class="conv-row">
-                <div class="field"><label class="field-label">MPH</label><input type="number" class="field-input" id="convMph" placeholder="0" oninput="convSpeed('mph')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">M/S</label><input type="number" class="field-input" id="convMs" placeholder="0" oninput="convSpeed('ms')"></div>
-              </div>
-            </div>
-            <div id="tool-press" style="display:none;">
-              <div class="conv-row">
-                <div class="field"><label class="field-label">hPa</label><input type="number" class="field-input" id="convHpa" placeholder="1013" oninput="convPress('hpa')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">inHg</label><input type="number" class="field-input" id="convInhg" placeholder="29.92" oninput="convPress('inhg')"></div>
-              </div>
-              <div class="conv-row">
-                <div class="field"><label class="field-label">mmHg</label><input type="number" class="field-input" id="convMmhg" placeholder="760" oninput="convPress('mmhg')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">PSI</label><input type="number" class="field-input" id="convPsi" placeholder="14.7" oninput="convPress('psi')"></div>
-              </div>
-            </div>
-            <div id="tool-temp" style="display:none;">
-              <div class="conv-row">
-                <div class="field"><label class="field-label">Celsius</label><input type="number" class="field-input" id="convC" placeholder="0" oninput="convTemp('c')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">Fahrenheit</label><input type="number" class="field-input" id="convF" placeholder="32" oninput="convTemp('f')"></div>
-              </div>
-              <div class="conv-row">
-                <div class="field"><label class="field-label">Kelvin</label><input type="number" class="field-input" id="convK" placeholder="273" oninput="convTemp('k')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">Rankine</label><input type="number" class="field-input" id="convR" placeholder="492" oninput="convTemp('r')"></div>
-              </div>
-            </div>
-            <div id="tool-dist" style="display:none;">
-              <div class="conv-row">
-                <div class="field"><label class="field-label">NM</label><input type="number" class="field-input" id="convNm" placeholder="0" oninput="convDist('nm')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">KM</label><input type="number" class="field-input" id="convKm" placeholder="0" oninput="convDist('km')"></div>
-              </div>
-              <div class="conv-row">
-                <div class="field"><label class="field-label">Miles</label><input type="number" class="field-input" id="convMi" placeholder="0" oninput="convDist('mi')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">Feet</label><input type="number" class="field-input" id="convFt" placeholder="0" oninput="convDist('ft')"></div>
-              </div>
-            </div>
-            <div id="tool-vol" style="display:none;">
-              <div class="conv-row">
-                <div class="field"><label class="field-label">Liters</label><input type="number" class="field-input" id="convL" placeholder="0" oninput="convVol('l')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">US Gal</label><input type="number" class="field-input" id="convUsg" placeholder="0" oninput="convVol('usg')"></div>
-              </div>
-              <div class="conv-row">
-                <div class="field"><label class="field-label">Imp Gal</label><input type="number" class="field-input" id="convImpg" placeholder="0" oninput="convVol('impg')"></div>
-                <span class="conv-arrow">=</span>
-                <div class="field"><label class="field-label">Quarts</label><input type="number" class="field-input" id="convQt" placeholder="0" oninput="convVol('qt')"></div>
-              </div>
-            </div>
+            <div class="tabs"><button class="tab active" onclick="showToolTab('speed')">Speed</button><button class="tab" onclick="showToolTab('press')">Press</button><button class="tab" onclick="showToolTab('temp')">Temp</button><button class="tab" onclick="showToolTab('dist')">Dist</button><button class="tab" onclick="showToolTab('vol')">Vol</button></div>
+            <div id="tool-speed"><div class="conv-row"><div class="field"><label class="field-label">Knots</label><input type="number" class="field-input" id="convKt" placeholder="0" oninput="convSpeed('kt')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">KM/H</label><input type="number" class="field-input" id="convKmh" placeholder="0" oninput="convSpeed('kmh')"></div></div><div class="conv-row"><div class="field"><label class="field-label">MPH</label><input type="number" class="field-input" id="convMph" placeholder="0" oninput="convSpeed('mph')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">M/S</label><input type="number" class="field-input" id="convMs" placeholder="0" oninput="convSpeed('ms')"></div></div></div>
+            <div id="tool-press" style="display:none"><div class="conv-row"><div class="field"><label class="field-label">hPa</label><input type="number" class="field-input" id="convHpa" placeholder="1013" oninput="convPress('hpa')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">inHg</label><input type="number" class="field-input" id="convInhg" placeholder="29.92" oninput="convPress('inhg')"></div></div><div class="conv-row"><div class="field"><label class="field-label">mmHg</label><input type="number" class="field-input" id="convMmhg" placeholder="760" oninput="convPress('mmhg')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">PSI</label><input type="number" class="field-input" id="convPsi" placeholder="14.7" oninput="convPress('psi')"></div></div></div>
+            <div id="tool-temp" style="display:none"><div class="conv-row"><div class="field"><label class="field-label">Celsius</label><input type="number" class="field-input" id="convC" placeholder="0" oninput="convTemp('c')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">Fahrenheit</label><input type="number" class="field-input" id="convF" placeholder="32" oninput="convTemp('f')"></div></div><div class="conv-row"><div class="field"><label class="field-label">Kelvin</label><input type="number" class="field-input" id="convK" placeholder="273" oninput="convTemp('k')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">Rankine</label><input type="number" class="field-input" id="convR" placeholder="492" oninput="convTemp('r')"></div></div></div>
+            <div id="tool-dist" style="display:none"><div class="conv-row"><div class="field"><label class="field-label">NM</label><input type="number" class="field-input" id="convNm" placeholder="0" oninput="convDist('nm')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">KM</label><input type="number" class="field-input" id="convKm" placeholder="0" oninput="convDist('km')"></div></div><div class="conv-row"><div class="field"><label class="field-label">Miles</label><input type="number" class="field-input" id="convMi" placeholder="0" oninput="convDist('mi')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">Feet</label><input type="number" class="field-input" id="convFt" placeholder="0" oninput="convDist('ft')"></div></div></div>
+            <div id="tool-vol" style="display:none"><div class="conv-row"><div class="field"><label class="field-label">Liters</label><input type="number" class="field-input" id="convL" placeholder="0" oninput="convVol('l')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">US Gal</label><input type="number" class="field-input" id="convUsg" placeholder="0" oninput="convVol('usg')"></div></div><div class="conv-row"><div class="field"><label class="field-label">Imp Gal</label><input type="number" class="field-input" id="convImpg" placeholder="0" oninput="convVol('impg')"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label">Quarts</label><input type="number" class="field-input" id="convQt" placeholder="0" oninput="convVol('qt')"></div></div></div>
           </div>
         </div>
       </section>
-
-      <!-- SYSTEM -->
       <section class="section" id="sec-system">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="system_title">System</span>
-            </div>
-            <span class="card-badge" data-i18n="ready">Ready</span>
-          </div>
+          <div class="card-header"><div class="card-title"><div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><span data-i18n="system_title">System</span></div><span class="card-badge">Ready</span></div>
           <div class="card-body">
-            <div class="tabs">
-              <button class="tab active" onclick="showSysTab('timer')" data-i18n="timer">Timer</button>
-              <button class="tab" onclick="showSysTab('notes')" data-i18n="notes">Notes</button>
-            </div>
-            <div id="sys-timer">
-              <div class="timer-display" id="timerDisplay">00:00:00</div>
-              <div class="timer-btns">
-                <button class="timer-btn start" id="timerStartBtn" onclick="toggleTimer()" data-i18n="start">START</button>
-                <button class="timer-btn" onclick="resetTimer()" data-i18n="reset">RESET</button>
-              </div>
-            </div>
-            <div id="sys-notes" style="display:none;">
-              <textarea class="notes-box" id="notesArea" placeholder="Enter flight notes..." data-i18n-placeholder="notes_placeholder"></textarea>
-            </div>
+            <div class="tabs"><button class="tab active" onclick="showSysTab('timer')">Timer</button><button class="tab" onclick="showSysTab('notes')">Notes</button></div>
+            <div id="sys-timer"><div class="timer-display" id="timerDisplay">00:00:00</div><div class="timer-btns"><button class="timer-btn start" id="timerStartBtn" onclick="toggleTimer()">START</button><button class="timer-btn" onclick="resetTimer()">RESET</button></div></div>
+            <div id="sys-notes" style="display:none"><textarea class="notes-box" id="notesArea" placeholder="Enter flight notes..."></textarea></div>
           </div>
         </div>
       </section>
     </main>
   </div>
-
 <script>
-const T = {
-  en: {
-    nav_fuel: "FUEL", nav_cost: "COST", nav_flight: "FLIGHT", nav_atmo: "ATMO", nav_safety: "SAFETY", nav_tools: "TOOLS", nav_system: "SYSTEM",
-    fuel_title: "Fuel Calculator", cost_title: "Cost Calculator", flight_title: "Flight Planning", atmo_title: "Atmosphere", safety_title: "Safety", tools_title: "Converters", system_title: "System",
-    ready: "Ready", fuel_type: "Fuel Type", volume: "Volume (L)", temperature: "Temperature (C)", fuel_mass: "Fuel Mass",
-    fuel_flow: "Fuel Flow (L/h)", price_liter: "Price per Liter", currency: "Currency", cost_hour: "Cost Per Hour", per_min: "Per Min", per_nm: "Per NM",
-    basic: "Basic", fuel_req: "Fuel Req", endurance: "Endurance", distance: "Distance (NM)", wind: "Wind (kt)", wind_dir: "Wind Dir", heading: "Heading",
-    ground_speed: "Ground Speed", time: "Time", fuel_required: "Fuel Required", fuel_available: "Fuel Available (L)",
-    density_alt: "Density Alt", elevation: "Elevation (ft)", altitude: "Altitude (ft)",
-    weight: "Weight (kg)", moment: "Moment", runway: "Runway", wind_speed: "Wind Speed (kt)", headwind: "Headwind", crosswind: "Crosswind",
-    descent: "Descent", cruise_alt: "Cruise Alt (ft)", target_alt: "Target Alt (ft)", descent_angle: "Descent Angle", tod: "Top of Descent",
-    total_fuel: "Total Fuel (L)", reserve: "Reserve (L)", pnr: "Point of No Return",
-    speed: "Speed", pressure: "Press", temp: "Temp", dist: "Dist", vol: "Vol",
-    timer: "Timer", notes: "Notes", start: "START", reset: "RESET", notes_placeholder: "Enter flight notes..."
-  },
-  ru: {
-    nav_fuel: "ТОПЛИВО", nav_cost: "РАСХОД", nav_flight: "ПОЛЕТ", nav_atmo: "АТМО", nav_safety: "БЕЗОП", nav_tools: "КОНВЕРТ", nav_system: "СИСТЕМА",
-    fuel_title: "Расчет топлива", cost_title: "Расчет стоимости", flight_title: "Планирование полета", atmo_title: "Атмосфера", safety_title: "Безопасность", tools_title: "Конвертеры", system_title: "Система",
-    ready: "Готов", fuel_type: "Тип топлива", volume: "Объем (л)", temperature: "Температура (C)", fuel_mass: "Масса топлива",
-    fuel_flow: "Расход (л/ч)", price_liter: "Цена за литр", currency: "Валюта", cost_hour: "Стоимость в час", per_min: "В мин", per_nm: "За NM",
-    basic: "Основное", fuel_req: "Расход", endurance: "Запас", distance: "Дистанция (NM)", wind: "Ветер (уз)", wind_dir: "Напр. ветра", heading: "Курс",
-    ground_speed: "Путевая скорость", time: "Время", fuel_required: "Требуется топлива", fuel_available: "Доступно топлива (л)",
-    density_alt: "Плотн. высота", elevation: "Превышение (ft)", altitude: "Высота (ft)",
-    weight: "Масса (кг)", moment: "Момент", runway: "ВПП", wind_speed: "Скорость ветра (уз)", headwind: "Встречный", crosswind: "Боковой",
-    descent: "Снижение", cruise_alt: "Эшелон (ft)", target_alt: "Целевая выс. (ft)", descent_angle: "Угол снижения", tod: "Точка снижения",
-    total_fuel: "Всего топлива (л)", reserve: "Резерв (л)", pnr: "Точка невозврата",
-    speed: "Скорость", pressure: "Давл", temp: "Темп", dist: "Расст", vol: "Объем",
-    timer: "Таймер", notes: "Заметки", start: "СТАРТ", reset: "СБРОС", notes_placeholder: "Введите заметки..."
-  },
-  ar: {
-    nav_fuel: "الوقود", nav_cost: "التكلفة", nav_flight: "الرحلة", nav_atmo: "الجو", nav_safety: "السلامة", nav_tools: "أدوات", nav_system: "النظام",
-    fuel_title: "حاسبة الوقود", cost_title: "حاسبة التكلفة", flight_title: "تخطيط الرحلة", atmo_title: "الغلاف الجوي", safety_title: "السلامة", tools_title: "المحولات", system_title: "النظام",
-    ready: "جاهز", fuel_type: "نوع الوقود", volume: "الحجم (لتر)", temperature: "درجة الحرارة", fuel_mass: "كتلة الوقود",
-    fuel_flow: "تدفق الوقود", price_liter: "السعر لكل لتر", currency: "العملة", cost_hour: "التكلفة بالساعة", per_min: "بالدقيقة", per_nm: "لكل ميل",
-    basic: "أساسي", fuel_req: "الوقود المطلوب", endurance: "المدى", distance: "المسافة", wind: "الرياح", wind_dir: "اتجاه الرياح", heading: "الاتجاه",
-    ground_speed: "السرعة الأرضية", time: "الوقت", fuel_required: "الوقود المطلوب", fuel_available: "الوقود المتاح",
-    density_alt: "ارتفاع الكثافة", elevation: "الارتفاع", altitude: "العلو",
-    weight: "الوزن", moment: "العزم", runway: "المدرج", wind_speed: "سرعة الرياح", headwind: "رياح أمامية", crosswind: "رياح جانبية",
-    descent: "الهبوط", cruise_alt: "ارتفاع الرحلة", target_alt: "الارتفاع المستهدف", descent_angle: "زاوية الهبوط", tod: "نقطة بدء الهبوط",
-    total_fuel: "إجمالي الوقود", reserve: "الاحتياطي", pnr: "نقطة اللاعودة",
-    speed: "السرعة", pressure: "الضغط", temp: "الحرارة", dist: "المسافة", vol: "الحجم",
-    timer: "المؤقت", notes: "ملاحظات", start: "ابدأ", reset: "إعادة", notes_placeholder: "أدخل ملاحظات الرحلة..."
-  },
-  hi: {
-    nav_fuel: "ईंधन", nav_cost: "लागत", nav_flight: "उड़ान", nav_atmo: "वायुमंडल", nav_safety: "सुरक्षा", nav_tools: "उपकरण", nav_system: "सिस्टम",
-    fuel_title: "ईंधन कैलकुलेटर", cost_title: "लागत कैलकुलेटर", flight_title: "उड़ान योजना", atmo_title: "वायुमंडल", safety_title: "सुरक्षा", tools_title: "कनवर्टर", system_title: "सिस्टम",
-    ready: "तैयार", fuel_type: "ईंधन प्रकार", volume: "मात्रा (लीटर)", temperature: "तापमान (C)", fuel_mass: "ईंधन द्रव्यमान",
-    fuel_flow: "ईंधन प्रवाह", price_liter: "प्रति लीटर मूल्य", currency: "मुद्रा", cost_hour: "प्रति घंटा लागत", per_min: "प्रति मिनट", per_nm: "प्रति NM",
-    basic: "मूल", fuel_req: "ईंधन आवश्यक", endurance: "सहनशक्ति", distance: "दूरी (NM)", wind: "हवा (kt)", wind_dir: "हवा दिशा", heading: "हेडिंग",
-    ground_speed: "जमीनी गति", time: "समय", fuel_required: "आवश्यक ईंधन", fuel_available: "उपलब्ध ईंधन",
-    density_alt: "घनत्व ऊंचाई", elevation: "ऊंचाई (ft)", altitude: "ऊंचाई (ft)",
-    weight: "वजन (kg)", moment: "मोमेंट", runway: "रनवे", wind_speed: "हवा गति (kt)", headwind: "सामने हवा", crosswind: "क्रॉसविंड",
-    descent: "अवरोहण", cruise_alt: "क्रूज़ ऊंचाई", target_alt: "लक्ष्य ऊंचाई", descent_angle: "अवरोहण कोण", tod: "अवरोहण बिंदु",
-    total_fuel: "कुल ईंधन", reserve: "रिजर्व", pnr: "नो रिटर्न पॉइंट",
-    speed: "गति", pressure: "दबाव", temp: "तापमान", dist: "दूरी", vol: "मात्रा",
-    timer: "टाइमर", notes: "नोट्स", start: "शुरू", reset: "रीसेट", notes_placeholder: "उड़ान नोट्स दर्ज करें..."
-  },
-  fil: {
-    nav_fuel: "GASOLINA", nav_cost: "GASTOS", nav_flight: "LIPAD", nav_atmo: "ATMOSPERA", nav_safety: "KALIGTASAN", nav_tools: "MGA TOOL", nav_system: "SISTEMA",
-    fuel_title: "Fuel Calculator", cost_title: "Cost Calculator", flight_title: "Flight Planning", atmo_title: "Atmospera", safety_title: "Kaligtasan", tools_title: "Mga Converter", system_title: "Sistema",
-    ready: "Handa", fuel_type: "Uri ng Fuel", volume: "Dami (L)", temperature: "Temperatura (C)", fuel_mass: "Bigat ng Fuel",
-    fuel_flow: "Fuel Flow (L/h)", price_liter: "Presyo bawat Litro", currency: "Pera", cost_hour: "Gastos bawat Oras", per_min: "Bawat Min", per_nm: "Bawat NM",
-    basic: "Basic", fuel_req: "Fuel Req", endurance: "Tagal", distance: "Distansya (NM)", wind: "Hangin (kt)", wind_dir: "Direksyon", heading: "Heading",
-    ground_speed: "Ground Speed", time: "Oras", fuel_required: "Kailangan na Fuel", fuel_available: "Available na Fuel",
-    density_alt: "Density Alt", elevation: "Elevation (ft)", altitude: "Altitude (ft)",
-    weight: "Bigat (kg)", moment: "Moment", runway: "Runway", wind_speed: "Bilis ng Hangin", headwind: "Headwind", crosswind: "Crosswind",
-    descent: "Pagbaba", cruise_alt: "Cruise Alt", target_alt: "Target Alt", descent_angle: "Anggulo", tod: "Top of Descent",
-    total_fuel: "Kabuuang Fuel", reserve: "Reserve", pnr: "Point of No Return",
-    speed: "Bilis", pressure: "Presyon", temp: "Temp", dist: "Dist", vol: "Dami",
-    timer: "Timer", notes: "Mga Tala", start: "SIMULA", reset: "RESET", notes_placeholder: "Ilagay ang mga tala..."
-  }
-};
-
-let currentLang = 'en';
-
-function setLang(lang) {
-  currentLang = lang;
-  const isRtl = lang === 'ar';
-  document.documentElement.setAttribute('dir', isRtl ? 'rtl' : 'ltr');
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (T[lang] && T[lang][key]) {
-      if (el.tagName === 'SPAN' || el.tagName === 'BUTTON' || el.tagName === 'DIV' || el.tagName === 'LABEL') {
-        el.textContent = T[lang][key];
-      }
-    }
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    if (T[lang] && T[lang][key]) el.placeholder = T[lang][key];
-  });
-}
-
-function showSec(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-pill').forEach(b => b.classList.remove('active'));
-  document.getElementById('sec-' + id).classList.add('active');
-  event.target.closest('.nav-pill').classList.add('active');
-  document.querySelectorAll('.bg-layer').forEach(bg => bg.classList.remove('active'));
-  document.querySelector('.bg-layer.bg-' + id).classList.add('active');
-}
-
-function showFlightTab(t) {
-  document.querySelectorAll('#sec-flight [id^="flight-"]').forEach(c => c.style.display = 'none');
-  document.querySelectorAll('#sec-flight .tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('flight-' + t).style.display = 'block';
-  event.target.classList.add('active');
-}
-
-function showAtmoTab(t) {
-  document.querySelectorAll('#sec-atmo [id^="atmo-"]').forEach(c => c.style.display = 'none');
-  document.querySelectorAll('#sec-atmo .tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('atmo-' + t).style.display = 'block';
-  event.target.classList.add('active');
-}
-
-function showSafetyTab(t) {
-  document.querySelectorAll('#sec-safety [id^="safety-"]').forEach(c => c.style.display = 'none');
-  document.querySelectorAll('#sec-safety .tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('safety-' + t).style.display = 'block';
-  event.target.classList.add('active');
-}
-
-function showToolTab(t) {
-  document.querySelectorAll('#sec-tools [id^="tool-"]').forEach(c => c.style.display = 'none');
-  document.querySelectorAll('#sec-tools .tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('tool-' + t).style.display = 'block';
-  event.target.classList.add('active');
-}
-
-function showSysTab(t) {
-  document.querySelectorAll('#sec-system [id^="sys-"]').forEach(c => c.style.display = 'none');
-  document.querySelectorAll('#sec-system .tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('sys-' + t).style.display = 'block';
-  event.target.classList.add('active');
-}
-
-function toggleNight() { document.body.classList.toggle('night-mode'); }
-
-function updateClocks() {
-  const n = new Date();
-  document.getElementById('zuluClock').textContent = String(n.getUTCHours()).padStart(2,'0') + ':' + String(n.getUTCMinutes()).padStart(2,'0') + ':' + String(n.getUTCSeconds()).padStart(2,'0') + 'Z';
-  document.getElementById('localClock').textContent = 'LOCAL ' + String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
-}
-setInterval(updateClocks, 1000); updateClocks();
-
-function calcFuel() {
-  const t = document.getElementById('fuelType').value;
-  const v = parseFloat(document.getElementById('fuelVol').value) || 0;
-  const temp = parseFloat(document.getElementById('fuelTemp').value) || 15;
-  let d = 0.8;
-  if (t === 'jeta1') d = 0.8 - (temp - 15) * 0.00084;
-  else if (t === 'jeta') d = 0.804;
-  else if (t === 'jp8') d = 0.8;
-  else if (t === 'avgas') d = 0.721;
-  else if (t === 'mogas') d = 0.745;
-  const m = v * d;
-  document.getElementById('fuelMass').textContent = Math.round(m);
-  document.getElementById('fuelLbs').textContent = Math.round(m * 2.20462);
-  document.getElementById('fuelUsg').textContent = (v * 0.264172).toFixed(1);
-  document.getElementById('fuelImp').textContent = (v * 0.219969).toFixed(1);
-}
-
-function calcCost() {
-  const f = parseFloat(document.getElementById('costFlow').value) || 0;
-  const p = parseFloat(document.getElementById('costPrice').value) || 0;
-  const c = document.getElementById('costCurr').value;
-  const h = f * p;
-  const sym = {USD:'$',EUR:'E',GBP:'L',RUB:'R',INR:'R',PHP:'P',SAR:'S'}[c] || '';
-  document.getElementById('costHour').textContent = sym + h.toFixed(2);
-  document.getElementById('costMin').textContent = sym + (h/60).toFixed(2);
-  document.getElementById('costNm').textContent = sym + (h/200).toFixed(2);
-}
-
-function calcFlight() {
-  const tas = parseFloat(document.getElementById('flightTas').value) || 0;
-  const dist = parseFloat(document.getElementById('flightDist').value) || 0;
-  const wind = parseFloat(document.getElementById('flightWind').value) || 0;
-  const wdir = parseFloat(document.getElementById('flightWdir').value) || 0;
-  const hdg = parseFloat(document.getElementById('flightHdg').value) || 0;
-  const a = (wdir - hdg) * Math.PI / 180;
-  const hw = wind * Math.cos(a);
-  const cw = wind * Math.sin(a);
-  const gs = Math.max(0, tas - hw);
-  const wca = tas > 0 ? Math.asin(cw / tas) * 180 / Math.PI : 0;
-  const t = gs > 0 ? dist / gs : 0;
-  const hr = Math.floor(t);
-  const mn = Math.round((t - hr) * 60);
-  document.getElementById('flightGs').textContent = Math.round(gs);
-  document.getElementById('flightTime').textContent = String(hr).padStart(2,'0') + ':' + String(mn).padStart(2,'0');
-  document.getElementById('flightWca').textContent = (wca >= 0 ? '+' : '') + wca.toFixed(1) + '°';
-  document.getElementById('flightHdgRes').textContent = Math.round(hdg + wca) + '°';
-}
-
-function calcFuelReq() {
-  const gs = parseFloat(document.getElementById('fuelReqGs').value) || 0;
-  const dist = parseFloat(document.getElementById('fuelReqDist').value) || 0;
-  const flow = parseFloat(document.getElementById('fuelReqFlow').value) || 0;
-  const t = gs > 0 ? dist / gs : 0;
-  document.getElementById('fuelReqRes').textContent = Math.round(t * flow);
-}
-
-function calcEndur() {
-  const f = parseFloat(document.getElementById('endurFuel').value) || 0;
-  const fl = parseFloat(document.getElementById('endurFlow').value) || 0;
-  const t = fl > 0 ? f / fl : 0;
-  const hr = Math.floor(t);
-  const mn = Math.round((t - hr) * 60);
-  document.getElementById('endurRes').textContent = String(hr).padStart(2,'0') + ':' + String(mn).padStart(2,'0');
-}
-
-function calcAtmo() {
-  const e = parseFloat(document.getElementById('atmoElev').value) || 0;
-  const oat = parseFloat(document.getElementById('atmoOat').value) || 15;
-  const qnh = parseFloat(document.getElementById('atmoQnh').value) || 1013.25;
-  const pa = e + (1013.25 - qnh) * 30;
-  const isa = 15 - (e / 1000) * 1.98;
-  const dev = oat - isa;
-  const da = pa + (120 * dev);
-  document.getElementById('atmoDa').textContent = Math.round(da);
-  document.getElementById('atmoIsa').textContent = (dev >= 0 ? '+' : '') + dev.toFixed(1) + 'C';
-  document.getElementById('atmoPa').textContent = Math.round(pa);
-}
-
-function convQnh(f) {
-  const hpa = parseFloat(document.getElementById('qnhHpa').value) || 0;
-  const inhg = parseFloat(document.getElementById('qnhInhg').value) || 0;
-  const mmhg = parseFloat(document.getElementById('qnhMmhg').value) || 0;
-  if (f === 'hpa') {
-    document.getElementById('qnhInhg').value = (hpa * 0.02953).toFixed(2);
-    document.getElementById('qnhMmhg').value = (hpa * 0.75006).toFixed(2);
-  } else if (f === 'inhg') {
-    document.getElementById('qnhHpa').value = (inhg / 0.02953).toFixed(2);
-    document.getElementById('qnhMmhg').value = (inhg * 25.4).toFixed(2);
-  } else {
-    document.getElementById('qnhHpa').value = (mmhg / 0.75006).toFixed(2);
-    document.getElementById('qnhInhg').value = (mmhg / 25.4).toFixed(2);
-  }
-}
-
-function calcTas() {
-  const ias = parseFloat(document.getElementById('tasIas').value) || 0;
-  const alt = parseFloat(document.getElementById('tasAlt').value) || 0;
-  const oat = parseFloat(document.getElementById('tasOat').value) || 0;
-  const tas = ias * (1 + alt * 0.00002) * (1 + (15 - oat) * 0.002);
-  document.getElementById('tasRes').textContent = Math.round(tas);
-}
-
-function calcWb() {
-  const w = parseFloat(document.getElementById('wbWeight').value) || 0;
-  const a = parseFloat(document.getElementById('wbArm').value) || 0;
-  document.getElementById('wbMoment').textContent = (w * a).toFixed(0);
-}
-
-function calcWind() {
-  const r = parseFloat(document.getElementById('windRwy').value) || 0;
-  const d = parseFloat(document.getElementById('windDir').value) || 0;
-  const s = parseFloat(document.getElementById('windSpd').value) || 0;
-  const a = (d - r) * Math.PI / 180;
-  const h = s * Math.cos(a);
-  const c = Math.abs(s * Math.sin(a));
-  document.getElementById('windHead').textContent = Math.round(h);
-  document.getElementById('windCross').textContent = Math.round(c) + ' kt';
-  document.getElementById('windRoseRwy').style.transform = 'translate(-50%, -100%) rotate(' + r + 'deg)';
-  document.getElementById('windRoseWind').style.transform = 'translate(-50%, -100%) rotate(' + d + 'deg)';
-}
-
-function calcDesc() {
-  const alt = parseFloat(document.getElementById('descAlt').value) || 0;
-  const tgt = parseFloat(document.getElementById('descTgt').value) || 0;
-  const gs = parseFloat(document.getElementById('descGs').value) || 0;
-  const ang = parseFloat(document.getElementById('descAngle').value) || 3;
-  const diff = alt - tgt;
-  const tod = diff / (Math.tan(ang * Math.PI / 180) * 6076.12);
-  const vs = gs > 0 ? (ang * gs * 101.3) : 0;
-  const t = gs > 0 ? tod / gs : 0;
-  const hr = Math.floor(t);
-  const mn = Math.round((t - hr) * 60);
-  document.getElementById('descTod').textContent = tod.toFixed(1);
-  document.getElementById('descVs').textContent = Math.round(vs) + ' fpm';
-  document.getElementById('descTime').textContent = String(hr).padStart(2,'0') + ':' + String(mn).padStart(2,'0');
-}
-
-function calcPnr() {
-  const f = parseFloat(document.getElementById('pnrFuel').value) || 0;
-  const res = parseFloat(document.getElementById('pnrRes').value) || 0;
-  const fo = parseFloat(document.getElementById('pnrFlowOut').value) || 0;
-  const fb = parseFloat(document.getElementById('pnrFlowBack').value) || 0;
-  const go = parseFloat(document.getElementById('pnrGsOut').value) || 0;
-  const gb = parseFloat(document.getElementById('pnrGsBack').value) || 0;
-  if (fo === 0 || fb === 0 || go === 0 || gb === 0) { document.getElementById('pnrDist').textContent = '0'; document.getElementById('pnrTime').textContent = '00:00'; return; }
-  const usable = f - res;
-  const tOut = usable / (fo + fb * (go / gb));
-  const dist = tOut * go;
-  const hr = Math.floor(tOut);
-  const mn = Math.round((tOut - hr) * 60);
-  document.getElementById('pnrDist').textContent = Math.round(dist);
-  document.getElementById('pnrTime').textContent = String(hr).padStart(2,'0') + ':' + String(mn).padStart(2,'0');
-}
-
-function convSpeed(f) {
-  const kt = parseFloat(document.getElementById('convKt').value) || 0;
-  const kmh = parseFloat(document.getElementById('convKmh').value) || 0;
-  const mph = parseFloat(document.getElementById('convMph').value) || 0;
-  const ms = parseFloat(document.getElementById('convMs').value) || 0;
-  if (f === 'kt') { document.getElementById('convKmh').value = (kt * 1.852).toFixed(2); document.getElementById('convMph').value = (kt * 1.15078).toFixed(2); document.getElementById('convMs').value = (kt * 0.514444).toFixed(2); }
-  else if (f === 'kmh') { document.getElementById('convKt').value = (kmh / 1.852).toFixed(2); document.getElementById('convMph').value = (kmh / 1.60934).toFixed(2); document.getElementById('convMs').value = (kmh / 3.6).toFixed(2); }
-  else if (f === 'mph') { document.getElementById('convKt').value = (mph / 1.15078).toFixed(2); document.getElementById('convKmh').value = (mph * 1.60934).toFixed(2); document.getElementById('convMs').value = (mph * 0.44704).toFixed(2); }
-  else { document.getElementById('convKt').value = (ms / 0.514444).toFixed(2); document.getElementById('convKmh').value = (ms * 3.6).toFixed(2); document.getElementById('convMph').value = (ms / 0.44704).toFixed(2); }
-}
-
-function convPress(f) {
-  const hpa = parseFloat(document.getElementById('convHpa').value) || 0;
-  const inhg = parseFloat(document.getElementById('convInhg').value) || 0;
-  const mmhg = parseFloat(document.getElementById('convMmhg').value) || 0;
-  const psi = parseFloat(document.getElementById('convPsi').value) || 0;
-  if (f === 'hpa') { document.getElementById('convInhg').value = (hpa * 0.02953).toFixed(2); document.getElementById('convMmhg').value = (hpa * 0.75006).toFixed(2); document.getElementById('convPsi').value = (hpa * 0.0145038).toFixed(3); }
-  else if (f === 'inhg') { document.getElementById('convHpa').value = (inhg / 0.02953).toFixed(2); document.getElementById('convMmhg').value = (inhg * 25.4).toFixed(2); document.getElementById('convPsi').value = (inhg * 0.49115).toFixed(3); }
-  else if (f === 'mmhg') { document.getElementById('convHpa').value = (mmhg / 0.75006).toFixed(2); document.getElementById('convInhg').value = (mmhg / 25.4).toFixed(2); document.getElementById('convPsi').value = (mmhg * 0.01934).toFixed(3); }
-  else { document.getElementById('convHpa').value = (psi / 0.0145038).toFixed(2); document.getElementById('convInhg').value = (psi / 0.49115).toFixed(2); document.getElementById('convMmhg').value = (psi / 0.01934).toFixed(2); }
-}
-
-function convTemp(f) {
-  const c = parseFloat(document.getElementById('convC').value) || 0;
-  const F = parseFloat(document.getElementById('convF').value) || 0;
-  const k = parseFloat(document.getElementById('convK').value) || 0;
-  const r = parseFloat(document.getElementById('convR').value) || 0;
-  if (f === 'c') { document.getElementById('convF').value = (c * 9/5 + 32).toFixed(2); document.getElementById('convK').value = (c + 273.15).toFixed(2); document.getElementById('convR').value = ((c + 273.15) * 9/5).toFixed(2); }
-  else if (f === 'f') { document.getElementById('convC').value = ((F - 32) * 5/9).toFixed(2); document.getElementById('convK').value = ((F - 32) * 5/9 + 273.15).toFixed(2); document.getElementById('convR').value = (F + 459.67).toFixed(2); }
-  else if (f === 'k') { document.getElementById('convC').value = (k - 273.15).toFixed(2); document.getElementById('convF').value = (k * 9/5 - 459.67).toFixed(2); document.getElementById('convR').value = (k * 9/5).toFixed(2); }
-  else { document.getElementById('convC').value = ((r - 491.67) * 5/9).toFixed(2); document.getElementById('convF').value = (r - 459.67).toFixed(2); document.getElementById('convK').value = (r * 5/9).toFixed(2); }
-}
-
-function convDist(f) {
-  const nm = parseFloat(document.getElementById('convNm').value) || 0;
-  const km = parseFloat(document.getElementById('convKm').value) || 0;
-  const mi = parseFloat(document.getElementById('convMi').value) || 0;
-  const ft = parseFloat(document.getElementById('convFt').value) || 0;
-  if (f === 'nm') { document.getElementById('convKm').value = (nm * 1.852).toFixed(2); document.getElementById('convMi').value = (nm * 1.15078).toFixed(2); document.getElementById('convFt').value = Math.round(nm * 6076.12); }
-  else if (f === 'km') { document.getElementById('convNm').value = (km / 1.852).toFixed(2); document.getElementById('convMi').value = (km / 1.60934).toFixed(2); document.getElementById('convFt').value = Math.round(km * 3280.84); }
-  else if (f === 'mi') { document.getElementById('convNm').value = (mi / 1.15078).toFixed(2); document.getElementById('convKm').value = (mi * 1.60934).toFixed(2); document.getElementById('convFt').value = Math.round(mi * 5280); }
-  else { document.getElementById('convNm').value = (ft / 6076.12).toFixed(4); document.getElementById('convKm').value = (ft / 3280.84).toFixed(4); document.getElementById('convMi').value = (ft / 5280).toFixed(4); }
-}
-
-function convVol(f) {
-  const l = parseFloat(document.getElementById('convL').value) || 0;
-  const usg = parseFloat(document.getElementById('convUsg').value) || 0;
-  const impg = parseFloat(document.getElementById('convImpg').value) || 0;
-  const qt = parseFloat(document.getElementById('convQt').value) || 0;
-  if (f === 'l') { document.getElementById('convUsg').value = (l * 0.264172).toFixed(2); document.getElementById('convImpg').value = (l * 0.219969).toFixed(2); document.getElementById('convQt').value = (l * 1.05669).toFixed(2); }
-  else if (f === 'usg') { document.getElementById('convL').value = (usg / 0.264172).toFixed(2); document.getElementById('convImpg').value = (usg * 0.832674).toFixed(2); document.getElementById('convQt').value = (usg * 4).toFixed(2); }
-  else if (f === 'impg') { document.getElementById('convL').value = (impg / 0.219969).toFixed(2); document.getElementById('convUsg').value = (impg / 0.832674).toFixed(2); document.getElementById('convQt').value = (impg * 4.8038).toFixed(2); }
-  else { document.getElementById('convL').value = (qt / 1.05669).toFixed(2); document.getElementById('convUsg').value = (qt / 4).toFixed(2); document.getElementById('convImpg').value = (qt / 4.8038).toFixed(2); }
-}
-
-let timerInt = null, timerSec = 0, timerRun = false;
-function toggleTimer() {
-  const b = document.getElementById('timerStartBtn');
-  if (timerRun) { clearInterval(timerInt); timerRun = false; b.textContent = T[currentLang].start || 'START'; b.classList.remove('stop'); b.classList.add('start'); }
-  else { timerInt = setInterval(() => { timerSec++; updTimer(); }, 1000); timerRun = true; b.textContent = 'STOP'; b.classList.remove('start'); b.classList.add('stop'); }
-}
-function resetTimer() { clearInterval(timerInt); timerRun = false; timerSec = 0; updTimer(); const b = document.getElementById('timerStartBtn'); b.textContent = T[currentLang].start || 'START'; b.classList.remove('stop'); b.classList.add('start'); }
-function updTimer() { const hr = Math.floor(timerSec / 3600); const mn = Math.floor((timerSec % 3600) / 60); const sc = timerSec % 60; document.getElementById('timerDisplay').textContent = String(hr).padStart(2,'0') + ':' + String(mn).padStart(2,'0') + ':' + String(sc).padStart(2,'0'); }
+const T={en:{nav_fuel:"FUEL",nav_cost:"COST",nav_flight:"FLIGHT",nav_atmo:"ATMO",nav_safety:"SAFETY",nav_tools:"TOOLS",nav_system:"SYSTEM",fuel_title:"Fuel Calculator",cost_title:"Cost Calculator",flight_title:"Flight Planning",atmo_title:"Atmosphere",safety_title:"Safety",tools_title:"Converters",system_title:"System",ready:"Ready",fuel_type:"Fuel Type",volume:"Volume (L)",temperature:"Temperature (C)",fuel_mass:"Fuel Mass",fuel_flow:"Fuel Flow (L/h)",price_liter:"Price/Liter",currency:"Currency",cost_hour:"Cost Per Hour"},ru:{nav_fuel:"ТОПЛИВО",nav_cost:"РАСХОД",nav_flight:"ПОЛЕТ",nav_atmo:"АТМО",nav_safety:"БЕЗОП",nav_tools:"КОНВЕРТ",nav_system:"СИСТЕМА",fuel_title:"Расчет топлива",cost_title:"Расчет стоимости",flight_title:"Планирование",atmo_title:"Атмосфера",safety_title:"Безопасность",tools_title:"Конвертеры",system_title:"Система",ready:"Готов",fuel_type:"Тип топлива",volume:"Объем (л)",temperature:"Температура (C)",fuel_mass:"Масса топлива",fuel_flow:"Расход (л/ч)",price_liter:"Цена/литр",currency:"Валюта",cost_hour:"Стоимость/час"},ar:{nav_fuel:"الوقود",nav_cost:"التكلفة",nav_flight:"الرحلة",nav_atmo:"الجو",nav_safety:"السلامة",nav_tools:"أدوات",nav_system:"النظام",fuel_title:"حاسبة الوقود",cost_title:"حاسبة التكلفة",flight_title:"تخطيط الرحلة",atmo_title:"الغلاف الجوي",safety_title:"السلامة",tools_title:"المحولات",system_title:"النظام",ready:"جاهز",fuel_type:"نوع الوقود",volume:"الحجم",temperature:"الحرارة",fuel_mass:"كتلة الوقود",fuel_flow:"تدفق الوقود",price_liter:"السعر/لتر",currency:"العملة",cost_hour:"التكلفة/ساعة"},hi:{nav_fuel:"ईंधन",nav_cost:"लागत",nav_flight:"उड़ान",nav_atmo:"वायुमंडल",nav_safety:"सुरक्षा",nav_tools:"उपकरण",nav_system:"सिस्टम",fuel_title:"ईंधन कैलकुलेटर",cost_title:"लागत कैलकुलेटर",flight_title:"उड़ान योजना",atmo_title:"वायुमंडल",safety_title:"सुरक्षा",tools_title:"कनवर्टर",system_title:"सिस्टम",ready:"तैयार",fuel_type:"ईंधन प्रकार",volume:"मात्रा",temperature:"तापमान",fuel_mass:"ईंधन द्रव्यमान",fuel_flow:"ईंधन प्रवाह",price_liter:"मूल्य/लीटर",currency:"मुद्रा",cost_hour:"लागत/घंटा"},fil:{nav_fuel:"GASOLINA",nav_cost:"GASTOS",nav_flight:"LIPAD",nav_atmo:"ATMOSPERA",nav_safety:"KALIGTASAN",nav_tools:"MGA TOOL",nav_system:"SISTEMA",fuel_title:"Fuel Calculator",cost_title:"Cost Calculator",flight_title:"Flight Planning",atmo_title:"Atmospera",safety_title:"Kaligtasan",tools_title:"Mga Converter",system_title:"Sistema",ready:"Handa",fuel_type:"Uri ng Fuel",volume:"Dami",temperature:"Temperatura",fuel_mass:"Bigat ng Fuel",fuel_flow:"Fuel Flow",price_liter:"Presyo/Litro",currency:"Pera",cost_hour:"Gastos/Oras"}};
+let currentLang='en';
+function setLang(l){currentLang=l;document.documentElement.setAttribute('dir',l==='ar'?'rtl':'ltr');document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(T[l]&&T[l][k])el.textContent=T[l][k]})}
+function showSec(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');event.target.closest('.nav-pill').classList.add('active');document.querySelectorAll('.bg-layer').forEach(bg=>bg.classList.remove('active'));document.querySelector('.bg-layer.bg-'+id).classList.add('active')}
+function showFlightTab(t){document.querySelectorAll('#sec-flight [id^="flight-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-flight .tab').forEach(b=>b.classList.remove('active'));document.getElementById('flight-'+t).style.display='block';event.target.classList.add('active')}
+function showAtmoTab(t){document.querySelectorAll('#sec-atmo [id^="atmo-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-atmo .tab').forEach(b=>b.classList.remove('active'));document.getElementById('atmo-'+t).style.display='block';event.target.classList.add('active')}
+function showSafetyTab(t){document.querySelectorAll('#sec-safety [id^="safety-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-safety .tab').forEach(b=>b.classList.remove('active'));document.getElementById('safety-'+t).style.display='block';event.target.classList.add('active')}
+function showToolTab(t){document.querySelectorAll('#sec-tools [id^="tool-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-tools .tab').forEach(b=>b.classList.remove('active'));document.getElementById('tool-'+t).style.display='block';event.target.classList.add('active')}
+function showSysTab(t){document.querySelectorAll('#sec-system [id^="sys-"]').forEach(c=>c.style.display='none');document.querySelectorAll('#sec-system .tab').forEach(b=>b.classList.remove('active'));document.getElementById('sys-'+t).style.display='block';event.target.classList.add('active')}
+function toggleNight(){document.body.classList.toggle('night-mode')}
+function updateClocks(){const n=new Date();document.getElementById('zuluClock').textContent=String(n.getUTCHours()).padStart(2,'0')+':'+String(n.getUTCMinutes()).padStart(2,'0')+':'+String(n.getUTCSeconds()).padStart(2,'0')+'Z';document.getElementById('localClock').textContent='LOCAL '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
+setInterval(updateClocks,1000);updateClocks();
+function calcFuel(){const t=document.getElementById('fuelType').value;const v=parseFloat(document.getElementById('fuelVol').value)||0;const temp=parseFloat(document.getElementById('fuelTemp').value)||15;let d=0.8;if(t==='jeta1')d=0.8-(temp-15)*0.00084;else if(t==='jeta')d=0.804;else if(t==='jp8')d=0.8;else if(t==='avgas')d=0.721;else if(t==='mogas')d=0.745;const m=v*d;document.getElementById('fuelMass').textContent=Math.round(m);document.getElementById('fuelLbs').textContent=Math.round(m*2.20462);document.getElementById('fuelUsg').textContent=(v*0.264172).toFixed(1);document.getElementById('fuelImp').textContent=(v*0.219969).toFixed(1)}
+function calcCost(){const f=parseFloat(document.getElementById('costFlow').value)||0;const p=parseFloat(document.getElementById('costPrice').value)||0;const c=document.getElementById('costCurr').value;const h=f*p;const sym={USD:'$',EUR:'E',RUB:'R',INR:'R',PHP:'P',SAR:'S'}[c]||'';document.getElementById('costHour').textContent=sym+h.toFixed(2);document.getElementById('costMin').textContent=sym+(h/60).toFixed(2);document.getElementById('costNm').textContent=sym+(h/200).toFixed(2)}
+function calcFlight(){const tas=parseFloat(document.getElementById('flightTas').value)||0;const dist=parseFloat(document.getElementById('flightDist').value)||0;const wind=parseFloat(document.getElementById('flightWind').value)||0;const wdir=parseFloat(document.getElementById('flightWdir').value)||0;const hdg=parseFloat(document.getElementById('flightHdg').value)||0;const a=(wdir-hdg)*Math.PI/180;const hw=wind*Math.cos(a);const cw=wind*Math.sin(a);const gs=Math.max(0,tas-hw);const wca=tas>0?Math.asin(cw/tas)*180/Math.PI:0;const t=gs>0?dist/gs:0;const hr=Math.floor(t);const mn=Math.round((t-hr)*60);document.getElementById('flightGs').textContent=Math.round(gs);document.getElementById('flightTime').textContent=String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0');document.getElementById('flightWca').textContent=(wca>=0?'+':'')+wca.toFixed(1)+'°';document.getElementById('flightHdgRes').textContent=Math.round(hdg+wca)+'°'}
+function calcFuelReq(){const gs=parseFloat(document.getElementById('fuelReqGs').value)||0;const dist=parseFloat(document.getElementById('fuelReqDist').value)||0;const flow=parseFloat(document.getElementById('fuelReqFlow').value)||0;const t=gs>0?dist/gs:0;document.getElementById('fuelReqRes').textContent=Math.round(t*flow)}
+function calcEndur(){const f=parseFloat(document.getElementById('endurFuel').value)||0;const fl=parseFloat(document.getElementById('endurFlow').value)||0;const t=fl>0?f/fl:0;const hr=Math.floor(t);const mn=Math.round((t-hr)*60);document.getElementById('endurRes').textContent=String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0')}
+function calcAtmo(){const e=parseFloat(document.getElementById('atmoElev').value)||0;const oat=parseFloat(document.getElementById('atmoOat').value)||15;const qnh=parseFloat(document.getElementById('atmoQnh').value)||1013.25;const pa=e+(1013.25-qnh)*30;const isa=15-(e/1000)*1.98;const dev=oat-isa;const da=pa+(120*dev);document.getElementById('atmoDa').textContent=Math.round(da);document.getElementById('atmoIsa').textContent=(dev>=0?'+':'')+dev.toFixed(1)+'C';document.getElementById('atmoPa').textContent=Math.round(pa)}
+function convQnh(f){const hpa=parseFloat(document.getElementById('qnhHpa').value)||0;const inhg=parseFloat(document.getElementById('qnhInhg').value)||0;const mmhg=parseFloat(document.getElementById('qnhMmhg').value)||0;if(f==='hpa'){document.getElementById('qnhInhg').value=(hpa*0.02953).toFixed(2);document.getElementById('qnhMmhg').value=(hpa*0.75006).toFixed(2)}else if(f==='inhg'){document.getElementById('qnhHpa').value=(inhg/0.02953).toFixed(2);document.getElementById('qnhMmhg').value=(inhg*25.4).toFixed(2)}else{document.getElementById('qnhHpa').value=(mmhg/0.75006).toFixed(2);document.getElementById('qnhInhg').value=(mmhg/25.4).toFixed(2)}}
+function calcTas(){const ias=parseFloat(document.getElementById('tasIas').value)||0;const alt=parseFloat(document.getElementById('tasAlt').value)||0;const oat=parseFloat(document.getElementById('tasOat').value)||0;const tas=ias*(1+alt*0.00002)*(1+(15-oat)*0.002);document.getElementById('tasRes').textContent=Math.round(tas)}
+function calcWb(){const w=parseFloat(document.getElementById('wbWeight').value)||0;const a=parseFloat(document.getElementById('wbArm').value)||0;document.getElementById('wbMoment').textContent=(w*a).toFixed(0)}
+function calcWind(){const r=parseFloat(document.getElementById('windRwy').value)||0;const d=parseFloat(document.getElementById('windDir').value)||0;const s=parseFloat(document.getElementById('windSpd').value)||0;const a=(d-r)*Math.PI/180;const h=s*Math.cos(a);const c=Math.abs(s*Math.sin(a));document.getElementById('windHead').textContent=Math.round(h);document.getElementById('windCross').textContent=Math.round(c)+' kt';document.getElementById('windRoseRwy').style.transform='translate(-50%,-100%) rotate('+r+'deg)';document.getElementById('windRoseWind').style.transform='translate(-50%,-100%) rotate('+d+'deg)'}
+function calcDesc(){const alt=parseFloat(document.getElementById('descAlt').value)||0;const tgt=parseFloat(document.getElementById('descTgt').value)||0;const gs=parseFloat(document.getElementById('descGs').value)||0;const ang=parseFloat(document.getElementById('descAngle').value)||3;const diff=alt-tgt;const tod=diff/(Math.tan(ang*Math.PI/180)*6076.12);const vs=gs>0?(ang*gs*101.3):0;const t=gs>0?tod/gs:0;const hr=Math.floor(t);const mn=Math.round((t-hr)*60);document.getElementById('descTod').textContent=tod.toFixed(1);document.getElementById('descVs').textContent=Math.round(vs)+' fpm';document.getElementById('descTime').textContent=String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0')}
+function calcPnr(){const f=parseFloat(document.getElementById('pnrFuel').value)||0;const res=parseFloat(document.getElementById('pnrRes').value)||0;const fo=parseFloat(document.getElementById('pnrFlowOut').value)||0;const fb=parseFloat(document.getElementById('pnrFlowBack').value)||0;const go=parseFloat(document.getElementById('pnrGsOut').value)||0;const gb=parseFloat(document.getElementById('pnrGsBack').value)||0;if(fo===0||fb===0||go===0||gb===0){document.getElementById('pnrDist').textContent='0';document.getElementById('pnrTime').textContent='00:00';return}const usable=f-res;const tOut=usable/(fo+fb*(go/gb));const dist=tOut*go;const hr=Math.floor(tOut);const mn=Math.round((tOut-hr)*60);document.getElementById('pnrDist').textContent=Math.round(dist);document.getElementById('pnrTime').textContent=String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0')}
+function convSpeed(f){const kt=parseFloat(document.getElementById('convKt').value)||0;const kmh=parseFloat(document.getElementById('convKmh').value)||0;const mph=parseFloat(document.getElementById('convMph').value)||0;const ms=parseFloat(document.getElementById('convMs').value)||0;if(f==='kt'){document.getElementById('convKmh').value=(kt*1.852).toFixed(2);document.getElementById('convMph').value=(kt*1.15078).toFixed(2);document.getElementById('convMs').value=(kt*0.514444).toFixed(2)}else if(f==='kmh'){document.getElementById('convKt').value=(kmh/1.852).toFixed(2);document.getElementById('convMph').value=(kmh/1.60934).toFixed(2);document.getElementById('convMs').value=(kmh/3.6).toFixed(2)}else if(f==='mph'){document.getElementById('convKt').value=(mph/1.15078).toFixed(2);document.getElementById('convKmh').value=(mph*1.60934).toFixed(2);document.getElementById('convMs').value=(mph*0.44704).toFixed(2)}else{document.getElementById('convKt').value=(ms/0.514444).toFixed(2);document.getElementById('convKmh').value=(ms*3.6).toFixed(2);document.getElementById('convMph').value=(ms/0.44704).toFixed(2)}}
+function convPress(f){const hpa=parseFloat(document.getElementById('convHpa').value)||0;const inhg=parseFloat(document.getElementById('convInhg').value)||0;const mmhg=parseFloat(document.getElementById('convMmhg').value)||0;const psi=parseFloat(document.getElementById('convPsi').value)||0;if(f==='hpa'){document.getElementById('convInhg').value=(hpa*0.02953).toFixed(2);document.getElementById('convMmhg').value=(hpa*0.75006).toFixed(2);document.getElementById('convPsi').value=(hpa*0.0145038).toFixed(3)}else if(f==='inhg'){document.getElementById('convHpa').value=(inhg/0.02953).toFixed(2);document.getElementById('convMmhg').value=(inhg*25.4).toFixed(2);document.getElementById('convPsi').value=(inhg*0.49115).toFixed(3)}else if(f==='mmhg'){document.getElementById('convHpa').value=(mmhg/0.75006).toFixed(2);document.getElementById('convInhg').value=(mmhg/25.4).toFixed(2);document.getElementById('convPsi').value=(mmhg*0.01934).toFixed(3)}else{document.getElementById('convHpa').value=(psi/0.0145038).toFixed(2);document.getElementById('convInhg').value=(psi/0.49115).toFixed(2);document.getElementById('convMmhg').value=(psi/0.01934).toFixed(2)}}
+function convTemp(f){const c=parseFloat(document.getElementById('convC').value)||0;const F=parseFloat(document.getElementById('convF').value)||0;const k=parseFloat(document.getElementById('convK').value)||0;const r=parseFloat(document.getElementById('convR').value)||0;if(f==='c'){document.getElementById('convF').value=(c*9/5+32).toFixed(2);document.getElementById('convK').value=(c+273.15).toFixed(2);document.getElementById('convR').value=((c+273.15)*9/5).toFixed(2)}else if(f==='f'){document.getElementById('convC').value=((F-32)*5/9).toFixed(2);document.getElementById('convK').value=((F-32)*5/9+273.15).toFixed(2);document.getElementById('convR').value=(F+459.67).toFixed(2)}else if(f==='k'){document.getElementById('convC').value=(k-273.15).toFixed(2);document.getElementById('convF').value=(k*9/5-459.67).toFixed(2);document.getElementById('convR').value=(k*9/5).toFixed(2)}else{document.getElementById('convC').value=((r-491.67)*5/9).toFixed(2);document.getElementById('convF').value=(r-459.67).toFixed(2);document.getElementById('convK').value=(r*5/9).toFixed(2)}}
+function convDist(f){const nm=parseFloat(document.getElementById('convNm').value)||0;const km=parseFloat(document.getElementById('convKm').value)||0;const mi=parseFloat(document.getElementById('convMi').value)||0;const ft=parseFloat(document.getElementById('convFt').value)||0;if(f==='nm'){document.getElementById('convKm').value=(nm*1.852).toFixed(2);document.getElementById('convMi').value=(nm*1.15078).toFixed(2);document.getElementById('convFt').value=Math.round(nm*6076.12)}else if(f==='km'){document.getElementById('convNm').value=(km/1.852).toFixed(2);document.getElementById('convMi').value=(km/1.60934).toFixed(2);document.getElementById('convFt').value=Math.round(km*3280.84)}else if(f==='mi'){document.getElementById('convNm').value=(mi/1.15078).toFixed(2);document.getElementById('convKm').value=(mi*1.60934).toFixed(2);document.getElementById('convFt').value=Math.round(mi*5280)}else{document.getElementById('convNm').value=(ft/6076.12).toFixed(4);document.getElementById('convKm').value=(ft/3280.84).toFixed(4);document.getElementById('convMi').value=(ft/5280).toFixed(4)}}
+function convVol(f){const l=parseFloat(document.getElementById('convL').value)||0;const usg=parseFloat(document.getElementById('convUsg').value)||0;const impg=parseFloat(document.getElementById('convImpg').value)||0;const qt=parseFloat(document.getElementById('convQt').value)||0;if(f==='l'){document.getElementById('convUsg').value=(l*0.264172).toFixed(2);document.getElementById('convImpg').value=(l*0.219969).toFixed(2);document.getElementById('convQt').value=(l*1.05669).toFixed(2)}else if(f==='usg'){document.getElementById('convL').value=(usg/0.264172).toFixed(2);document.getElementById('convImpg').value=(usg*0.832674).toFixed(2);document.getElementById('convQt').value=(usg*4).toFixed(2)}else if(f==='impg'){document.getElementById('convL').value=(impg/0.219969).toFixed(2);document.getElementById('convUsg').value=(impg/0.832674).toFixed(2);document.getElementById('convQt').value=(impg*4.8038).toFixed(2)}else{document.getElementById('convL').value=(qt/1.05669).toFixed(2);document.getElementById('convUsg').value=(qt/4).toFixed(2);document.getElementById('convImpg').value=(qt/4.8038).toFixed(2)}}
+let timerInt=null,timerSec=0,timerRun=false;
+function toggleTimer(){const b=document.getElementById('timerStartBtn');if(timerRun){clearInterval(timerInt);timerRun=false;b.textContent='START';b.classList.remove('stop');b.classList.add('start')}else{timerInt=setInterval(()=>{timerSec++;updTimer()},1000);timerRun=true;b.textContent='STOP';b.classList.remove('start');b.classList.add('stop')}}
+function resetTimer(){clearInterval(timerInt);timerRun=false;timerSec=0;updTimer();const b=document.getElementById('timerStartBtn');b.textContent='START';b.classList.remove('stop');b.classList.add('start')}
+function updTimer(){const hr=Math.floor(timerSec/3600);const mn=Math.floor((timerSec%3600)/60);const sc=timerSec%60;document.getElementById('timerDisplay').textContent=String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0')+':'+String(sc).padStart(2,'0')}
 </script>
 </body>
 </html>
