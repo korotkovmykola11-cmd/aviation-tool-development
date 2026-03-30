@@ -1,1370 +1,742 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Aviation Pro v2.1</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aviation Pro — E6B Style Demo</title>
   <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --primary:#0A84FF;--primary-light:rgba(10,132,255,0.15);
-  --secondary:#30D158;--accent:#FF453A;--warning:#FFD60A;
-  --card-bg:rgba(12,15,20,0.92);--card-border:rgba(255,255,255,0.08);
-  --text-primary:#F5F5F7;--text-secondary:rgba(255,255,255,0.7);
-  --text-muted:rgba(255,255,255,0.45);
-  --input-bg:rgba(255,255,255,0.06);--input-border:rgba(255,255,255,0.12);
-  --input-error:rgba(255,69,58,0.2);--shadow:0 8px 32px rgba(0,0,0,0.5)
-}
-.red-mode{
-  --primary:#FF453A;--primary-light:rgba(255,69,58,0.15);
-  --secondary:#FF9F0A;--card-bg:rgba(20,8,8,0.95)
-}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  background:#05080d;color:var(--text-primary);min-height:100vh;line-height:1.5
-}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   COCKPIT BACKGROUND SYSTEM - 7 REAL PHOTOS
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.cockpit-layer{
-  position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background-size:cover;background-position:center;
-  opacity:0;transition:opacity 0.6s ease;
-  filter:brightness(0.4) saturate(0.8)
-}
-.cockpit-layer::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(5,8,13,0.75) 0%,rgba(8,12,20,0.65) 40%,rgba(5,8,13,0.85) 100%)
-}
-.cockpit-layer.active{opacity:1}
+    :root{
+      --bg-dark:#0b1220;
+      --bg-dark-2:#121a2b;
+      --bg-overlay:rgba(6,11,20,.58);
+      --card:#f7f8fb;
+      --card-2:#ffffff;
+      --text:#121826;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --section:#8b95a7;
+      --green:#43c463;
+      --green-dark:#2f9f4a;
+      --blue:#3b82f6;
+      --orange:#ff9f0a;
+      --shadow:0 14px 34px rgba(0,0,0,.16);
+      --radius-xl:24px;
+      --radius-lg:18px;
+      --radius-md:14px;
+      --radius-sm:10px;
+      --header-h:60px;
+      --tabbar-h:78px;
+      --content-max:760px;
+    }
 
-/* 7 Real cockpit photos from Unsplash */
-.cockpit-fuel{background-image:url('https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=1920&q=80')}
-.cockpit-cost{background-image:url('https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=1920&q=80')}
-.cockpit-flight{background-image:url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80')}
-.cockpit-atmo{background-image:url('https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=1920&q=80')}
-.cockpit-safety{background-image:url('https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=1920&q=80')}
-.cockpit-tools{background-image:url('https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=1920&q=80')}
-.cockpit-system{background-image:url('https://images.unsplash.com/photo-1529074963411-4f5f9f5e8a4a?w=1920&q=80')}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:var(--bg-dark);
+      color:#fff;
+      min-height:100vh;
+      overflow-x:hidden;
+    }
 
-.cockpit-glow{
-  position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 30%,rgba(10,132,255,0.04) 0%,transparent 60%),
-             radial-gradient(ellipse at 20% 80%,rgba(48,209,88,0.03) 0%,transparent 40%),
-             radial-gradient(ellipse at 80% 70%,rgba(255,69,58,0.02) 0%,transparent 40%)
-}
+    .bg{
+      position:fixed;
+      inset:0;
+      z-index:-3;
+      background:
+        linear-gradient(180deg, rgba(8,13,23,.18), rgba(8,13,23,.42)),
+        url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=80") center/cover no-repeat;
+      transform:scale(1.05);
+      filter:blur(3px) saturate(.9) brightness(.55);
+    }
 
-.app{position:relative;min-height:100vh;display:flex;flex-direction:column}
+    .bg::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(6,11,20,.35) 0%, rgba(6,11,20,.60) 32%, rgba(6,11,20,.75) 100%);
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   HEADER
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:12px 24px;
-  background:rgba(10,14,20,0.85);
-  border-bottom:1px solid var(--card-border);
-  backdrop-filter:blur(20px);
-  position:sticky;top:0;z-index:100
-}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{
-  width:40px;height:40px;
-  background:linear-gradient(135deg,var(--primary) 0%,#0066CC 100%);
-  border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 16px rgba(10,132,255,0.35),inset 0 1px 0 rgba(255,255,255,0.2)
-}
-.logo-icon svg{width:24px;height:24px;fill:white}
-.logo-text{font-size:20px;font-weight:800;letter-spacing:-0.5px}
-.logo-text span{color:var(--primary)}
-.version{font-size:9px;color:var(--text-muted);margin-left:6px;padding:2px 6px;background:rgba(255,255,255,0.06);border-radius:4px}
-.header-center{display:flex;align-items:center;gap:12px}
-.clock{
-  font-family:'SF Mono',Menlo,Monaco,'Courier New',monospace;
-  font-size:15px;font-weight:600;
-  color:var(--primary);
-  background:var(--primary-light);
-  padding:8px 14px;border-radius:8px;
-  border:1px solid rgba(10,132,255,0.2);
-  text-shadow:0 0 10px rgba(10,132,255,0.3)
-}
-.clock-local{font-size:11px;color:var(--text-muted)}
-.header-right{display:flex;align-items:center;gap:10px}
-.lang-select{
-  padding:8px 12px;
-  background:var(--input-bg);border:1px solid var(--input-border);
-  border-radius:8px;font-size:12px;font-weight:600;
-  color:var(--text-primary);cursor:pointer
-}
-.lang-select:focus{outline:none;border-color:var(--primary)}
-.lang-select option{background:#0a0e14}
-.icon-btn{
-  width:38px;height:38px;
-  background:var(--input-bg);border:1px solid var(--input-border);
-  border-radius:8px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.2s
-}
-.icon-btn:hover{background:rgba(255,255,255,0.1);border-color:var(--primary)}
-.icon-btn:focus{outline:2px solid var(--primary);outline-offset:2px}
-.icon-btn svg{width:18px;height:18px;stroke:var(--text-secondary)}
+    .app{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:20px 16px 96px;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   DISCLAIMER
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.disclaimer{
-  background:linear-gradient(90deg,rgba(255,69,58,0.12) 0%,rgba(255,69,58,0.08) 50%,rgba(255,69,58,0.12) 100%);
-  border-bottom:1px solid rgba(255,69,58,0.2);
-  padding:10px 24px;text-align:center;
-  font-size:11px;font-weight:700;color:var(--accent);
-  letter-spacing:0.5px;text-transform:uppercase
-}
+    .phone{
+      width:100%;
+      max-width:var(--content-max);
+      min-height:calc(100vh - 40px);
+      border-radius:32px;
+      overflow:hidden;
+      backdrop-filter:blur(10px);
+      box-shadow:0 24px 70px rgba(0,0,0,.35);
+      background:rgba(11,18,32,.20);
+      border:1px solid rgba(255,255,255,.08);
+      position:relative;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   NAVIGATION
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.nav{
-  display:flex;justify-content:center;gap:8px;
-  padding:16px 24px;flex-wrap:wrap;
-  background:rgba(8,12,18,0.5);
-  border-bottom:1px solid var(--card-border)
-}
-.nav-pill{
-  padding:10px 16px;
-  background:rgba(20,25,35,0.8);
-  border:1px solid var(--card-border);
-  border-radius:100px;
-  color:var(--text-secondary);
-  font-size:11px;font-weight:600;
-  cursor:pointer;transition:all 0.2s;
-  display:flex;align-items:center;gap:6px;
-  text-transform:uppercase;letter-spacing:0.3px
-}
-.nav-pill svg{width:14px;height:14px;opacity:0.7}
-.nav-pill:hover{border-color:var(--primary);color:var(--primary)}
-.nav-pill:focus{outline:2px solid var(--primary);outline-offset:2px}
-.nav-pill[aria-selected="true"]{
-  background:linear-gradient(135deg,var(--primary) 0%,#0066CC 100%);
-  border-color:var(--primary);color:white;
-  box-shadow:0 4px 20px rgba(10,132,255,0.4),inset 0 1px 0 rgba(255,255,255,0.2)
-}
-.nav-pill[aria-selected="true"] svg{opacity:1}
+    .topbar{
+      height:var(--header-h);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:rgba(10,16,28,.78);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   MAIN CONTENT
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.main{
-  flex:1;padding:24px;
-  display:flex;justify-content:center;align-items:flex-start
-}
-.card{
-  width:100%;max-width:720px;
-  background:var(--card-bg);
-  border-radius:20px;border:1px solid var(--card-border);
-  box-shadow:var(--shadow);overflow:hidden;
-  backdrop-filter:blur(20px)
-}
-.card-header{
-  padding:20px 28px;
-  border-bottom:1px solid var(--card-border);
-  display:flex;justify-content:space-between;align-items:center;
-  background:rgba(255,255,255,0.02)
-}
-.card-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:12px}
-.card-icon{
-  width:36px;height:36px;
-  background:linear-gradient(135deg,var(--primary) 0%,#0066CC 100%);
-  border-radius:10px;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 12px rgba(10,132,255,0.3)
-}
-.card-icon svg{width:20px;height:20px;fill:white}
-.card-badge{
-  padding:6px 12px;
-  background:rgba(48,209,88,0.12);border:1px solid rgba(48,209,88,0.25);
-  border-radius:100px;font-size:10px;font-weight:700;
-  color:var(--secondary);text-transform:uppercase;letter-spacing:0.5px
-}
-.card-body{padding:28px}
+    .topbar .back,
+    .topbar .right{
+      position:absolute;
+      top:0;
+      height:100%;
+      display:flex;
+      align-items:center;
+      color:#dbe4f0;
+      font-size:15px;
+      font-weight:600;
+      letter-spacing:.1px;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   TABS
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.tabs{
-  display:flex;gap:4px;
-  background:rgba(255,255,255,0.03);
-  padding:4px;border-radius:12px;margin-bottom:24px
-}
-.tab{
-  flex:1;padding:10px 14px;
-  background:transparent;border:none;border-radius:8px;
-  color:var(--text-muted);font-size:12px;font-weight:600;
-  cursor:pointer;transition:all 0.2s
-}
-.tab:hover{color:var(--text-secondary)}
-.tab:focus{outline:2px solid var(--primary);outline-offset:-2px}
-.tab[aria-selected="true"]{
-  background:var(--primary);color:white;
-  box-shadow:0 2px 8px rgba(10,132,255,0.3)
-}
-.tabpanel{display:none}
-.tabpanel.active{display:block;animation:fadeIn 0.3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .topbar .back{ left:16px; gap:6px; }
+    .topbar .right{ right:16px; }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   FORM FIELDS
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.field{margin-bottom:18px}
-.field-label{
-  display:block;font-size:10px;font-weight:700;
-  color:var(--text-muted);margin-bottom:8px;
-  text-transform:uppercase;letter-spacing:0.8px
-}
-.field-input{
-  width:100%;padding:14px 16px;
-  background:var(--input-bg);border:1px solid var(--input-border);
-  border-radius:12px;color:var(--text-primary);
-  font-family:'SF Mono',Menlo,Monaco,monospace;
-  font-size:16px;font-weight:600;transition:all 0.2s
-}
-.field-input:focus{outline:none;border-color:var(--primary);background:rgba(10,132,255,0.06);box-shadow:0 0 0 3px rgba(10,132,255,0.1)}
-.field-input::placeholder{color:var(--text-muted)}
-.field-input.error{border-color:var(--accent);background:var(--input-error)}
-.field-input:disabled{opacity:0.5;cursor:not-allowed}
-.field-error{font-size:10px;color:var(--accent);margin-top:6px;display:none;font-weight:600}
-.field-input.error~.field-error{display:block}
-.field-hint{font-size:10px;color:var(--text-muted);margin-top:6px;font-style:italic}
-.field-select{
-  width:100%;padding:14px 16px;
-  background:var(--input-bg);border:1px solid var(--input-border);
-  border-radius:12px;color:var(--text-primary);
-  font-size:14px;font-weight:600;cursor:pointer
-}
-.field-select:focus{outline:none;border-color:var(--primary)}
-.field-select option{background:#0a0e14}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+    .chev{
+      width:10px;
+      height:10px;
+      border-left:2px solid currentColor;
+      border-bottom:2px solid currentColor;
+      transform:rotate(45deg);
+      margin-left:2px;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   RESULTS
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.result{
-  background:linear-gradient(135deg,rgba(10,132,255,0.08) 0%,rgba(10,132,255,0.03) 100%);
-  border:1px solid rgba(10,132,255,0.15);
-  border-radius:16px;padding:28px;text-align:center;margin-top:24px;
-  position:relative;overflow:hidden
-}
-.result::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 0%,rgba(10,132,255,0.1) 0%,transparent 60%);
-  pointer-events:none
-}
-.result.warning-state{
-  background:linear-gradient(135deg,rgba(255,214,10,0.08) 0%,rgba(255,214,10,0.03) 100%);
-  border-color:rgba(255,214,10,0.2)
-}
-.result.error-state{
-  background:linear-gradient(135deg,rgba(255,69,58,0.08) 0%,rgba(255,69,58,0.03) 100%);
-  border-color:rgba(255,69,58,0.2)
-}
-.result-label{
-  font-size:10px;font-weight:700;color:var(--text-muted);
-  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px
-}
-.result-value{
-  font-family:'SF Mono',Menlo,Monaco,monospace;
-  font-size:48px;font-weight:700;color:var(--primary);
-  text-shadow:0 0 30px rgba(10,132,255,0.4);
-  position:relative
-}
-.result-value.warning{color:var(--warning);text-shadow:0 0 30px rgba(255,214,10,0.4)}
-.result-value.error{color:var(--accent);text-shadow:0 0 30px rgba(255,69,58,0.4)}
-.result-unit{font-size:18px;color:var(--text-muted);margin-left:8px;font-weight:600}
-.result-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
-  margin-top:20px;padding-top:20px;
-  border-top:1px solid rgba(10,132,255,0.1)
-}
-.result-item{text-align:center}
-.result-item-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;font-weight:600}
-.result-item-value{
-  font-family:'SF Mono',Menlo,Monaco,monospace;
-  font-size:20px;font-weight:600;color:var(--text-primary);margin-top:4px
-}
-.result-note{
-  font-size:10px;color:var(--warning);margin-top:16px;
-  padding:10px 14px;background:rgba(255,214,10,0.08);border-radius:8px;
-  border:1px solid rgba(255,214,10,0.15);font-weight:500
-}
-.result-note.info{color:var(--text-muted);background:rgba(255,255,255,0.03);border-color:var(--card-border)}
+    .title{
+      font-size:18px;
+      font-weight:700;
+      color:#fff;
+      letter-spacing:.2px;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   WIND COMPASS
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.wind-display{display:flex;justify-content:center;padding:20px 0}
-.wind-compass{
-  width:200px;height:200px;position:relative;
-  background:radial-gradient(circle,rgba(10,132,255,0.05) 0%,transparent 70%);
-  border:2px solid var(--input-border);border-radius:50%;
-  box-shadow:inset 0 0 30px rgba(0,0,0,0.3)
-}
-.compass-center{
-  position:absolute;top:50%;left:50%;
-  width:12px;height:12px;background:var(--primary);
-  border-radius:50%;transform:translate(-50%,-50%);
-  box-shadow:0 0 15px var(--primary)
-}
-.compass-runway{
-  position:absolute;top:50%;left:50%;
-  width:5px;height:70px;
-  background:linear-gradient(180deg,var(--secondary),rgba(48,209,88,0.2));
-  transform-origin:center bottom;transform:translate(-50%,-100%);
-  border-radius:3px;box-shadow:0 0 10px var(--secondary)
-}
-.compass-wind{
-  position:absolute;top:50%;left:50%;
-  width:4px;height:65px;
-  background:linear-gradient(180deg,var(--accent),rgba(255,69,58,0.2));
-  transform-origin:center bottom;transform:translate(-50%,-100%) rotate(45deg);
-  border-radius:3px;box-shadow:0 0 10px var(--accent)
-}
-.compass-labels{
-  position:absolute;inset:0;
-  font-family:'SF Mono',monospace;
-  font-size:12px;font-weight:700;color:var(--text-muted)
-}
-.compass-labels span{position:absolute}
-.compass-labels .n{top:8px;left:50%;transform:translateX(-50%);color:var(--primary)}
-.compass-labels .s{bottom:8px;left:50%;transform:translateX(-50%)}
-.compass-labels .e{right:8px;top:50%;transform:translateY(-50%)}
-.compass-labels .w{left:8px;top:50%;transform:translateY(-50%)}
+    .screen{
+      display:none;
+      padding:18px 14px 22px;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   TIMER
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.timer-display{
-  font-family:'SF Mono',Menlo,Monaco,monospace;
-  font-size:64px;font-weight:700;text-align:center;
-  color:var(--primary);padding:32px;
-  background:rgba(10,132,255,0.05);
-  border-radius:16px;margin-bottom:24px;
-  text-shadow:0 0 40px rgba(10,132,255,0.4);
-  border:1px solid rgba(10,132,255,0.1)
-}
-.timer-btns{display:flex;gap:14px;justify-content:center}
-.timer-btn{
-  padding:14px 32px;
-  background:var(--input-bg);border:1px solid var(--input-border);
-  border-radius:12px;font-size:14px;font-weight:700;
-  color:var(--text-secondary);cursor:pointer;transition:all 0.2s;
-  text-transform:uppercase;letter-spacing:0.5px
-}
-.timer-btn:hover{border-color:var(--primary);color:var(--primary)}
-.timer-btn:focus{outline:2px solid var(--primary);outline-offset:2px}
-.timer-btn.start{border-color:var(--secondary);color:var(--secondary)}
-.timer-btn.running{border-color:var(--accent);color:var(--accent)}
+    .screen.active{ display:block; }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   NOTES
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.notes-box{
-  width:100%;min-height:200px;
-  background:var(--input-bg);border:1px solid var(--input-border);
-  border-radius:12px;padding:16px;color:var(--text-primary);
-  font-family:'SF Mono',monospace;font-size:14px;resize:vertical
-}
-.notes-box:focus{outline:none;border-color:var(--primary)}
-.notes-actions{display:flex;gap:12px;margin-top:16px}
-.notes-btn{
-  padding:10px 20px;
-  background:var(--input-bg);border:1px solid var(--input-border);
-  border-radius:8px;font-size:12px;font-weight:600;
-  color:var(--text-secondary);cursor:pointer
-}
-.notes-btn:hover{border-color:var(--primary);color:var(--primary)}
-.notes-btn.danger:hover{border-color:var(--accent);color:var(--accent)}
+    .hero{
+      margin:6px 4px 16px;
+      color:#fff;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   CONVERTERS
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.conv-row{display:grid;grid-template-columns:1fr 50px 1fr;gap:12px;align-items:end;margin-bottom:18px}
-.conv-arrow{
-  font-size:20px;color:var(--primary);text-align:center;padding-bottom:14px;
-  text-shadow:0 0 10px rgba(10,132,255,0.3)
-}
+    .hero h1{
+      font-size:28px;
+      line-height:1.05;
+      font-weight:800;
+      letter-spacing:-.7px;
+      margin-bottom:6px;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   SECTIONS
-   ═══════════════════════════════════════════════════════════════════════════════ */
-.section{display:none}
-.section.active{display:block;animation:fadeIn 0.3s ease}
+    .hero p{
+      font-size:14px;
+      color:rgba(255,255,255,.82);
+      max-width:520px;
+      line-height:1.45;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   RTL SUPPORT
-   ═══════════════════════════════════════════════════════════════════════════════ */
-[dir="rtl"] .header,[dir="rtl"] .logo,[dir="rtl"] .header-right,
-[dir="rtl"] .card-header,[dir="rtl"] .card-title{flex-direction:row-reverse}
-[dir="rtl"] .field-label{text-align:right}
-[dir="rtl"] .result-unit{margin-left:0;margin-right:8px}
-[dir="rtl"] .nav{direction:rtl}
-[dir="rtl"] .row,[dir="rtl"] .conv-row{direction:rtl}
-[dir="rtl"] .tabs{direction:rtl}
-[dir="rtl"] .notes-actions{flex-direction:row-reverse}
-[dir="rtl"] .timer-btns{flex-direction:row-reverse}
+    .group{
+      margin-bottom:18px;
+    }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════════════════════════════════════════ */
-@media(min-width:1024px){
-  .card{max-width:800px}
-  .card-body{padding:36px}
-  .row{gap:24px}
-  .result-grid{grid-template-columns:repeat(4,1fr)}
-}
-@media(min-width:1280px){
-  .card{max-width:920px}
-  .main{padding:32px 48px}
-}
-@media(min-width:1600px){
-  .card{max-width:1000px}
-  .main{padding:40px 80px}
-}
-@media(max-width:768px){
-  .header{padding:10px 16px}
-  .logo-text{display:none}
-  .header-center{display:none}
-  .nav{padding:12px 16px;gap:6px}
-  .nav-pill{padding:8px 12px;font-size:10px}
-  .nav-pill svg{display:none}
-  .main{padding:16px}
-  .card{border-radius:16px}
-  .card-header{padding:16px 20px}
-  .card-body{padding:20px}
-  .result-value{font-size:36px}
-  .result-grid{grid-template-columns:repeat(2,1fr)}
-  .row{grid-template-columns:1fr}
-  .timer-display{font-size:48px;padding:24px}
-  .field-input{font-size:16px;padding:12px 14px}
-}
-@media(max-width:480px){
-  .nav-pill{padding:8px 10px;font-size:9px}
-  .card-body{padding:16px}
-  .result{padding:20px}
-  .result-value{font-size:32px}
-  .timer-display{font-size:40px}
-}
+    .group-label{
+      font-size:12px;
+      font-weight:700;
+      color:rgba(255,255,255,.78);
+      letter-spacing:1.15px;
+      padding:0 12px 8px;
+      text-transform:uppercase;
+    }
+
+    .list{
+      background:rgba(255,255,255,.92);
+      border-radius:22px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.5);
+    }
+
+    .item{
+      width:100%;
+      border:none;
+      background:transparent;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      text-align:left;
+      padding:16px 16px;
+      color:var(--text);
+      cursor:pointer;
+      position:relative;
+    }
+
+    .item + .item{
+      border-top:1px solid var(--line);
+    }
+
+    .item:hover{
+      background:rgba(59,130,246,.04);
+    }
+
+    .icon-wrap{
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      background:linear-gradient(180deg,#eef3ff,#e5edff);
+      color:#3159d7;
+      border:1px solid rgba(49,89,215,.10);
+    }
+
+    .icon-wrap svg{
+      width:22px;
+      height:22px;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .icon-weather{ background:linear-gradient(180deg,#edf6ff,#dfeeff); color:#2374d8; }
+    .icon-time{ background:linear-gradient(180deg,#eefaf0,#dcf4e1); color:#2f9f4a; }
+    .icon-conv{ background:linear-gradient(180deg,#fff7e9,#ffedd1); color:#d48806; }
+    .icon-fuel{ background:linear-gradient(180deg,#fff3e8,#ffe2c7); color:#d66a11; }
+    .icon-alt{ background:linear-gradient(180deg,#f5f0ff,#e9defd); color:#7c49d8; }
+    .icon-wind{ background:linear-gradient(180deg,#edfdf9,#daf8ef); color:#15946d; }
+
+    .item-text{
+      min-width:0;
+      flex:1;
+    }
+
+    .item-title{
+      font-size:17px;
+      font-weight:700;
+      color:var(--text);
+      line-height:1.15;
+      margin-bottom:3px;
+    }
+
+    .item-sub{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.35;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .item-arrow{
+      width:10px;
+      height:10px;
+      border-right:2px solid #9aa3b2;
+      border-top:2px solid #9aa3b2;
+      transform:rotate(45deg);
+      flex:0 0 auto;
+      margin-right:4px;
+    }
+
+    .calc-shell{
+      background:rgba(255,255,255,.92);
+      border-radius:24px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.48);
+    }
+
+    .section-title{
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:1px;
+      color:var(--section);
+      margin:2px 2px 10px;
+      text-transform:uppercase;
+    }
+
+    .field-list{
+      background:var(--card-2);
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      margin-bottom:16px;
+    }
+
+    .field-row{
+      min-height:58px;
+      display:grid;
+      grid-template-columns: 1.1fr 1fr auto;
+      align-items:center;
+      gap:12px;
+      padding:0 16px;
+    }
+
+    .field-row + .field-row{
+      border-top:1px solid var(--line);
+    }
+
+    .field-label{
+      font-size:16px;
+      font-weight:600;
+      color:#1f2937;
+    }
+
+    .field-value{
+      justify-self:end;
+      width:100%;
+      max-width:160px;
+      text-align:right;
+      border:none;
+      background:transparent;
+      font-size:20px;
+      font-weight:700;
+      color:#d97706;
+      outline:none;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+    }
+
+    .field-unit{
+      font-size:15px;
+      color:var(--muted);
+      font-weight:700;
+      min-width:38px;
+      text-align:right;
+    }
+
+    .btn{
+      width:100%;
+      height:52px;
+      border:none;
+      border-radius:16px;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.2px;
+      cursor:pointer;
+    }
+
+    .btn-calc{
+      background:linear-gradient(180deg, #57d876, #39bd59);
+      color:#fff;
+      box-shadow:0 10px 20px rgba(67,196,99,.28);
+      margin-bottom:18px;
+    }
+
+    .answer{
+      background:linear-gradient(180deg,#49ce6a,#38bb57);
+      border-radius:20px;
+      color:#fff;
+      padding:16px 18px;
+      box-shadow:0 14px 24px rgba(56,187,87,.26);
+    }
+
+    .answer-label{
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.95px;
+      text-transform:uppercase;
+      opacity:.86;
+      margin-bottom:8px;
+    }
+
+    .answer-value{
+      font-size:28px;
+      line-height:1.1;
+      font-weight:900;
+      letter-spacing:-.5px;
+    }
+
+    .answer-sub{
+      font-size:14px;
+      opacity:.92;
+      margin-top:7px;
+    }
+
+    .hint-card{
+      margin-top:14px;
+      background:rgba(255,255,255,.92);
+      color:#334155;
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:14px;
+      line-height:1.45;
+      box-shadow:var(--shadow);
+    }
+
+    .tabbar{
+      position:sticky;
+      bottom:0;
+      z-index:12;
+      height:var(--tabbar-h);
+      background:rgba(10,16,28,.84);
+      backdrop-filter:blur(20px);
+      border-top:1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-around;
+      padding-top:10px;
+    }
+
+    .tab{
+      border:none;
+      background:transparent;
+      color:rgba(255,255,255,.72);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-width:72px;
+      cursor:pointer;
+    }
+
+    .tab svg{
+      width:22px;
+      height:22px;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .tab span{
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+
+    .tab.active{
+      color:#fff;
+    }
+
+    .tab.active .dot{
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:var(--green);
+      margin-top:-2px;
+    }
+
+    .tab .dot{ visibility:hidden; }
+    .tab.active .dot{ visibility:visible; }
+
+    @media (max-width:700px){
+      .phone{
+        border-radius:0;
+        min-height:100vh;
+      }
+      .app{
+        padding:0 0 90px;
+      }
+      .hero h1{ font-size:25px; }
+      .field-row{
+        grid-template-columns: 1fr .8fr auto;
+      }
+      .field-value{
+        font-size:19px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- 7 Cockpit Background Layers with REAL PHOTOS -->
-  <div class="cockpit-layer cockpit-fuel active" id="bg-fuel"></div>
-  <div class="cockpit-layer cockpit-cost" id="bg-cost"></div>
-  <div class="cockpit-layer cockpit-flight" id="bg-flight"></div>
-  <div class="cockpit-layer cockpit-atmo" id="bg-atmo"></div>
-  <div class="cockpit-layer cockpit-safety" id="bg-safety"></div>
-  <div class="cockpit-layer cockpit-tools" id="bg-tools"></div>
-  <div class="cockpit-layer cockpit-system" id="bg-system"></div>
-  <div class="cockpit-glow"></div>
-  
+  <div class="bg"></div>
+
   <div class="app">
-    <header class="header">
-      <div class="logo">
-        <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>
-        <span class="logo-text">Aviation<span>Pro</span></span>
-        <span class="version">v2.1</span>
-      </div>
-      <div class="header-center">
-        <div class="clock" id="zuluClock">00:00:00Z</div>
-        <span class="clock-local" id="localClock">LOCAL 00:00</span>
-      </div>
-      <div class="header-right">
-        <select class="lang-select" id="langSelect" aria-label="Language">
-          <option value="en">EN</option>
-          <option value="ru">RU</option>
-          <option value="ar">AR</option>
-          <option value="hi">HI</option>
-          <option value="fil">FIL</option>
-        </select>
-        <button class="icon-btn" id="themeToggle" aria-label="Night mode" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <div class="phone">
+      <header class="topbar">
+        <div class="back" id="backBtn" style="visibility:hidden;">
+          <span class="chev"></span>
+          <span>Back</span>
+        </div>
+        <div class="title" id="topTitle">Main Menu</div>
+        <div class="right">Edit</div>
+      </header>
+
+      <!-- MENU -->
+      <section class="screen active" id="screen-menu">
+        <div class="hero">
+          <h1>Aviation Pro</h1>
+          <p>E6B-inspired layout demo. Clean grouped sections, readable cockpit atmosphere, and long list rows like a real iOS aviation tool.</p>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Aviation Weather</div>
+          <div class="list">
+            <button class="item">
+              <div class="icon-wrap icon-weather">
+                <svg viewBox="0 0 24 24"><path d="M6 14a4 4 0 1 1 .7-7.94A5.5 5.5 0 0 1 17 8a3.5 3.5 0 1 1 .5 7H6z"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">METARs</div>
+                <div class="item-sub">Current observations, station reports, and quick decoding</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-weather">
+                <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h13"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">TAFs</div>
+                <div class="item-sub">Terminal forecasts and trend overview for route planning</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-weather">
+                <svg viewBox="0 0 24 24"><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">NOTAM / SNOWTAM</div>
+                <div class="item-sub">Operational notices and runway condition information</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Time, Speed & Distance</div>
+          <div class="list">
+            <button class="item js-open-fuel">
+              <div class="icon-wrap icon-time">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Finding Time</div>
+                <div class="item-sub">Calculate elapsed time from distance and ground speed</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-time">
+                <svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-7"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Finding Speed</div>
+                <div class="item-sub">Compute speed using known distance and time</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-time">
+                <svg viewBox="0 0 24 24"><path d="M4 18h16"/><path d="M6 18V9m6 9V6m6 12v-5"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Point of No Return</div>
+                <div class="item-sub">Outbound / return fuel planning in list-friendly format</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Unit Conversions</div>
+          <div class="list">
+            <button class="item">
+              <div class="icon-wrap icon-conv">
+                <svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/><path d="M9 5l-2 2 2 2M15 19l2-2-2-2"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Temperature</div>
+                <div class="item-sub">Celsius, Fahrenheit, Kelvin and quick cockpit references</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-conv">
+                <svg viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Distance</div>
+                <div class="item-sub">NM, KM, miles and simple route conversion tools</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Aircraft & Performance</div>
+          <div class="list">
+            <button class="item js-open-fuel">
+              <div class="icon-wrap icon-fuel">
+                <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Fuel Calculator</div>
+                <div class="item-sub">Trip fuel, endurance, burn rate and reserve planning</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-alt">
+                <svg viewBox="0 0 24 24"><path d="M12 4v16"/><path d="M8 8l4-4 4 4"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Altitude</div>
+                <div class="item-sub">Pressure altitude, density altitude, and ISA reference</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-wind">
+                <svg viewBox="0 0 24 24"><path d="M3 8h10a2 2 0 1 0-2-2"/><path d="M3 12h15a2 2 0 1 1-2 2"/><path d="M3 16h8"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Wind</div>
+                <div class="item-sub">Headwind, crosswind, wind correction and runway use</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FUEL DEMO -->
+      <section class="screen" id="screen-fuel">
+        <div class="calc-shell">
+          <div class="section-title">Input Parameters</div>
+
+          <div class="field-list">
+            <div class="field-row">
+              <div class="field-label">Distance</div>
+              <input class="field-value" value="250" />
+              <div class="field-unit">NM</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-label">Ground Speed</div>
+              <input class="field-value" value="150" />
+              <div class="field-unit">KT</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-label">Fuel Burn</div>
+              <input class="field-value" value="220" />
+              <div class="field-unit">L/H</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-label">Reserve</div>
+              <input class="field-value" value="60" />
+              <div class="field-unit">L</div>
+            </div>
+          </div>
+
+          <button class="btn btn-calc">Calculate</button>
+
+          <div class="section-title">Answer</div>
+          <div class="answer">
+            <div class="answer-label">Trip Fuel Required</div>
+            <div class="answer-value">427 L</div>
+            <div class="answer-sub">Estimated time enroute: 1 hr 40 min</div>
+          </div>
+        </div>
+
+        <div class="hint-card">
+          This is only a design / structure preview. The final JavaScript logic can be connected later without changing the visual layout.
+        </div>
+      </section>
+
+      <nav class="tabbar">
+        <button class="tab active" data-tab="menu">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <span>Menu</span>
+          <div class="dot"></div>
         </button>
-      </div>
-    </header>
 
-    <div class="disclaimer" role="alert" id="disclaimer">
-      <span data-i18n="disclaimer">FOR REFERENCE ONLY — NOT FOR OPERATIONAL USE — VERIFY ALL CALCULATIONS</span>
+        <button class="tab" data-tab="fuel">
+          <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg>
+          <span>Fuel</span>
+          <div class="dot"></div>
+        </button>
+
+        <button class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+          <span>Time</span>
+          <div class="dot"></div>
+        </button>
+
+        <button class="tab">
+          <svg viewBox="0 0 24 24"><path d="M3 8h10a2 2 0 1 0-2-2"/><path d="M3 12h15a2 2 0 1 1-2 2"/><path d="M3 16h8"/></svg>
+          <span>Wind</span>
+          <div class="dot"></div>
+        </button>
+      </nav>
     </div>
-
-    <nav class="nav" id="mainNav" role="tablist">
-      <button class="nav-pill" role="tab" aria-selected="true" data-section="fuel" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22h12M5 22V10l7-8v20"/></svg>
-        <span data-i18n="nav_fuel">Fuel</span>
-      </button>
-      <button class="nav-pill" role="tab" aria-selected="false" data-section="cost" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h6"/></svg>
-        <span data-i18n="nav_cost">Cost</span>
-      </button>
-      <button class="nav-pill" role="tab" aria-selected="false" data-section="flight" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
-        <span data-i18n="nav_flight">Flight</span>
-      </button>
-      <button class="nav-pill" role="tab" aria-selected="false" data-section="atmo" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M1 12h2M21 12h2"/></svg>
-        <span data-i18n="nav_atmo">Atmosphere</span>
-      </button>
-      <button class="nav-pill" role="tab" aria-selected="false" data-section="safety" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span data-i18n="nav_safety">Safety</span>
-      </button>
-      <button class="nav-pill" role="tab" aria-selected="false" data-section="tools" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>
-        <span data-i18n="nav_tools">Tools</span>
-      </button>
-      <button class="nav-pill" role="tab" aria-selected="false" data-section="system" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6"/></svg>
-        <span data-i18n="nav_system">System</span>
-      </button>
-    </nav>
-
-    <main class="main">
-      <!-- FUEL -->
-      <section class="section active" id="sec-fuel" role="tabpanel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M3 22h12M5 22V10l7-8v20"/></svg></div>
-              <span data-i18n="fuel_title">Fuel Calculator</span>
-            </div>
-            <span class="card-badge" data-i18n="status_ready">Ready</span>
-          </div>
-          <div class="card-body">
-            <div class="field">
-              <label class="field-label" for="fuelType" data-i18n="fuel_type">Fuel Type</label>
-              <select class="field-select" id="fuelType">
-                <option value="jeta1">Jet A-1 (0.800 kg/L @15C)</option>
-                <option value="jeta">Jet A (0.804 kg/L @15C)</option>
-                <option value="jp8">JP-8 (0.800 kg/L @15C)</option>
-                <option value="avgas">Avgas 100LL (0.721 kg/L @15C)</option>
-                <option value="mogas">Mogas (0.745 kg/L @15C)</option>
-              </select>
-            </div>
-            <div class="row">
-              <div class="field">
-                <label class="field-label" for="fuelVol" data-i18n="fuel_volume">Volume (L)</label>
-                <input type="number" class="field-input" id="fuelVol" placeholder="0" min="0" max="500000" inputmode="decimal">
-                <div class="field-error" data-i18n="err_range">0 - 500,000 L</div>
-              </div>
-              <div class="field">
-                <label class="field-label" for="fuelTemp" data-i18n="fuel_temp">Temperature (C)</label>
-                <input type="number" class="field-input" id="fuelTemp" value="15" min="-60" max="60" inputmode="numeric">
-                <div class="field-error" data-i18n="err_temp">-60 to +60C</div>
-              </div>
-            </div>
-            <div class="result" aria-live="polite">
-              <div class="result-label" data-i18n="fuel_mass">Fuel Mass</div>
-              <div class="result-value"><span id="fuelMass">-</span><span class="result-unit">KG</span></div>
-              <div class="result-grid">
-                <div class="result-item"><div class="result-item-label">LBS</div><div class="result-item-value" id="fuelLbs">-</div></div>
-                <div class="result-item"><div class="result-item-label">US GAL</div><div class="result-item-value" id="fuelUsg">-</div></div>
-                <div class="result-item"><div class="result-item-label">IMP GAL</div><div class="result-item-value" id="fuelImp">-</div></div>
-              </div>
-              <div class="result-note" data-i18n="fuel_note">Temperature-corrected density estimate. Verify with actual measurement.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- COST -->
-      <section class="section" id="sec-cost" role="tabpanel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="cost_title">Cost Calculator</span>
-            </div>
-            <span class="card-badge" data-i18n="status_ready">Ready</span>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="field">
-                <label class="field-label" for="costFlow" data-i18n="cost_flow">Fuel Flow (L/h)</label>
-                <input type="number" class="field-input" id="costFlow" placeholder="0" min="1" max="50000" inputmode="decimal">
-              </div>
-              <div class="field">
-                <label class="field-label" for="costPrice" data-i18n="cost_price">Price per Liter</label>
-                <input type="number" class="field-input" id="costPrice" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal">
-              </div>
-            </div>
-            <div class="row">
-              <div class="field">
-                <label class="field-label" for="costGs" data-i18n="cost_gs">Ground Speed (kt)</label>
-                <input type="number" class="field-input" id="costGs" placeholder="0" min="1" max="600" inputmode="decimal">
-                <div class="field-hint" data-i18n="cost_gs_hint">Required for cost per NM</div>
-              </div>
-              <div class="field">
-                <label class="field-label" for="costCurr" data-i18n="cost_currency">Currency</label>
-                <select class="field-select" id="costCurr">
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (E)</option>
-                  <option value="RUB">RUB (R)</option>
-                  <option value="AED">AED (AED)</option>
-                  <option value="INR">INR (Rs)</option>
-                  <option value="PHP">PHP (P)</option>
-                  <option value="SAR">SAR (SR)</option>
-                </select>
-              </div>
-            </div>
-            <div class="result" aria-live="polite">
-              <div class="result-label" data-i18n="cost_per_hour">Cost per Hour</div>
-              <div class="result-value"><span id="costHour">-</span></div>
-              <div class="result-grid">
-                <div class="result-item"><div class="result-item-label" data-i18n="cost_per_min">Per Minute</div><div class="result-item-value" id="costMin">-</div></div>
-                <div class="result-item"><div class="result-item-label" data-i18n="cost_per_nm">Per NM</div><div class="result-item-value" id="costNm">-</div></div>
-                <div class="result-item"><div class="result-item-label" data-i18n="cost_per_100nm">Per 100 NM</div><div class="result-item-value" id="cost100Nm">-</div></div>
-              </div>
-              <div class="result-note info" data-i18n="cost_note">Fuel cost only. Does not include maintenance, crew, or fees.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- FLIGHT -->
-      <section class="section" id="sec-flight" role="tabpanel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="flight_title">Flight Planning</span>
-            </div>
-            <span class="card-badge" data-i18n="status_ready">Ready</span>
-          </div>
-          <div class="card-body">
-            <div class="tabs" role="tablist" id="flightTabs">
-              <button class="tab" role="tab" aria-selected="true" data-tab="basic" type="button" data-i18n="tab_basic">Basic</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="fuel" type="button" data-i18n="tab_fuel_required">Fuel Required</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="endur" type="button" data-i18n="tab_endurance">Endurance</button>
-            </div>
-            <div class="tabpanel active" id="flight-basic">
-              <div class="row">
-                <div class="field"><label class="field-label" for="flightTas" data-i18n="flight_tas">TAS (kt)</label><input type="number" class="field-input" id="flightTas" placeholder="0" min="1" max="600" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="flightDist" data-i18n="flight_dist">Distance (NM)</label><input type="number" class="field-input" id="flightDist" placeholder="0" min="0" max="15000" inputmode="decimal"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="flightCourse" data-i18n="flight_course">Course (deg)</label><input type="number" class="field-input" id="flightCourse" placeholder="0" min="0" max="360" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="flightWdir" data-i18n="flight_wdir">Wind From (deg)</label><input type="number" class="field-input" id="flightWdir" placeholder="0" min="0" max="360" inputmode="decimal"></div>
-              </div>
-              <div class="field"><label class="field-label" for="flightWind" data-i18n="flight_wspd">Wind Speed (kt)</label><input type="number" class="field-input" id="flightWind" placeholder="0" min="0" max="200" inputmode="decimal"></div>
-              <div class="result" id="flightResult" aria-live="polite">
-                <div class="result-label" data-i18n="flight_gs">Ground Speed</div>
-                <div class="result-value"><span id="flightGs">-</span><span class="result-unit">KT</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label">ETE</div><div class="result-item-value" id="flightEte">-</div></div>
-                  <div class="result-item"><div class="result-item-label">WCA</div><div class="result-item-value" id="flightWca">-</div></div>
-                  <div class="result-item"><div class="result-item-label">HDG</div><div class="result-item-value" id="flightHdg">-</div></div>
-                </div>
-                <div class="result-note" id="flightWarning" data-i18n="flight_note">Simplified wind triangle. Verify with flight computer.</div>
-              </div>
-            </div>
-            <div class="tabpanel" id="flight-fuel">
-              <div class="row">
-                <div class="field"><label class="field-label" for="fuelReqGs" data-i18n="fuelreq_gs">Ground Speed (kt)</label><input type="number" class="field-input" id="fuelReqGs" placeholder="0" min="1" max="600" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="fuelReqDist" data-i18n="fuelreq_dist">Distance (NM)</label><input type="number" class="field-input" id="fuelReqDist" placeholder="0" min="1" max="15000" inputmode="decimal"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="fuelReqFlow" data-i18n="fuelreq_flow">Fuel Flow (L/h)</label><input type="number" class="field-input" id="fuelReqFlow" placeholder="0" min="1" max="50000" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="fuelReqReserve" data-i18n="fuelreq_reserve">Reserve (L)</label><input type="number" class="field-input" id="fuelReqReserve" placeholder="0" min="0" inputmode="decimal"></div>
-              </div>
-              <div class="result" aria-live="polite">
-                <div class="result-label" data-i18n="fuelreq_trip">Trip Fuel</div>
-                <div class="result-value"><span id="fuelReqTrip">-</span><span class="result-unit">L</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label" data-i18n="fuelreq_res">+ Reserve</div><div class="result-item-value" id="fuelReqReserveOut">-</div></div>
-                  <div class="result-item"><div class="result-item-label" data-i18n="fuelreq_total">Total</div><div class="result-item-value" id="fuelReqTotal">-</div></div>
-                  <div class="result-item"><div class="result-item-label" data-i18n="fuelreq_time">Time</div><div class="result-item-value" id="fuelReqTime">-</div></div>
-                </div>
-                <div class="result-note" data-i18n="fuelreq_note">Does not include taxi, contingency, or alternate fuel.</div>
-              </div>
-            </div>
-            <div class="tabpanel" id="flight-endur">
-              <div class="row">
-                <div class="field"><label class="field-label" for="endurFuel" data-i18n="endur_fuel">Fuel Available (L)</label><input type="number" class="field-input" id="endurFuel" placeholder="0" min="1" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="endurFlow" data-i18n="endur_flow">Fuel Flow (L/h)</label><input type="number" class="field-input" id="endurFlow" placeholder="0" min="1" max="50000" inputmode="decimal"></div>
-              </div>
-              <div class="result" aria-live="polite">
-                <div class="result-label" data-i18n="endur_title">Endurance</div>
-                <div class="result-value"><span id="endurTime">-</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label" data-i18n="endur_decimal">Decimal</div><div class="result-item-value" id="endurDecimal">-</div></div>
-                </div>
-                <div class="result-note" data-i18n="endur_note">Based on constant flow rate.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ATMOSPHERE -->
-      <section class="section" id="sec-atmo" role="tabpanel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="atmo_title">Atmosphere</span>
-            </div>
-            <span class="card-badge" data-i18n="status_ready">Ready</span>
-          </div>
-          <div class="card-body">
-            <div class="tabs" role="tablist" id="atmoTabs">
-              <button class="tab" role="tab" aria-selected="true" data-tab="da" type="button" data-i18n="tab_density_alt">Density Altitude</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="qnh" type="button" data-i18n="tab_qnh">QNH Converter</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="tas" type="button" data-i18n="tab_tas">TAS Estimate</button>
-            </div>
-            <div class="tabpanel active" id="atmo-da">
-              <div class="row">
-                <div class="field"><label class="field-label" for="atmoElev" data-i18n="atmo_elev">Elevation (ft)</label><input type="number" class="field-input" id="atmoElev" placeholder="0" min="-2000" max="50000" inputmode="numeric"></div>
-                <div class="field"><label class="field-label" for="atmoOat" data-i18n="atmo_oat">OAT (C)</label><input type="number" class="field-input" id="atmoOat" value="15" min="-80" max="60" inputmode="numeric"></div>
-              </div>
-              <div class="field"><label class="field-label" for="atmoQnh" data-i18n="atmo_qnh">QNH (hPa)</label><input type="number" class="field-input" id="atmoQnh" value="1013.25" min="870" max="1085" step="0.01" inputmode="decimal"></div>
-              <div class="result" aria-live="polite">
-                <div class="result-label" data-i18n="atmo_da">Density Altitude</div>
-                <div class="result-value"><span id="atmoDa">-</span><span class="result-unit">FT</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label" data-i18n="atmo_pa">Press Alt</div><div class="result-item-value" id="atmoPa">-</div></div>
-                  <div class="result-item"><div class="result-item-label" data-i18n="atmo_isa">ISA Temp</div><div class="result-item-value" id="atmoIsa">-</div></div>
-                  <div class="result-item"><div class="result-item-label" data-i18n="atmo_dev">ISA Dev</div><div class="result-item-value" id="atmoDev">-</div></div>
-                </div>
-                <div class="result-note" data-i18n="atmo_da_note">ISA model: PA + 120 x ISA deviation. Verify with POH.</div>
-              </div>
-            </div>
-            <div class="tabpanel" id="atmo-qnh">
-              <div class="row">
-                <div class="field"><label class="field-label" for="qnhHpa">hPa / mbar</label><input type="number" class="field-input" id="qnhHpa" placeholder="1013.25" step="0.01" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="qnhInhg">inHg</label><input type="number" class="field-input" id="qnhInhg" placeholder="29.92" step="0.01" inputmode="decimal"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="qnhMmhg">mmHg</label><input type="number" class="field-input" id="qnhMmhg" placeholder="760" step="0.1" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="qnhPsi">PSI</label><input type="number" class="field-input" id="qnhPsi" placeholder="14.7" step="0.01" inputmode="decimal"></div>
-              </div>
-            </div>
-            <div class="tabpanel" id="atmo-tas">
-              <div class="row">
-                <div class="field"><label class="field-label" for="tasIas" data-i18n="tas_ias">IAS / CAS (kt)</label><input type="number" class="field-input" id="tasIas" placeholder="0" min="1" max="600" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="tasAlt" data-i18n="tas_alt">Pressure Altitude (ft)</label><input type="number" class="field-input" id="tasAlt" placeholder="0" min="0" max="50000" inputmode="numeric"></div>
-              </div>
-              <div class="field"><label class="field-label" for="tasOat" data-i18n="tas_oat">OAT (C)</label><input type="number" class="field-input" id="tasOat" placeholder="0" min="-80" max="60" inputmode="numeric"></div>
-              <div class="result" aria-live="polite">
-                <div class="result-label" data-i18n="tas_result">True Airspeed</div>
-                <div class="result-value"><span id="tasValue">-</span><span class="result-unit">KT</span></div>
-                <div class="result-note" data-i18n="tas_note">Simplified estimate. Use E6B above FL250.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SAFETY -->
-      <section class="section" id="sec-safety" role="tabpanel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="safety_title">Safety</span>
-            </div>
-            <span class="card-badge" data-i18n="status_ready">Ready</span>
-          </div>
-          <div class="card-body">
-            <div class="tabs" role="tablist" id="safetyTabs">
-              <button class="tab" role="tab" aria-selected="true" data-tab="wind" type="button" data-i18n="tab_wind">Wind</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="wb" type="button" data-i18n="tab_wb">W&B</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="tod" type="button" data-i18n="tab_tod">TOD</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="pnr" type="button" data-i18n="tab_pnr">PNR</button>
-            </div>
-            <div class="tabpanel active" id="safety-wind">
-              <div class="row">
-                <div class="field"><label class="field-label" for="windRwy" data-i18n="wind_rwy">Runway Heading (deg)</label><input type="number" class="field-input" id="windRwy" placeholder="360" min="1" max="360" inputmode="numeric"></div>
-                <div class="field"><label class="field-label" for="windDir" data-i18n="wind_dir">Wind From (deg)</label><input type="number" class="field-input" id="windDir" placeholder="0" min="0" max="360" inputmode="numeric"></div>
-              </div>
-              <div class="field"><label class="field-label" for="windSpd" data-i18n="wind_spd">Wind Speed (kt)</label><input type="number" class="field-input" id="windSpd" placeholder="0" min="0" max="200" inputmode="decimal"></div>
-              <div class="wind-display">
-                <div class="wind-compass">
-                  <div class="compass-runway" id="compassRwy"></div>
-                  <div class="compass-wind" id="compassWind"></div>
-                  <div class="compass-center"></div>
-                  <div class="compass-labels"><span class="n">N</span><span class="s">S</span><span class="e">E</span><span class="w">W</span></div>
-                </div>
-              </div>
-              <div class="result" aria-live="polite">
-                <div class="result-label" id="windTypeLabel" data-i18n="wind_head">Headwind</div>
-                <div class="result-value"><span id="windHead">-</span><span class="result-unit">KT</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label" id="crossLabel" data-i18n="wind_cross">Crosswind</div><div class="result-item-value" id="windCross">-</div></div>
-                </div>
-              </div>
-            </div>
-            <div class="tabpanel" id="safety-wb">
-              <div class="row">
-                <div class="field"><label class="field-label" for="wbEmpty" data-i18n="wb_empty">Empty Weight (kg)</label><input type="number" class="field-input" id="wbEmpty" placeholder="0" min="0" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="wbEmptyArm" data-i18n="wb_arm">Arm (mm)</label><input type="number" class="field-input" id="wbEmptyArm" placeholder="0" min="0" inputmode="decimal"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="wbPax" data-i18n="wb_pax">Pax + Crew (kg)</label><input type="number" class="field-input" id="wbPax" placeholder="0" min="0" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="wbPaxArm" data-i18n="wb_arm">Arm (mm)</label><input type="number" class="field-input" id="wbPaxArm" placeholder="0" min="0" inputmode="decimal"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="wbFuel" data-i18n="wb_fuel">Fuel (kg)</label><input type="number" class="field-input" id="wbFuel" placeholder="0" min="0" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="wbFuelArm" data-i18n="wb_arm">Arm (mm)</label><input type="number" class="field-input" id="wbFuelArm" placeholder="0" min="0" inputmode="decimal"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="wbCargo" data-i18n="wb_cargo">Cargo (kg)</label><input type="number" class="field-input" id="wbCargo" placeholder="0" min="0" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="wbCargoArm" data-i18n="wb_arm">Arm (mm)</label><input type="number" class="field-input" id="wbCargoArm" placeholder="0" min="0" inputmode="decimal"></div>
-              </div>
-              <div class="result" aria-live="polite">
-                <div class="result-label" data-i18n="wb_total">Total Weight</div>
-                <div class="result-value"><span id="wbTotal">-</span><span class="result-unit">KG</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label">CG</div><div class="result-item-value" id="wbCg">-</div></div>
-                  <div class="result-item"><div class="result-item-label" data-i18n="wb_moment">Moment</div><div class="result-item-value" id="wbMoment">-</div></div>
-                  <div class="result-item"><div class="result-item-label" data-i18n="wb_status">Status</div><div class="result-item-value" id="wbStatus">-</div></div>
-                </div>
-                <div class="result-note" data-i18n="wb_note">Verify CG limits against aircraft POH before flight.</div>
-              </div>
-            </div>
-            <div class="tabpanel" id="safety-tod">
-              <div class="row">
-                <div class="field"><label class="field-label" for="todCruise" data-i18n="tod_cruise">Cruise Altitude (ft)</label><input type="number" class="field-input" id="todCruise" placeholder="35000" min="1" max="50000" inputmode="numeric"></div>
-                <div class="field"><label class="field-label" for="todTarget" data-i18n="tod_target">Target Altitude (ft)</label><input type="number" class="field-input" id="todTarget" placeholder="3000" min="0" max="50000" inputmode="numeric"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="todGs" data-i18n="tod_gs">Ground Speed (kt)</label><input type="number" class="field-input" id="todGs" placeholder="450" min="1" max="600" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="todAngle" data-i18n="tod_angle">Descent Angle (deg)</label><input type="number" class="field-input" id="todAngle" value="3" min="1" max="10" step="0.1" inputmode="decimal"></div>
-              </div>
-              <div class="result" aria-live="polite">
-                <div class="result-label" data-i18n="tod_dist">Top of Descent</div>
-                <div class="result-value"><span id="todDist">-</span><span class="result-unit">NM</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label">V/S</div><div class="result-item-value" id="todVs">-</div></div>
-                  <div class="result-item"><div class="result-item-label" data-i18n="tod_time">Time</div><div class="result-item-value" id="todTime">-</div></div>
-                </div>
-                <div class="result-note" data-i18n="tod_note">Constant angle descent. Does not account for deceleration.</div>
-              </div>
-            </div>
-            <div class="tabpanel" id="safety-pnr">
-              <div class="row">
-                <div class="field"><label class="field-label" for="pnrFuel" data-i18n="pnr_fuel">Total Fuel (L)</label><input type="number" class="field-input" id="pnrFuel" placeholder="0" min="1" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="pnrReserve" data-i18n="pnr_reserve">Reserve (L)</label><input type="number" class="field-input" id="pnrReserve" placeholder="0" min="0" inputmode="decimal"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="pnrFlowOut" data-i18n="pnr_flow_out">Flow Out (L/h)</label><input type="number" class="field-input" id="pnrFlowOut" placeholder="0" min="1" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="pnrFlowBack" data-i18n="pnr_flow_back">Flow Back (L/h)</label><input type="number" class="field-input" id="pnrFlowBack" placeholder="0" min="1" inputmode="decimal"></div>
-              </div>
-              <div class="row">
-                <div class="field"><label class="field-label" for="pnrGsOut" data-i18n="pnr_gs_out">GS Out (kt)</label><input type="number" class="field-input" id="pnrGsOut" placeholder="0" min="1" max="600" inputmode="decimal"></div>
-                <div class="field"><label class="field-label" for="pnrGsBack" data-i18n="pnr_gs_back">GS Back (kt)</label><input type="number" class="field-input" id="pnrGsBack" placeholder="0" min="1" max="600" inputmode="decimal"></div>
-              </div>
-              <div class="result" aria-live="polite">
-                <div class="result-label" data-i18n="pnr_title">Point of No Return</div>
-                <div class="result-value"><span id="pnrDist">-</span><span class="result-unit">NM</span></div>
-                <div class="result-grid">
-                  <div class="result-item"><div class="result-item-label" data-i18n="pnr_time">Time to PNR</div><div class="result-item-value" id="pnrTime">-</div></div>
-                </div>
-                <div class="result-note" data-i18n="pnr_note">Simplified two-leg model.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- TOOLS -->
-      <section class="section" id="sec-tools" role="tabpanel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="tools_title">Converters</span>
-            </div>
-            <span class="card-badge" data-i18n="status_ready">Ready</span>
-          </div>
-          <div class="card-body">
-            <div class="tabs" role="tablist" id="toolsTabs">
-              <button class="tab" role="tab" aria-selected="true" data-tab="speed" type="button" data-i18n="tab_speed">Speed</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="dist" type="button" data-i18n="tab_distance">Distance</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="vol" type="button" data-i18n="tab_volume">Volume</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="mass" type="button" data-i18n="tab_mass">Mass</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="temp" type="button" data-i18n="tab_temp">Temp</button>
-            </div>
-            <div class="tabpanel active" id="tool-speed">
-              <div class="conv-row"><div class="field"><label class="field-label" for="convKt">Knots</label><input type="number" class="field-input" id="convKt" placeholder="0" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convKmh">KM/H</label><input type="number" class="field-input" id="convKmh" placeholder="0" step="0.1" inputmode="decimal"></div></div>
-              <div class="conv-row"><div class="field"><label class="field-label" for="convMph">MPH</label><input type="number" class="field-input" id="convMph" placeholder="0" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convMs">M/S</label><input type="number" class="field-input" id="convMs" placeholder="0" step="0.01" inputmode="decimal"></div></div>
-            </div>
-            <div class="tabpanel" id="tool-dist">
-              <div class="conv-row"><div class="field"><label class="field-label" for="convNm">NM</label><input type="number" class="field-input" id="convNm" placeholder="0" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convKm">KM</label><input type="number" class="field-input" id="convKm" placeholder="0" step="0.1" inputmode="decimal"></div></div>
-              <div class="conv-row"><div class="field"><label class="field-label" for="convMi">Statute Miles</label><input type="number" class="field-input" id="convMi" placeholder="0" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convFt">Feet</label><input type="number" class="field-input" id="convFt" placeholder="0" step="1" inputmode="numeric"></div></div>
-            </div>
-            <div class="tabpanel" id="tool-vol">
-              <div class="conv-row"><div class="field"><label class="field-label" for="convL">Liters</label><input type="number" class="field-input" id="convL" placeholder="0" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convUsg">US Gallons</label><input type="number" class="field-input" id="convUsg" placeholder="0" step="0.1" inputmode="decimal"></div></div>
-              <div class="conv-row"><div class="field"><label class="field-label" for="convImpg">Imp Gallons</label><input type="number" class="field-input" id="convImpg" placeholder="0" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convQt">US Quarts</label><input type="number" class="field-input" id="convQt" placeholder="0" step="0.1" inputmode="decimal"></div></div>
-            </div>
-            <div class="tabpanel" id="tool-mass">
-              <div class="conv-row"><div class="field"><label class="field-label" for="convKg">Kilograms</label><input type="number" class="field-input" id="convKg" placeholder="0" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convLbs">Pounds</label><input type="number" class="field-input" id="convLbs" placeholder="0" step="0.1" inputmode="decimal"></div></div>
-            </div>
-            <div class="tabpanel" id="tool-temp">
-              <div class="conv-row"><div class="field"><label class="field-label" for="convC">Celsius</label><input type="number" class="field-input" id="convC" placeholder="0" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convF">Fahrenheit</label><input type="number" class="field-input" id="convF" placeholder="32" step="0.1" inputmode="decimal"></div></div>
-              <div class="conv-row"><div class="field"><label class="field-label" for="convK">Kelvin</label><input type="number" class="field-input" id="convK" placeholder="273.15" step="0.1" inputmode="decimal"></div><span class="conv-arrow">=</span><div class="field"><label class="field-label" for="convR">Rankine</label><input type="number" class="field-input" id="convR" placeholder="491.67" step="0.1" inputmode="decimal"></div></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SYSTEM -->
-      <section class="section" id="sec-system" role="tabpanel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
-              <span data-i18n="system_title">System</span>
-            </div>
-            <span class="card-badge" data-i18n="status_ready">Ready</span>
-          </div>
-          <div class="card-body">
-            <div class="tabs" role="tablist" id="sysTabs">
-              <button class="tab" role="tab" aria-selected="true" data-tab="timer" type="button" data-i18n="tab_timer">Timer</button>
-              <button class="tab" role="tab" aria-selected="false" data-tab="notes" type="button" data-i18n="tab_notes">Notes</button>
-            </div>
-            <div class="tabpanel active" id="sys-timer">
-              <div class="timer-display" id="timerDisplay" aria-live="polite">00:00:00</div>
-              <div class="timer-btns">
-                <button class="timer-btn start" id="timerToggle" type="button" data-i18n="btn_start">START</button>
-                <button class="timer-btn" id="timerReset" type="button" data-i18n="btn_reset">RESET</button>
-              </div>
-            </div>
-            <div class="tabpanel" id="sys-notes">
-              <textarea class="notes-box" id="notesArea" placeholder="Flight notes..." aria-label="Flight notes"></textarea>
-              <div class="notes-actions">
-                <button class="notes-btn" id="notesExport" type="button" data-i18n="btn_export_notes">Export Notes</button>
-                <button class="notes-btn danger" id="notesClear" type="button" data-i18n="btn_clear_notes">Clear Notes</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
   </div>
 
-<script>
-(function(){'use strict';
+  <script>
+    const menuScreen = document.getElementById('screen-menu');
+    const fuelScreen = document.getElementById('screen-fuel');
+    const topTitle = document.getElementById('topTitle');
+    const backBtn = document.getElementById('backBtn');
+    const tabs = document.querySelectorAll('.tab');
+    const openFuelButtons = document.querySelectorAll('.js-open-fuel');
 
-var $=function(s){return document.querySelector(s);};
-var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
-var clamp=function(n,min,max){return Math.min(max,Math.max(min,n));};
-var degToRad=function(d){return d*Math.PI/180;};
-var radToDeg=function(r){return r*180/Math.PI;};
+    function activateTab(name){
+      tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === name);
+      });
+    }
 
-var V={
-  num:function(v){if(v===''||v===null||v===undefined)return null;var n=parseFloat(v);return Number.isFinite(n)?n:null;},
-  range:function(v,min,max){var n=this.num(v);if(n===null)return{ok:false,v:null};if(n<min||n>max)return{ok:false,v:n};return{ok:true,v:n};},
-  pos:function(v){var n=this.num(v);if(n===null||n<=0)return{ok:false,v:n};return{ok:true,v:n};},
-  nneg:function(v){var n=this.num(v);if(n===null||n<0)return{ok:false,v:n};return{ok:true,v:n};},
-  err:function(el,e){if(e)el.classList.add('error');else el.classList.remove('error');}
-};
+    function openMenu(){
+      menuScreen.classList.add('active');
+      fuelScreen.classList.remove('active');
+      topTitle.textContent = 'Main Menu';
+      backBtn.style.visibility = 'hidden';
+      activateTab('menu');
+    }
 
-var F={
-  num:function(n,d){if(n===null||!Number.isFinite(n))return'-';return n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:d||0});},
-  time:function(h){if(h===null||!Number.isFinite(h)||h<0)return'-';var hr=Math.floor(h),mn=Math.round((h-hr)*60);if(mn===60){hr++;mn=0;}return String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0');},
-  sign:function(n,d){if(n===null||!Number.isFinite(n))return'-';return(n>=0?'+':'')+n.toFixed(d||1);}
-};
+    function openFuel(){
+      menuScreen.classList.remove('active');
+      fuelScreen.classList.add('active');
+      topTitle.textContent = 'Fuel Calculator';
+      backBtn.style.visibility = 'visible';
+      activateTab('fuel');
+    }
 
-var S={
-  p:'avpro_',
-  set:function(k,v){try{localStorage.setItem(this.p+k,JSON.stringify(v));}catch(e){}},
-  get:function(k,d){try{var v=localStorage.getItem(this.p+k);return v!==null?JSON.parse(v):d;}catch(e){return d;}},
-  del:function(k){try{localStorage.removeItem(this.p+k);}catch(e){}}
-};
+    openFuelButtons.forEach(btn => {
+      btn.addEventListener('click', openFuel);
+    });
 
-var I18N={
-en:{
-  disclaimer:'FOR REFERENCE ONLY - NOT FOR OPERATIONAL USE - VERIFY ALL CALCULATIONS',
-  nav_fuel:'Fuel',nav_cost:'Cost',nav_flight:'Flight',nav_atmo:'Atmosphere',nav_safety:'Safety',nav_tools:'Tools',nav_system:'System',
-  status_ready:'Ready',
-  fuel_title:'Fuel Calculator',fuel_type:'Fuel Type',fuel_volume:'Volume (L)',fuel_temp:'Temperature (C)',fuel_mass:'Fuel Mass',
-  fuel_note:'Temperature-corrected density estimate. Verify with actual measurement.',
-  err_range:'0 - 500,000 L',err_temp:'-60 to +60C',
-  cost_title:'Cost Calculator',cost_flow:'Fuel Flow (L/h)',cost_price:'Price per Liter',cost_gs:'Ground Speed (kt)',
-  cost_gs_hint:'Required for cost per NM',cost_currency:'Currency',cost_per_hour:'Cost per Hour',
-  cost_per_min:'Per Minute',cost_per_nm:'Per NM',cost_per_100nm:'Per 100 NM',
-  cost_note:'Fuel cost only. Does not include maintenance, crew, or fees.',
-  flight_title:'Flight Planning',tab_basic:'Basic',tab_fuel_required:'Fuel Required',tab_endurance:'Endurance',
-  flight_tas:'TAS (kt)',flight_dist:'Distance (NM)',flight_course:'Course (deg)',flight_wdir:'Wind From (deg)',flight_wspd:'Wind Speed (kt)',flight_gs:'Ground Speed',
-  flight_note:'Simplified wind triangle. Verify with flight computer.',
-  fuelreq_gs:'Ground Speed (kt)',fuelreq_dist:'Distance (NM)',fuelreq_flow:'Fuel Flow (L/h)',fuelreq_reserve:'Reserve (L)',
-  fuelreq_trip:'Trip Fuel',fuelreq_res:'+ Reserve',fuelreq_total:'Total',fuelreq_time:'Time',
-  fuelreq_note:'Does not include taxi, contingency, or alternate fuel.',
-  endur_fuel:'Fuel Available (L)',endur_flow:'Fuel Flow (L/h)',endur_title:'Endurance',endur_decimal:'Decimal',
-  endur_note:'Based on constant flow rate.',
-  atmo_title:'Atmosphere',tab_density_alt:'Density Altitude',tab_qnh:'QNH Converter',tab_tas:'TAS Estimate',
-  atmo_elev:'Elevation (ft)',atmo_oat:'OAT (C)',atmo_qnh:'QNH (hPa)',atmo_da:'Density Altitude',
-  atmo_pa:'Press Alt',atmo_isa:'ISA Temp',atmo_dev:'ISA Dev',
-  atmo_da_note:'ISA model: PA + 120 x ISA deviation. Verify with POH.',
-  tas_ias:'IAS / CAS (kt)',tas_alt:'Pressure Altitude (ft)',tas_oat:'OAT (C)',tas_result:'True Airspeed',
-  tas_note:'Simplified estimate. Use E6B above FL250.',
-  safety_title:'Safety',tab_wind:'Wind',tab_wb:'W&B',tab_tod:'TOD',tab_pnr:'PNR',
-  wind_rwy:'Runway Heading (deg)',wind_dir:'Wind From (deg)',wind_spd:'Wind Speed (kt)',wind_head:'Headwind',wind_tail:'Tailwind',wind_cross:'Crosswind',
-  wb_empty:'Empty Weight (kg)',wb_arm:'Arm (mm)',wb_pax:'Pax + Crew (kg)',wb_fuel:'Fuel (kg)',wb_cargo:'Cargo (kg)',
-  wb_total:'Total Weight',wb_moment:'Moment',wb_status:'Status',wb_check:'CHECK POH',
-  wb_note:'Verify CG limits against aircraft POH before flight.',
-  tod_cruise:'Cruise Altitude (ft)',tod_target:'Target Altitude (ft)',tod_gs:'Ground Speed (kt)',tod_angle:'Descent Angle (deg)',
-  tod_dist:'Top of Descent',tod_time:'Time',tod_note:'Constant angle descent. Does not account for deceleration.',
-  pnr_fuel:'Total Fuel (L)',pnr_reserve:'Reserve (L)',pnr_flow_out:'Flow Out (L/h)',pnr_flow_back:'Flow Back (L/h)',
-  pnr_gs_out:'GS Out (kt)',pnr_gs_back:'GS Back (kt)',pnr_title:'Point of No Return',pnr_time:'Time to PNR',
-  pnr_note:'Simplified two-leg model.',
-  tools_title:'Converters',tab_speed:'Speed',tab_distance:'Distance',tab_volume:'Volume',tab_mass:'Mass',tab_temp:'Temp',
-  system_title:'System',tab_timer:'Timer',tab_notes:'Notes',
-  btn_start:'START',btn_stop:'STOP',btn_reset:'RESET',btn_export_notes:'Export Notes',btn_clear_notes:'Clear Notes'
-},
-ru:{
-  disclaimer:'ТОЛЬКО ДЛЯ СПРАВКИ - НЕ ДЛЯ ОПЕРАЦИОННОГО ИСПОЛЬЗОВАНИЯ - ПРОВЕРЯЙТЕ ВСЕ РАСЧЕТЫ',
-  nav_fuel:'Топливо',nav_cost:'Стоимость',nav_flight:'Полет',nav_atmo:'Атмосфера',nav_safety:'Безопасность',nav_tools:'Конвертеры',nav_system:'Система',
-  status_ready:'Готово',
-  fuel_title:'Калькулятор топлива',fuel_type:'Тип топлива',fuel_volume:'Объем (л)',fuel_temp:'Температура (C)',fuel_mass:'Масса топлива',
-  fuel_note:'Оценка плотности с температурной коррекцией. Проверьте фактическим измерением.',
-  err_range:'0 - 500 000 л',err_temp:'От -60 до +60C',
-  cost_title:'Калькулятор стоимости',cost_flow:'Расход топлива (л/ч)',cost_price:'Цена за литр',cost_gs:'Путевая скорость (уз)',
-  cost_gs_hint:'Для расчета стоимости на NM',cost_currency:'Валюта',cost_per_hour:'Стоимость в час',
-  cost_per_min:'В минуту',cost_per_nm:'За NM',cost_per_100nm:'За 100 NM',
-  cost_note:'Только стоимость топлива. Не включает ТО, экипаж, сборы.',
-  flight_title:'Планирование полета',tab_basic:'Основное',tab_fuel_required:'Потребность топлива',tab_endurance:'Дальность',
-  flight_tas:'TAS (уз)',flight_dist:'Расстояние (NM)',flight_course:'Курс (град)',flight_wdir:'Ветер от (град)',flight_wspd:'Скорость ветра (уз)',flight_gs:'Путевая скорость',
-  flight_note:'Упрощенный ветровой треугольник. Проверьте на навигационном компьютере.',
-  fuelreq_gs:'Путевая скорость (уз)',fuelreq_dist:'Расстояние (NM)',fuelreq_flow:'Расход (л/ч)',fuelreq_reserve:'Резерв (л)',
-  fuelreq_trip:'Топливо на маршрут',fuelreq_res:'+ Резерв',fuelreq_total:'Всего',fuelreq_time:'Время',
-  fuelreq_note:'Без руления, непредвиденных обстоятельств, запасного аэродрома.',
-  endur_fuel:'Запас топлива (л)',endur_flow:'Расход (л/ч)',endur_title:'Дальность',endur_decimal:'Десятичное',
-  endur_note:'При постоянном расходе.',
-  atmo_title:'Атмосфера',tab_density_alt:'Плотностная высота',tab_qnh:'Конвертер QNH',tab_tas:'Оценка TAS',
-  atmo_elev:'Превышение (фут)',atmo_oat:'Температура (C)',atmo_qnh:'QNH (гПа)',atmo_da:'Плотностная высота',
-  atmo_pa:'Барометрическая',atmo_isa:'Темп ISA',atmo_dev:'Откл ISA',
-  atmo_da_note:'Модель ISA: PA + 120 x отклонение ISA. Проверьте по POH.',
-  tas_ias:'IAS / CAS (уз)',tas_alt:'Барометрическая высота (фут)',tas_oat:'Температура (C)',tas_result:'Истинная воздушная скорость',
-  tas_note:'Упрощенная оценка. Используйте E6B выше FL250.',
-  safety_title:'Безопасность',tab_wind:'Ветер',tab_wb:'Центровка',tab_tod:'TOD',tab_pnr:'PNR',
-  wind_rwy:'Курс ВПП (град)',wind_dir:'Ветер от (град)',wind_spd:'Скорость ветра (уз)',wind_head:'Встречный',wind_tail:'Попутный',wind_cross:'Боковой',
-  wb_empty:'Пустой вес (кг)',wb_arm:'Плечо (мм)',wb_pax:'Пасс + экипаж (кг)',wb_fuel:'Топливо (кг)',wb_cargo:'Груз (кг)',
-  wb_total:'Общий вес',wb_moment:'Момент',wb_status:'Статус',wb_check:'ПРОВЕРЬТЕ POH',
-  wb_note:'Проверьте лимиты ЦТ по РЛЭ перед полетом.',
-  tod_cruise:'Эшелон (фут)',tod_target:'Целевая высота (фут)',tod_gs:'Путевая (уз)',tod_angle:'Угол снижения (град)',
-  tod_dist:'Точка начала снижения',tod_time:'Время',tod_note:'Снижение с постоянным углом. Без учета торможения.',
-  pnr_fuel:'Общее топливо (л)',pnr_reserve:'Резерв (л)',pnr_flow_out:'Расход туда (л/ч)',pnr_flow_back:'Расход обратно (л/ч)',
-  pnr_gs_out:'GS туда (уз)',pnr_gs_back:'GS обратно (уз)',pnr_title:'Точка невозврата',pnr_time:'Время до PNR',
-  pnr_note:'Упрощенная двухэтапная модель.',
-  tools_title:'Конвертеры',tab_speed:'Скорость',tab_distance:'Расстояние',tab_volume:'Объем',tab_mass:'Масса',tab_temp:'Температура',
-  system_title:'Система',tab_timer:'Таймер',tab_notes:'Заметки',
-  btn_start:'СТАРТ',btn_stop:'СТОП',btn_reset:'СБРОС',btn_export_notes:'Экспорт заметок',btn_clear_notes:'Очистить заметки'
-},
-ar:{
-  disclaimer:'للمرجع فقط - ليس للاستخدام التشغيلي - تحقق من جميع الحسابات',
-  nav_fuel:'الوقود',nav_cost:'التكلفة',nav_flight:'الرحلة',nav_atmo:'الغلاف الجوي',nav_safety:'السلامة',nav_tools:'المحولات',nav_system:'النظام',
-  status_ready:'جاهز',
-  fuel_title:'حاسبة الوقود',fuel_type:'نوع الوقود',fuel_volume:'الحجم (لتر)',fuel_temp:'درجة الحرارة (C)',fuel_mass:'كتلة الوقود',
-  fuel_note:'تقدير الكثافة المصححة للحرارة. تحقق بالقياس الفعلي.',
-  err_range:'0 - 500,000 لتر',err_temp:'من -60 الى +60C',
-  cost_title:'حاسبة التكلفة',cost_flow:'استهلاك الوقود (لتر/ساعة)',cost_price:'السعر لكل لتر',cost_gs:'السرعة الارضية (عقدة)',
-  cost_gs_hint:'مطلوب لحساب التكلفة لكل ميل بحري',cost_currency:'العملة',cost_per_hour:'التكلفة في الساعة',
-  cost_per_min:'في الدقيقة',cost_per_nm:'لكل ميل بحري',cost_per_100nm:'لكل 100 ميل',
-  cost_note:'تكلفة الوقود فقط. لا تشمل الصيانة او الطاقم او الرسوم.',
-  flight_title:'تخطيط الرحلة',tab_basic:'اساسي',tab_fuel_required:'الوقود المطلوب',tab_endurance:'المدى',
-  flight_tas:'السرعة الجوية الحقيقية (عقدة)',flight_dist:'المسافة (ميل بحري)',flight_course:'المسار (درجة)',flight_wdir:'الرياح من (درجة)',flight_wspd:'سرعة الرياح (عقدة)',flight_gs:'السرعة الارضية',
-  flight_note:'مثلث رياح مبسط. تحقق بحاسب الطيران.',
-  fuelreq_gs:'السرعة الارضية (عقدة)',fuelreq_dist:'المسافة (ميل بحري)',fuelreq_flow:'الاستهلاك (لتر/ساعة)',fuelreq_reserve:'الاحتياطي (لتر)',
-  fuelreq_trip:'وقود الرحلة',fuelreq_res:'+ الاحتياطي',fuelreq_total:'الاجمالي',fuelreq_time:'الوقت',
-  fuelreq_note:'لا يشمل التاكسي او الطوارئ او المطار البديل.',
-  endur_fuel:'الوقود المتاح (لتر)',endur_flow:'الاستهلاك (لتر/ساعة)',endur_title:'المدى',endur_decimal:'عشري',
-  endur_note:'بناء على معدل استهلاك ثابت.',
-  atmo_title:'الغلاف الجوي',tab_density_alt:'ارتفاع الكثافة',tab_qnh:'محول QNH',tab_tas:'تقدير السرعة الحقيقية',
-  atmo_elev:'الارتفاع (قدم)',atmo_oat:'درجة الحرارة (C)',atmo_qnh:'QNH (هكتوباسكال)',atmo_da:'ارتفاع الكثافة',
-  atmo_pa:'ارتفاع الضغط',atmo_isa:'درجة ISA',atmo_dev:'انحراف ISA',
-  atmo_da_note:'نموذج ISA: PA + 120 x انحراف ISA. تحقق من POH.',
-  tas_ias:'IAS / CAS (عقدة)',tas_alt:'ارتفاع الضغط (قدم)',tas_oat:'درجة الحرارة (C)',tas_result:'السرعة الجوية الحقيقية',
-  tas_note:'تقدير مبسط. استخدم E6B فوق FL250.',
-  safety_title:'السلامة',tab_wind:'الرياح',tab_wb:'الوزن والتوازن',tab_tod:'بداية الهبوط',tab_pnr:'نقطة اللاعودة',
-  wind_rwy:'اتجاه المدرج (درجة)',wind_dir:'الرياح من (درجة)',wind_spd:'سرعة الرياح (عقدة)',wind_head:'رياح امامية',wind_tail:'رياح خلفية',wind_cross:'رياح جانبية',
-  wb_empty:'الوزن الفارغ (كجم)',wb_arm:'الذراع (مم)',wb_pax:'الركاب + الطاقم (كجم)',wb_fuel:'الوقود (كجم)',wb_cargo:'الشحن (كجم)',
-  wb_total:'الوزن الاجمالي',wb_moment:'العزم',wb_status:'الحالة',wb_check:'تحقق من POH',
-  wb_note:'تحقق من حدود مركز الثقل من POH قبل الرحلة.',
-  tod_cruise:'ارتفاع الرحلة (قدم)',tod_target:'الارتفاع المستهدف (قدم)',tod_gs:'السرعة الارضية (عقدة)',tod_angle:'زاوية الهبوط (درجة)',
-  tod_dist:'نقطة بدء الهبوط',tod_time:'الوقت',tod_note:'هبوط بزاوية ثابتة. لا يشمل التباطؤ.',
-  pnr_fuel:'اجمالي الوقود (لتر)',pnr_reserve:'الاحتياطي (لتر)',pnr_flow_out:'استهلاك الذهاب (لتر/ساعة)',pnr_flow_back:'استهلاك العودة (لتر/ساعة)',
-  pnr_gs_out:'سرعة الذهاب (عقدة)',pnr_gs_back:'سرعة العودة (عقدة)',pnr_title:'نقطة اللاعودة',pnr_time:'الوقت الى نقطة اللاعودة',
-  pnr_note:'نموذج مرحلتين مبسط.',
-  tools_title:'المحولات',tab_speed:'السرعة',tab_distance:'المسافة',tab_volume:'الحجم',tab_mass:'الكتلة',tab_temp:'الحرارة',
-  system_title:'النظام',tab_timer:'المؤقت',tab_notes:'الملاحظات',
-  btn_start:'بدء',btn_stop:'ايقاف',btn_reset:'اعادة',btn_export_notes:'تصدير الملاحظات',btn_clear_notes:'مسح الملاحظات'
-},
-hi:{
-  disclaimer:'केवल संदर्भ के लिए - संचालन उपयोग के लिए नहीं - सभी गणनाओं की पुष्टि करें',
-  nav_fuel:'ईंधन',nav_cost:'लागत',nav_flight:'उड़ान',nav_atmo:'वातावरण',nav_safety:'सुरक्षा',nav_tools:'कनवर्टर',nav_system:'सिस्टम',
-  status_ready:'तैयार',
-  fuel_title:'ईंधन कैलकुलेटर',fuel_type:'ईंधन प्रकार',fuel_volume:'मात्रा (लीटर)',fuel_temp:'तापमान (C)',fuel_mass:'ईंधन द्रव्यमान',
-  fuel_note:'तापमान-सुधारित घनत्व अनुमान। वास्तविक माप से सत्यापित करें।',
-  err_range:'0 - 5,00,000 लीटर',err_temp:'-60 से +60C',
-  cost_title:'लागत कैलकुलेटर',cost_flow:'ईंधन प्रवाह (लीटर/घंटा)',cost_price:'प्रति लीटर मूल्य',cost_gs:'भूमि गति (नॉट)',
-  cost_gs_hint:'प्रति NM लागत के लिए आवश्यक',cost_currency:'मुद्रा',cost_per_hour:'प्रति घंटा लागत',
-  cost_per_min:'प्रति मिनट',cost_per_nm:'प्रति NM',cost_per_100nm:'प्रति 100 NM',
-  cost_note:'केवल ईंधन लागत। रखरखाव, चालक दल या शुल्क शामिल नहीं।',
-  flight_title:'उड़ान योजना',tab_basic:'बुनियादी',tab_fuel_required:'आवश्यक ईंधन',tab_endurance:'सहनशक्ति',
-  flight_tas:'TAS (नॉट)',flight_dist:'दूरी (NM)',flight_course:'पाठ्यक्रम (डिग्री)',flight_wdir:'हवा से (डिग्री)',flight_wspd:'हवा की गति (नॉट)',flight_gs:'भूमि गति',
-  flight_note:'सरलीकृत पवन त्रिकोण। फ्लाइट कंप्यूटर से सत्यापित करें।',
-  fuelreq_gs:'भूमि गति (नॉट)',fuelreq_dist:'दूरी (NM)',fuelreq_flow:'प्रवाह (लीटर/घंटा)',fuelreq_reserve:'आरक्षित (लीटर)',
-  fuelreq_trip:'यात्रा ईंधन',fuelreq_res:'+ आरक्षित',fuelreq_total:'कुल',fuelreq_time:'समय',
-  fuelreq_note:'टैक्सी, आकस्मिकता या वैकल्पिक ईंधन शामिल नहीं।',
-  endur_fuel:'उपलब्ध ईंधन (लीटर)',endur_flow:'प्रवाह (लीटर/घंटा)',endur_title:'सहनशक्ति',endur_decimal:'दशमलव',
-  endur_note:'निरंतर प्रवाह दर पर आधारित।',
-  atmo_title:'वातावरण',tab_density_alt:'घनत्व ऊंचाई',tab_qnh:'QNH कनवर्टर',tab_tas:'TAS अनुमान',
-  atmo_elev:'ऊंचाई (फीट)',atmo_oat:'OAT (C)',atmo_qnh:'QNH (hPa)',atmo_da:'घनत्व ऊंचाई',
-  atmo_pa:'दबाव ऊंचाई',atmo_isa:'ISA तापमान',atmo_dev:'ISA विचलन',
-  atmo_da_note:'ISA मॉडल: PA + 120 x ISA विचलन। POH से सत्यापित करें।',
-  tas_ias:'IAS / CAS (नॉट)',tas_alt:'दबाव ऊंचाई (फीट)',tas_oat:'OAT (C)',tas_result:'वास्तविक वायु गति',
-  tas_note:'सरलीकृत अनुमान। FL250 से ऊपर E6B का उपयोग करें।',
-  safety_title:'सुरक्षा',tab_wind:'हवा',tab_wb:'वजन और संतुलन',tab_tod:'अवरोहण शुरू',tab_pnr:'वापसी बिंदु',
-  wind_rwy:'रनवे शीर्षक (डिग्री)',wind_dir:'हवा से (डिग्री)',wind_spd:'हवा की गति (नॉट)',wind_head:'सामने की हवा',wind_tail:'पीछे की हवा',wind_cross:'पार्श्व हवा',
-  wb_empty:'खाली वजन (किग्रा)',wb_arm:'भुजा (मिमी)',wb_pax:'यात्री + चालक (किग्रा)',wb_fuel:'ईंधन (किग्रा)',wb_cargo:'कार्गो (किग्रा)',
-  wb_total:'कुल वजन',wb_moment:'टोर्क',wb_status:'स्थिति',wb_check:'POH जांचें',
-  wb_note:'उड़ान से पहले POH से CG सीमाएं सत्यापित करें।',
-  tod_cruise:'क्रूज ऊंचाई (फीट)',tod_target:'लक्ष्य ऊंचाई (फीट)',tod_gs:'भूमि गति (नॉट)',tod_angle:'अवरोहण कोण (डिग्री)',
-  tod_dist:'अवरोहण शीर्ष',tod_time:'समय',tod_note:'स्थिर कोण अवरोहण। मंदी शामिल नहीं।',
-  pnr_fuel:'कुल ईंधन (लीटर)',pnr_reserve:'आरक्षित (लीटर)',pnr_flow_out:'जाने का प्रवाह (लीटर/घंटा)',pnr_flow_back:'वापसी प्रवाह (लीटर/घंटा)',
-  pnr_gs_out:'GS जाना (नॉट)',pnr_gs_back:'GS वापसी (नॉट)',pnr_title:'वापसी का बिंदु नहीं',pnr_time:'PNR तक समय',
-  pnr_note:'सरलीकृत दो-चरण मॉडल।',
-  tools_title:'कनवर्टर',tab_speed:'गति',tab_distance:'दूरी',tab_volume:'आयतन',tab_mass:'द्रव्यमान',tab_temp:'तापमान',
-  system_title:'सिस्टम',tab_timer:'टाइमर',tab_notes:'नोट्स',
-  btn_start:'शुरू',btn_stop:'रोकें',btn_reset:'रीसेट',btn_export_notes:'नोट्स निर्यात करें',btn_clear_notes:'नोट्स साफ़ करें'
-},
-fil:{
-  disclaimer:'PARA SA SANGGUNIAN LAMANG - HINDI PARA SA OPERATIONAL USE - I-VERIFY ANG LAHAT NG KALKULASYON',
-  nav_fuel:'Fuel',nav_cost:'Gastos',nav_flight:'Flight',nav_atmo:'Atmospera',nav_safety:'Kaligtasan',nav_tools:'Converter',nav_system:'Sistema',
-  status_ready:'Handa',
-  fuel_title:'Fuel Calculator',fuel_type:'Uri ng Fuel',fuel_volume:'Dami (L)',fuel_temp:'Temperatura (C)',fuel_mass:'Bigat ng Fuel',
-  fuel_note:'Temperature-corrected density estimate. I-verify sa aktwal na sukat.',
-  err_range:'0 - 500,000 L',err_temp:'-60 hanggang +60C',
-  cost_title:'Cost Calculator',cost_flow:'Fuel Flow (L/h)',cost_price:'Presyo bawat Litro',cost_gs:'Ground Speed (kt)',
-  cost_gs_hint:'Kailangan para sa cost per NM',cost_currency:'Pera',cost_per_hour:'Gastos bawat Oras',
-  cost_per_min:'Bawat Minuto',cost_per_nm:'Bawat NM',cost_per_100nm:'Bawat 100 NM',
-  cost_note:'Fuel cost lamang. Hindi kasama ang maintenance, crew, o fees.',
-  flight_title:'Flight Planning',tab_basic:'Basic',tab_fuel_required:'Fuel Required',tab_endurance:'Endurance',
-  flight_tas:'TAS (kt)',flight_dist:'Distansya (NM)',flight_course:'Course (deg)',flight_wdir:'Hangin Mula (deg)',flight_wspd:'Bilis ng Hangin (kt)',flight_gs:'Ground Speed',
-  flight_note:'Simplified wind triangle. I-verify sa flight computer.',
-  fuelreq_gs:'Ground Speed (kt)',fuelreq_dist:'Distansya (NM)',fuelreq_flow:'Fuel Flow (L/h)',fuelreq_reserve:'Reserve (L)',
-  fuelreq_trip:'Trip Fuel',fuelreq_res:'+ Reserve',fuelreq_total:'Kabuuan',fuelreq_time:'Oras',
-  fuelreq_note:'Hindi kasama ang taxi, contingency, o alternate fuel.',
-  endur_fuel:'Available na Fuel (L)',endur_flow:'Fuel Flow (L/h)',endur_title:'Endurance',endur_decimal:'Decimal',
-  endur_note:'Batay sa constant flow rate.',
-  atmo_title:'Atmospera',tab_density_alt:'Density Altitude',tab_qnh:'QNH Converter',tab_tas:'TAS Estimate',
-  atmo_elev:'Elevation (ft)',atmo_oat:'OAT (C)',atmo_qnh:'QNH (hPa)',atmo_da:'Density Altitude',
-  atmo_pa:'Press Alt',atmo_isa:'ISA Temp',atmo_dev:'ISA Dev',
-  atmo_da_note:'ISA model: PA + 120 x ISA deviation. I-verify sa POH.',
-  tas_ias:'IAS / CAS (kt)',tas_alt:'Pressure Altitude (ft)',tas_oat:'OAT (C)',tas_result:'True Airspeed',
-  tas_note:'Simplified estimate. Gumamit ng E6B sa itaas ng FL250.',
-  safety_title:'Kaligtasan',tab_wind:'Hangin',tab_wb:'Timbang at Balanse',tab_tod:'Simula ng Baba',tab_pnr:'Punto ng Walang Balik',
-  wind_rwy:'Runway Heading (deg)',wind_dir:'Hangin Mula (deg)',wind_spd:'Bilis ng Hangin (kt)',wind_head:'Headwind',wind_tail:'Tailwind',wind_cross:'Crosswind',
-  wb_empty:'Empty Weight (kg)',wb_arm:'Arm (mm)',wb_pax:'Pasahero + Crew (kg)',wb_fuel:'Fuel (kg)',wb_cargo:'Cargo (kg)',
-  wb_total:'Kabuuang Timbang',wb_moment:'Moment',wb_status:'Status',wb_check:'TINGNAN ANG POH',
-  wb_note:'I-verify ang CG limits laban sa aircraft POH bago ang flight.',
-  tod_cruise:'Cruise Altitude (ft)',tod_target:'Target Altitude (ft)',tod_gs:'Ground Speed (kt)',tod_angle:'Descent Angle (deg)',
-  tod_dist:'Top of Descent',tod_time:'Oras',tod_note:'Constant angle descent. Hindi kasama ang deceleration.',
-  pnr_fuel:'Kabuuang Fuel (L)',pnr_reserve:'Reserve (L)',pnr_flow_out:'Flow Out (L/h)',pnr_flow_back:'Flow Back (L/h)',
-  pnr_gs_out:'GS Out (kt)',pnr_gs_back:'GS Back (kt)',pnr_title:'Punto ng Walang Balik',pnr_time:'Oras hanggang PNR',
-  pnr_note:'Simplified two-leg model.',
-  tools_title:'Converter',tab_speed:'Bilis',tab_distance:'Distansya',tab_volume:'Dami',tab_mass:'Bigat',tab_temp:'Temperatura',
-  system_title:'Sistema',tab_timer:'Timer',tab_notes:'Notes',
-  btn_start:'SIMULA',btn_stop:'HINTO',btn_reset:'RESET',btn_export_notes:'I-export ang Notes',btn_clear_notes:'Burahin ang Notes'
-}
-};
-var lang='en';
-function t(k){return I18N[lang]&&I18N[lang][k]?I18N[lang][k]:(I18N.en[k]||k);}
-function setLang(l){
-  lang=l;
-  document.documentElement.setAttribute('dir',l==='ar'?'rtl':'ltr');
-  document.documentElement.setAttribute('lang',l);
-  $$('[data-i18n]').forEach(function(el){el.textContent=t(el.getAttribute('data-i18n'));});
-  S.set('lang',l);
-}
+    backBtn.addEventListener('click', openMenu);
 
-var FUEL={jeta1:{d:0.800,c:0.00099},jeta:{d:0.804,c:0.00099},jp8:{d:0.800,c:0.00099},avgas:{d:0.721,c:0.00105},mogas:{d:0.745,c:0.00110}};
-var CURR={USD:'$',EUR:'E',RUB:'R',AED:'AED',INR:'Rs',PHP:'P',SAR:'SR'};
-
-function showSection(id){
-  $$('.section').forEach(function(s){s.classList.remove('active');});
-  $$('.nav-pill').forEach(function(b){b.setAttribute('aria-selected','false');});
-  $$('.cockpit-layer').forEach(function(l){l.classList.remove('active');});
-  var sec=$('#sec-'+id),tab=$('[data-section="'+id+'"]'),bg=$('#bg-'+id);
-  if(sec)sec.classList.add('active');
-  if(tab)tab.setAttribute('aria-selected','true');
-  if(bg)bg.classList.add('active');
-  S.set('section',id);
-}
-function setupTabs(cid,pfx){
-  var c=$('#'+cid);if(!c)return;
-  c.addEventListener('click',function(e){
-    var btn=e.target.closest('.tab');if(!btn)return;
-    c.querySelectorAll('.tab').forEach(function(t){t.setAttribute('aria-selected','false');});
-    btn.setAttribute('aria-selected','true');
-    c.parentElement.querySelectorAll('.tabpanel').forEach(function(p){p.classList.remove('active');});
-    var pnl=$('#'+pfx+'-'+btn.dataset.tab);if(pnl)pnl.classList.add('active');
-  });
-}
-
-function updateClocks(){
-  var n=new Date();
-  $('#zuluClock').textContent=String(n.getUTCHours()).padStart(2,'0')+':'+String(n.getUTCMinutes()).padStart(2,'0')+':'+String(n.getUTCSeconds()).padStart(2,'0')+'Z';
-  $('#localClock').textContent='LOCAL '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
-}
-
-function calcFuel(){
-  var tk=$('#fuelType').value,vE=$('#fuelVol'),tE=$('#fuelTemp');
-  var vR=V.range(vE.value,0,500000),tR=V.range(tE.value,-60,60);
-  V.err(vE,vE.value!==''&&!vR.ok);V.err(tE,tE.value!==''&&!tR.ok);
-  if(!vR.ok||!tR.ok||vR.v===0){$('#fuelMass').textContent='-';$('#fuelLbs').textContent='-';$('#fuelUsg').textContent='-';$('#fuelImp').textContent='-';return;}
-  var f=FUEL[tk],d=f.d*(1-f.c*(tR.v-15)),kg=vR.v*d;
-  $('#fuelMass').textContent=F.num(Math.round(kg));$('#fuelLbs').textContent=F.num(Math.round(kg*2.20462));
-  $('#fuelUsg').textContent=(vR.v*0.264172).toFixed(1);$('#fuelImp').textContent=(vR.v*0.219969).toFixed(1);
-}
-function calcCost(){
-  var fE=$('#costFlow'),pE=$('#costPrice'),gE=$('#costGs'),cu=$('#costCurr').value,sy=CURR[cu]||'';
-  var fR=V.pos(fE.value),pR=V.pos(pE.value),gR=V.range(gE.value,1,600);
-  V.err(fE,fE.value!==''&&!fR.ok);V.err(pE,pE.value!==''&&!pR.ok);
-  if(!fR.ok||!pR.ok){$('#costHour').textContent='-';$('#costMin').textContent='-';$('#costNm').textContent='-';$('#cost100Nm').textContent='-';return;}
-  var cph=fR.v*pR.v;$('#costHour').textContent=sy+cph.toFixed(2);$('#costMin').textContent=sy+(cph/60).toFixed(2);
-  if(gR.ok&&gR.v>0){var cpn=cph/gR.v;$('#costNm').textContent=sy+cpn.toFixed(3);$('#cost100Nm').textContent=sy+(cpn*100).toFixed(2);}
-  else{$('#costNm').textContent='-';$('#cost100Nm').textContent='-';}
-}
-function calcFlightBasic(){
-  var tasE=$('#flightTas'),distE=$('#flightDist'),crsE=$('#flightCourse'),wdE=$('#flightWdir'),wsE=$('#flightWind');
-  var tasR=V.pos(tasE.value),distR=V.nneg(distE.value),crsR=V.range(crsE.value,0,360),wdR=V.range(wdE.value,0,360),wsR=V.nneg(wsE.value);
-  var warn=$('#flightWarning'),res=$('#flightResult');res.classList.remove('warning-state','error-state');warn.textContent=t('flight_note');warn.style.color='';
-  if(!tasR.ok){$('#flightGs').textContent='-';$('#flightEte').textContent='-';$('#flightWca').textContent='-';$('#flightHdg').textContent='-';return;}
-  var tas=tasR.v,gs=tas,wca=0,hdg=crsR.ok?crsR.v:0;
-  if(wsR.ok&&wsR.v>0&&crsR.ok&&wdR.ok){
-    var wa=degToRad(wdR.v-crsR.v),xw=wsR.v*Math.sin(wa),hw=wsR.v*Math.cos(wa);
-    if(Math.abs(xw)>=tas){res.classList.add('error-state');warn.textContent='Crosswind exceeds TAS';warn.style.color='var(--accent)';$('#flightGs').textContent='-';$('#flightEte').textContent='-';$('#flightWca').textContent='-';$('#flightHdg').textContent='-';return;}
-    wca=radToDeg(Math.asin(clamp(xw/tas,-1,1)));gs=Math.sqrt(tas*tas-xw*xw)-hw;hdg=crsR.v+wca;if(hdg<0)hdg+=360;if(hdg>=360)hdg-=360;
-  }
-  if(gs<=0){res.classList.add('error-state');warn.textContent='Headwind exceeds TAS';warn.style.color='var(--accent)';$('#flightGs').textContent='0';$('#flightEte').textContent='-';return;}
-  $('#flightGs').textContent=Math.round(gs);$('#flightEte').textContent=(distR.ok&&distR.v>0)?F.time(distR.v/gs):'-';
-  $('#flightWca').textContent=F.sign(wca,1)+'deg';$('#flightHdg').textContent=Math.round(hdg)+'deg';
-}
-function calcFuelReq(){
-  var gsE=$('#fuelReqGs'),dE=$('#fuelReqDist'),fE=$('#fuelReqFlow'),rE=$('#fuelReqReserve');
-  var gsR=V.pos(gsE.value),dR=V.pos(dE.value),fR=V.pos(fE.value),rR=V.nneg(rE.value);
-  if(!gsR.ok||!dR.ok||!fR.ok){$('#fuelReqTrip').textContent='-';$('#fuelReqReserveOut').textContent='-';$('#fuelReqTotal').textContent='-';$('#fuelReqTime').textContent='-';return;}
-  var th=dR.v/gsR.v,trip=th*fR.v,res=rR.ok?rR.v:0;
-  $('#fuelReqTrip').textContent=F.num(Math.round(trip));$('#fuelReqReserveOut').textContent=F.num(Math.round(res))+' L';
-  $('#fuelReqTotal').textContent=F.num(Math.round(trip+res))+' L';$('#fuelReqTime').textContent=F.time(th);
-}
-function calcEndur(){
-  var fE=$('#endurFuel'),flE=$('#endurFlow');var fR=V.pos(fE.value),flR=V.pos(flE.value);
-  if(!fR.ok||!flR.ok){$('#endurTime').textContent='-';$('#endurDecimal').textContent='-';return;}
-  var h=fR.v/flR.v;$('#endurTime').textContent=F.time(h);$('#endurDecimal').textContent=h.toFixed(2)+' h';
-}
-function calcDensityAlt(){
-  var elE=$('#atmoElev'),oE=$('#atmoOat'),qE=$('#atmoQnh');
-  var elR=V.range(elE.value,-2000,50000),oR=V.range(oE.value,-80,60),qR=V.range(qE.value,870,1085);
-  if(!elR.ok||!oR.ok||!qR.ok){$('#atmoDa').textContent='-';$('#atmoPa').textContent='-';$('#atmoIsa').textContent='-';$('#atmoDev').textContent='-';return;}
-  var pa=elR.v+(1013.25-qR.v)*30,isa=15-2*(pa/1000),dev=oR.v-isa,da=pa+120*dev;
-  $('#atmoDa').textContent=F.num(Math.round(da));$('#atmoPa').textContent=F.num(Math.round(pa))+' ft';
-  $('#atmoIsa').textContent=isa.toFixed(1)+'C';$('#atmoDev').textContent=F.sign(dev,1)+'C';
-}
-function convQnh(src){
-  var v=V.num($('#qnh'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  var hpa;if(src==='hpa')hpa=v;else if(src==='inhg')hpa=v/0.02953;else if(src==='mmhg')hpa=v/0.75006;else hpa=v/0.0145038;
-  if(src!=='hpa')$('#qnhHpa').value=hpa.toFixed(2);if(src!=='inhg')$('#qnhInhg').value=(hpa*0.02953).toFixed(2);
-  if(src!=='mmhg')$('#qnhMmhg').value=(hpa*0.75006).toFixed(1);if(src!=='psi')$('#qnhPsi').value=(hpa*0.0145038).toFixed(3);
-}
-function calcTasEst(){
-  var iE=$('#tasIas'),aE=$('#tasAlt'),oE=$('#tasOat');
-  var iR=V.pos(iE.value),aR=V.range(aE.value,0,50000),oR=V.range(oE.value,-80,60);
-  if(!iR.ok||!aR.ok||!oR.ok){$('#tasValue').textContent='-';return;}
-  var isa=15-2*(aR.v/1000),tr=(273.15+oR.v)/(273.15+isa),pr=Math.pow(1-aR.v/145442,5.255876),dr=pr/tr;
-  $('#tasValue').textContent=Math.round(iR.v/Math.sqrt(dr));
-}
-function calcWind(){
-  var rE=$('#windRwy'),dE=$('#windDir'),sE=$('#windSpd');
-  var rR=V.range(rE.value,1,360),dR=V.range(dE.value,0,360),sR=V.nneg(sE.value);
-  if(rR.ok)$('#compassRwy').style.transform='translate(-50%,-100%) rotate('+rR.v+'deg)';
-  if(dR.ok)$('#compassWind').style.transform='translate(-50%,-100%) rotate('+dR.v+'deg)';
-  if(!rR.ok||!dR.ok||!sR.ok||sR.v===0){$('#windHead').textContent='-';$('#windCross').textContent='-';$('#windTypeLabel').textContent=t('wind_head');$('#crossLabel').textContent=t('wind_cross');return;}
-  var a=degToRad(dR.v-rR.v),hw=sR.v*Math.cos(a),xw=sR.v*Math.sin(a);
-  $('#windTypeLabel').textContent=hw>=0?t('wind_head'):t('wind_tail');$('#windHead').textContent=Math.round(Math.abs(hw));
-  $('#crossLabel').textContent=t('wind_cross')+' '+(xw>0?'R':'L');$('#windCross').textContent=Math.round(Math.abs(xw))+' kt';
-}
-function calcWB(){
-  var items=[{w:V.num($('#wbEmpty').value)||0,a:V.num($('#wbEmptyArm').value)||0},{w:V.num($('#wbPax').value)||0,a:V.num($('#wbPaxArm').value)||0},{w:V.num($('#wbFuel').value)||0,a:V.num($('#wbFuelArm').value)||0},{w:V.num($('#wbCargo').value)||0,a:V.num($('#wbCargoArm').value)||0}];
-  var tw=0,tm=0;items.forEach(function(i){tw+=i.w;tm+=i.w*i.a;});
-  if(tw===0){$('#wbTotal').textContent='-';$('#wbCg').textContent='-';$('#wbMoment').textContent='-';$('#wbStatus').textContent='-';return;}
-  $('#wbTotal').textContent=F.num(Math.round(tw));$('#wbCg').textContent=(tm/tw).toFixed(1)+' mm';
-  $('#wbMoment').textContent=(tm/1000).toFixed(1)+'k';$('#wbStatus').textContent=t('wb_check');$('#wbStatus').style.color='var(--warning)';
-}
-function calcTOD(){
-  var crE=$('#todCruise'),tgE=$('#todTarget'),gsE=$('#todGs'),anE=$('#todAngle');
-  var crR=V.pos(crE.value),tgR=V.nneg(tgE.value),gsR=V.pos(gsE.value),anR=V.range(anE.value,1,10);
-  if(!crR.ok||!tgR.ok||!gsR.ok||!anR.ok||crR.v<=tgR.v){$('#todDist').textContent='-';$('#todVs').textContent='-';$('#todTime').textContent='-';return;}
-  var diff=crR.v-tgR.v,tod=diff/(Math.tan(degToRad(anR.v))*6076.12),vs=gsR.v*Math.tan(degToRad(anR.v))*101.269;
-  $('#todDist').textContent=tod.toFixed(1);$('#todVs').textContent=Math.round(vs)+' fpm';$('#todTime').textContent=F.time(tod/gsR.v);
-}
-function calcPNR(){
-  var fE=$('#pnrFuel'),rE=$('#pnrReserve'),foE=$('#pnrFlowOut'),fbE=$('#pnrFlowBack'),goE=$('#pnrGsOut'),gbE=$('#pnrGsBack');
-  var fR=V.pos(fE.value),rR=V.nneg(rE.value),foR=V.pos(foE.value),fbR=V.pos(fbE.value),goR=V.pos(goE.value),gbR=V.pos(gbE.value);
-  var res=rR.ok?rR.v:0;
-  if(!fR.ok||!foR.ok||!fbR.ok||!goR.ok||!gbR.ok||fR.v<=res){$('#pnrDist').textContent='-';$('#pnrTime').textContent='-';return;}
-  var us=fR.v-res,tOut=us/(foR.v+fbR.v*(goR.v/gbR.v));
-  $('#pnrDist').textContent=Math.round(tOut*goR.v);$('#pnrTime').textContent=F.time(tOut);
-}
-
-function convSpeed(s){var v=V.num($('#conv'+s.charAt(0).toUpperCase()+s.slice(1)).value);if(v===null)return;var kt;if(s==='kt')kt=v;else if(s==='kmh')kt=v/1.852;else if(s==='mph')kt=v/1.15078;else kt=v/0.514444;if(s!=='kt')$('#convKt').value=kt.toFixed(2);if(s!=='kmh')$('#convKmh').value=(kt*1.852).toFixed(2);if(s!=='mph')$('#convMph').value=(kt*1.15078).toFixed(2);if(s!=='ms')$('#convMs').value=(kt*0.514444).toFixed(3);}
-function convDist(s){var v=V.num($('#conv'+s.charAt(0).toUpperCase()+s.slice(1)).value);if(v===null)return;var nm;if(s==='nm')nm=v;else if(s==='km')nm=v/1.852;else if(s==='mi')nm=v/1.15078;else nm=v/6076.12;if(s!=='nm')$('#convNm').value=nm.toFixed(3);if(s!=='km')$('#convKm').value=(nm*1.852).toFixed(3);if(s!=='mi')$('#convMi').value=(nm*1.15078).toFixed(3);if(s!=='ft')$('#convFt').value=Math.round(nm*6076.12);}
-function convVol(s){var v=V.num($('#conv'+s.charAt(0).toUpperCase()+s.slice(1)).value);if(v===null)return;var l;if(s==='l')l=v;else if(s==='usg')l=v/0.264172;else if(s==='impg')l=v/0.219969;else l=v/1.05669;if(s!=='l')$('#convL').value=l.toFixed(2);if(s!=='usg')$('#convUsg').value=(l*0.264172).toFixed(2);if(s!=='impg')$('#convImpg').value=(l*0.219969).toFixed(2);if(s!=='qt')$('#convQt').value=(l*1.05669).toFixed(2);}
-function convMass(s){var v=V.num($('#conv'+s.charAt(0).toUpperCase()+s.slice(1)).value);if(v===null)return;if(s==='kg')$('#convLbs').value=(v*2.20462).toFixed(2);else $('#convKg').value=(v/2.20462).toFixed(2);}
-function convTemp(s){var v=V.num($('#conv'+s.toUpperCase()).value);if(v===null)return;var c;if(s==='c')c=v;else if(s==='f')c=(v-32)*5/9;else if(s==='k')c=v-273.15;else c=(v-491.67)*5/9;if(s!=='c')$('#convC').value=c.toFixed(2);if(s!=='f')$('#convF').value=(c*9/5+32).toFixed(2);if(s!=='k')$('#convK').value=(c+273.15).toFixed(2);if(s!=='r')$('#convR').value=((c+273.15)*9/5).toFixed(2);}
-
-var timerInt=null,timerSec=0,timerRun=false;
-function updateTimer(){var h=Math.floor(timerSec/3600),m=Math.floor((timerSec%3600)/60),s=timerSec%60;$('#timerDisplay').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
-function toggleTimer(){var btn=$('#timerToggle');if(timerRun){clearInterval(timerInt);timerRun=false;btn.textContent=t('btn_start');btn.classList.remove('running');btn.classList.add('start');}else{timerInt=setInterval(function(){timerSec++;updateTimer();},1000);timerRun=true;btn.textContent=t('btn_stop');btn.classList.remove('start');btn.classList.add('running');}}
-function resetTimer(){clearInterval(timerInt);timerRun=false;timerSec=0;updateTimer();var btn=$('#timerToggle');btn.textContent=t('btn_start');btn.classList.remove('running');btn.classList.add('start');}
-
-function saveNotes(){S.set('notes',$('#notesArea').value);}
-function exportNotes(){var txt=$('#notesArea').value;if(!txt)return;var b=new Blob([txt],{type:'text/plain'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='flight-notes-'+new Date().toISOString().slice(0,10)+'.txt';a.click();URL.revokeObjectURL(u);}
-function clearNotes(){if(confirm('Clear all notes?')){$('#notesArea').value='';S.del('notes');}}
-
-function init(){
-  $('#mainNav').addEventListener('click',function(e){var btn=e.target.closest('.nav-pill');if(btn)showSection(btn.dataset.section);});
-  setupTabs('flightTabs','flight');setupTabs('atmoTabs','atmo');setupTabs('safetyTabs','safety');setupTabs('toolsTabs','tool');setupTabs('sysTabs','sys');
-  $('#themeToggle').addEventListener('click',function(){document.body.classList.toggle('red-mode');S.set('theme',document.body.classList.contains('red-mode')?'red':'normal');});
-  $('#langSelect').addEventListener('change',function(e){setLang(e.target.value);});
-  updateClocks();setInterval(updateClocks,1000);
-  $('#fuelType').addEventListener('change',calcFuel);$('#fuelVol').addEventListener('input',calcFuel);$('#fuelTemp').addEventListener('input',calcFuel);
-  $('#costFlow').addEventListener('input',calcCost);$('#costPrice').addEventListener('input',calcCost);$('#costGs').addEventListener('input',calcCost);$('#costCurr').addEventListener('change',calcCost);
-  ['flightTas','flightDist','flightCourse','flightWdir','flightWind'].forEach(function(id){$('#'+id).addEventListener('input',calcFlightBasic);});
-  ['fuelReqGs','fuelReqDist','fuelReqFlow','fuelReqReserve'].forEach(function(id){$('#'+id).addEventListener('input',calcFuelReq);});
-  $('#endurFuel').addEventListener('input',calcEndur);$('#endurFlow').addEventListener('input',calcEndur);
-  ['atmoElev','atmoOat','atmoQnh'].forEach(function(id){$('#'+id).addEventListener('input',calcDensityAlt);});
-  $('#qnhHpa').addEventListener('input',function(){convQnh('hpa');});$('#qnhInhg').addEventListener('input',function(){convQnh('inhg');});$('#qnhMmhg').addEventListener('input',function(){convQnh('mmhg');});$('#qnhPsi').addEventListener('input',function(){convQnh('psi');});
-  ['tasIas','tasAlt','tasOat'].forEach(function(id){$('#'+id).addEventListener('input',calcTasEst);});
-  ['windRwy','windDir','windSpd'].forEach(function(id){$('#'+id).addEventListener('input',calcWind);});
-  ['wbEmpty','wbEmptyArm','wbPax','wbPaxArm','wbFuel','wbFuelArm','wbCargo','wbCargoArm'].forEach(function(id){$('#'+id).addEventListener('input',calcWB);});
-  ['todCruise','todTarget','todGs','todAngle'].forEach(function(id){$('#'+id).addEventListener('input',calcTOD);});
-  ['pnrFuel','pnrReserve','pnrFlowOut','pnrFlowBack','pnrGsOut','pnrGsBack'].forEach(function(id){$('#'+id).addEventListener('input',calcPNR);});
-  $('#convKt').addEventListener('input',function(){convSpeed('kt');});$('#convKmh').addEventListener('input',function(){convSpeed('kmh');});$('#convMph').addEventListener('input',function(){convSpeed('mph');});$('#convMs').addEventListener('input',function(){convSpeed('ms');});
-  $('#convNm').addEventListener('input',function(){convDist('nm');});$('#convKm').addEventListener('input',function(){convDist('km');});$('#convMi').addEventListener('input',function(){convDist('mi');});$('#convFt').addEventListener('input',function(){convDist('ft');});
-  $('#convL').addEventListener('input',function(){convVol('l');});$('#convUsg').addEventListener('input',function(){convVol('usg');});$('#convImpg').addEventListener('input',function(){convVol('impg');});$('#convQt').addEventListener('input',function(){convVol('qt');});
-  $('#convKg').addEventListener('input',function(){convMass('kg');});$('#convLbs').addEventListener('input',function(){convMass('lbs');});
-  $('#convC').addEventListener('input',function(){convTemp('c');});$('#convF').addEventListener('input',function(){convTemp('f');});$('#convK').addEventListener('input',function(){convTemp('k');});$('#convR').addEventListener('input',function(){convTemp('r');});
-  $('#timerToggle').addEventListener('click',toggleTimer);$('#timerReset').addEventListener('click',resetTimer);
-  $('#notesArea').addEventListener('input',saveNotes);$('#notesExport').addEventListener('click',exportNotes);$('#notesClear').addEventListener('click',clearNotes);
-  var sL=S.get('lang','en');$('#langSelect').value=sL;setLang(sL);
-  if(S.get('theme')==='red')document.body.classList.add('red-mode');
-  showSection(S.get('section','fuel'));
-  var sN=S.get('notes','');if(sN)$('#notesArea').value=sN;
-}
-document.addEventListener('DOMContentLoaded',init);
-})();
-</script>
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        if (tab.dataset.tab === 'menu') openMenu();
+        if (tab.dataset.tab === 'fuel') openFuel();
+      });
+    });
+  </script>
 </body>
-</html> 
+</html>
