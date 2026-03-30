@@ -1,340 +1,742 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Aviation Pro</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aviation Pro</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-dark:#07101f;
+      --bg-dark-2:#0c1830;
+      --bg-overlay:rgba(6,11,20,.60);
 
-:root{
-  --bg:#0b1220;
-  --card:#ffffff;
-  --text:#121826;
-  --muted:#6b7280;
-  --line:#e5e7eb;
-  --accent:#3b82f6;
-  --green:#43c463;
-}
+      --card:#f8f9fb;
+      --card-2:#ffffff;
+      --text:#121826;
+      --muted:#6b7280;
+      --line:#e7ebf1;
+      --section:rgba(255,255,255,.78);
 
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
-  background:linear-gradient(180deg,#0b1220,#0f1b30);
-  color:#fff;
-}
+      --green:#43c463;
+      --blue:#3b82f6;
+      --orange:#ff9f0a;
 
-/* ---------- APP ---------- */
+      --shadow:0 16px 38px rgba(0,0,0,.20);
+      --shadow-soft:0 8px 18px rgba(0,0,0,.10);
 
-.app{
-  max-width:420px;
-  margin:auto;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-}
+      --radius-xl:24px;
+      --radius-lg:20px;
+      --radius-md:16px;
+      --radius-sm:12px;
 
-/* ---------- HEADER ---------- */
+      --header-h:64px;
+      --tabbar-h:82px;
+      --content-max:760px;
+    }
 
-.header{
-  height:60px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:sticky;
-  top:0;
-  background:rgba(10,16,28,.9);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:var(--bg-dark);
+      color:#fff;
+      min-height:100vh;
+      overflow-x:hidden;
+    }
 
-.header h1{
-  font-size:18px;
-  font-weight:700;
-}
+    .bg{
+      position:fixed;
+      inset:0;
+      z-index:-3;
+      background:
+        linear-gradient(180deg, rgba(6,10,20,.10), rgba(7,14,28,.38)),
+        url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=80") center/cover no-repeat;
+      transform:scale(1.04);
+      filter:blur(2px) saturate(.90) brightness(.48);
+    }
 
-/* ---------- CONTENT ---------- */
+    .bg::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(6,11,20,.30) 0%, rgba(6,11,20,.56) 34%, rgba(6,11,20,.76) 100%);
+    }
 
-.content{
-  padding:16px;
-}
+    .app{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:16px 16px 100px;
+    }
 
-/* ---------- GROUP ---------- */
+    .phone{
+      width:100%;
+      max-width:var(--content-max);
+      min-height:calc(100vh - 32px);
+      border-radius:32px;
+      overflow:hidden;
+      box-shadow:0 24px 70px rgba(0,0,0,.34);
+      background:rgba(7,16,31,.18);
+      border:1px solid rgba(255,255,255,.07);
+      position:relative;
+      backdrop-filter:blur(10px);
+    }
 
-.group{
-  margin-bottom:18px;
-}
+    .topbar{
+      height:var(--header-h);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:linear-gradient(180deg, rgba(9,16,30,.94), rgba(10,18,34,.88));
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 6px 18px rgba(0,0,0,.12);
+    }
 
-.group-title{
-  font-size:12px;
-  color:rgba(255,255,255,.7);
-  letter-spacing:1px;
-  margin-bottom:8px;
-}
+    .topbar .back,
+    .topbar .right{
+      position:absolute;
+      top:0;
+      height:100%;
+      display:flex;
+      align-items:center;
+      color:#dbe4f0;
+      font-size:15px;
+      font-weight:600;
+      letter-spacing:.1px;
+    }
 
-/* ---------- CARD LIST ---------- */
+    .topbar .back{ left:16px; gap:6px; }
+    .topbar .right{ right:16px; }
 
-.list{
-  background:var(--card);
-  border-radius:18px;
-  overflow:hidden;
-}
+    .chev{
+      width:10px;
+      height:10px;
+      border-left:2px solid currentColor;
+      border-bottom:2px solid currentColor;
+      transform:rotate(45deg);
+      margin-left:2px;
+    }
 
-/* ---------- ITEM ---------- */
+    .title{
+      font-size:18px;
+      font-weight:800;
+      color:#fff;
+      letter-spacing:.2px;
+    }
 
-.item{
-  display:flex;
-  align-items:center;
-  padding:16px;
-  gap:14px;
-  border-bottom:1px solid var(--line);
-  cursor:pointer;
-}
+    .screen{
+      display:none;
+      padding:16px 14px 24px;
+    }
 
-.item:last-child{
-  border-bottom:none;
-}
+    .screen.active{ display:block; }
 
-.icon{
-  width:40px;
-  height:40px;
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#eef3ff;
-}
+    .hero{
+      margin:6px 4px 14px;
+      color:#fff;
+    }
 
-.icon svg{
-  width:20px;
-  height:20px;
-  stroke:#3b82f6;
-  stroke-width:2;
-  fill:none;
-}
+    .hero h1{
+      font-size:29px;
+      line-height:1.02;
+      font-weight:900;
+      letter-spacing:-.8px;
+      margin-bottom:6px;
+    }
 
-.text{
-  flex:1;
-}
+    .hero p{
+      font-size:14px;
+      color:rgba(255,255,255,.84);
+      max-width:540px;
+      line-height:1.45;
+    }
 
-.title{
-  font-size:16px;
-  font-weight:700;
-  color:var(--text);
-}
+    .group{
+      margin-bottom:18px;
+    }
 
-.sub{
-  font-size:13px;
-  color:var(--muted);
-}
+    .group-label{
+      font-size:12px;
+      font-weight:800;
+      color:var(--section);
+      letter-spacing:1.7px;
+      padding:0 12px 9px;
+      text-transform:uppercase;
+    }
 
-.arrow{
-  width:8px;
-  height:8px;
-  border-right:2px solid #9aa3b2;
-  border-top:2px solid #9aa3b2;
-  transform:rotate(45deg);
-}
+    .list{
+      background:rgba(255,255,255,.94);
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.55);
+    }
 
-/* ---------- TABBAR ---------- */
+    .item{
+      width:100%;
+      border:none;
+      background:transparent;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      text-align:left;
+      padding:18px 18px;
+      color:var(--text);
+      cursor:pointer;
+      position:relative;
+      transition:background .16s ease;
+    }
 
-.tabbar{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  height:70px;
-  background:rgba(10,16,28,.9);
-  backdrop-filter:blur(20px);
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  border-top:1px solid rgba(255,255,255,.06);
-}
+    .item + .item{
+      border-top:1px solid var(--line);
+    }
 
-.tab{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  font-size:11px;
-  color:#aaa;
-}
+    .item:hover{
+      background:rgba(59,130,246,.035);
+    }
 
-.tab.active{
-  color:#fff;
-}
+    .icon-wrap{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      border:1px solid rgba(0,0,0,.05);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.65);
+    }
 
-.tab svg{
-  width:22px;
-  height:22px;
-  stroke:currentColor;
-  stroke-width:2;
-  fill:none;
-}
+    .icon-wrap svg{
+      width:23px;
+      height:23px;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:2.2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
 
-.dot{
-  width:5px;
-  height:5px;
-  background:var(--green);
-  border-radius:50%;
-  margin-top:3px;
-}
+    .icon-time{
+      background:linear-gradient(180deg,#edf9ef,#dff2e4);
+      color:#2ea44f;
+      border-color:rgba(46,164,79,.10);
+    }
 
-/* ---------- SPACING FIX ---------- */
+    .icon-conv{
+      background:linear-gradient(180deg,#fff7ea,#f8ead0);
+      color:#d48806;
+      border-color:rgba(212,136,6,.10);
+    }
 
-.spacer{
-  height:80px;
-}
-</style>
+    .icon-fuel{
+      background:linear-gradient(180deg,#fff3e8,#f8e2cb);
+      color:#d66a11;
+      border-color:rgba(214,106,17,.10);
+    }
+
+    .icon-alt{
+      background:linear-gradient(180deg,#f3efff,#e7defc);
+      color:#7b4dde;
+      border-color:rgba(123,77,222,.10);
+    }
+
+    .icon-wind{
+      background:linear-gradient(180deg,#edf9f7,#dbf1ec);
+      color:#15946d;
+      border-color:rgba(21,148,109,.10);
+    }
+
+    .item-text{
+      min-width:0;
+      flex:1;
+    }
+
+    .item-title{
+      font-size:17px;
+      font-weight:800;
+      color:var(--text);
+      line-height:1.12;
+      margin-bottom:4px;
+      letter-spacing:-.2px;
+    }
+
+    .item-sub{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.35;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:100%;
+    }
+
+    .item-arrow{
+      width:10px;
+      height:10px;
+      border-right:2px solid #a0a9b7;
+      border-top:2px solid #a0a9b7;
+      transform:rotate(45deg);
+      flex:0 0 auto;
+      margin-right:4px;
+    }
+
+    .calc-shell{
+      background:rgba(255,255,255,.94);
+      border-radius:24px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.50);
+    }
+
+    .section-title{
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:1px;
+      color:#7b8597;
+      margin:2px 2px 10px;
+      text-transform:uppercase;
+    }
+
+    .field-list{
+      background:var(--card-2);
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      margin-bottom:16px;
+    }
+
+    .field-row{
+      min-height:58px;
+      display:grid;
+      grid-template-columns:1.1fr 1fr auto;
+      align-items:center;
+      gap:12px;
+      padding:0 16px;
+    }
+
+    .field-row + .field-row{
+      border-top:1px solid var(--line);
+    }
+
+    .field-label{
+      font-size:16px;
+      font-weight:700;
+      color:#1f2937;
+    }
+
+    .field-value{
+      justify-self:end;
+      width:100%;
+      max-width:160px;
+      text-align:right;
+      border:none;
+      background:transparent;
+      font-size:20px;
+      font-weight:800;
+      color:#d97706;
+      outline:none;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+    }
+
+    .field-unit{
+      font-size:15px;
+      color:var(--muted);
+      font-weight:700;
+      min-width:38px;
+      text-align:right;
+    }
+
+    .btn{
+      width:100%;
+      height:52px;
+      border:none;
+      border-radius:16px;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.2px;
+      cursor:pointer;
+    }
+
+    .btn-calc{
+      background:linear-gradient(180deg,#57d876,#39bd59);
+      color:#fff;
+      box-shadow:0 10px 20px rgba(67,196,99,.26);
+      margin-bottom:18px;
+    }
+
+    .answer{
+      background:linear-gradient(180deg,#49ce6a,#38bb57);
+      border-radius:20px;
+      color:#fff;
+      padding:16px 18px;
+      box-shadow:0 14px 24px rgba(56,187,87,.24);
+    }
+
+    .answer-label{
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.95px;
+      text-transform:uppercase;
+      opacity:.88;
+      margin-bottom:8px;
+    }
+
+    .answer-value{
+      font-size:28px;
+      line-height:1.08;
+      font-weight:900;
+      letter-spacing:-.5px;
+    }
+
+    .answer-sub{
+      font-size:14px;
+      opacity:.94;
+      margin-top:7px;
+    }
+
+    .hint-card{
+      margin-top:14px;
+      background:rgba(255,255,255,.94);
+      color:#334155;
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:14px;
+      line-height:1.45;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .tabbar{
+      position:sticky;
+      bottom:0;
+      z-index:22;
+      height:var(--tabbar-h);
+      background:linear-gradient(180deg, rgba(9,16,30,.96), rgba(7,14,28,.94));
+      backdrop-filter:blur(20px);
+      border-top:1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-around;
+      padding-top:10px;
+      box-shadow:0 -8px 20px rgba(0,0,0,.12);
+    }
+
+    .tab{
+      border:none;
+      background:transparent;
+      color:rgba(255,255,255,.72);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-width:72px;
+      cursor:pointer;
+      padding:2px 6px;
+    }
+
+    .tab svg{
+      width:23px;
+      height:23px;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:2.15;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .tab span{
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+
+    .tab.active{
+      color:#fff;
+    }
+
+    .tab.active .dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--green);
+      margin-top:-1px;
+      box-shadow:0 0 8px rgba(67,196,99,.38);
+    }
+
+    .tab .dot{ visibility:hidden; }
+    .tab.active .dot{ visibility:visible; }
+
+    @media (max-width:700px){
+      .phone{
+        border-radius:0;
+        min-height:100vh;
+      }
+
+      .app{
+        padding:0 0 92px;
+      }
+
+      .hero h1{ font-size:25px; }
+
+      .field-row{
+        grid-template-columns:1fr .82fr auto;
+      }
+
+      .field-value{
+        font-size:19px;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="bg"></div>
 
-<div class="app">
+  <div class="app">
+    <div class="phone">
+      <header class="topbar">
+        <div class="back" id="backBtn" style="visibility:hidden;">
+          <span class="chev"></span>
+          <span>Back</span>
+        </div>
+        <div class="title" id="topTitle">Main Menu</div>
+        <div class="right">Edit</div>
+      </header>
 
-<div class="header">
-  <h1>Aviation Pro</h1>
-</div>
+      <!-- MENU -->
+      <section class="screen active" id="screen-menu">
+        <div class="hero">
+          <h1>Aviation Pro</h1>
+          <p>Professional aviation calculations, grouped into a clean and readable mobile interface.</p>
+        </div>
 
-<div class="content">
+        <div class="group">
+          <div class="group-label">Time, Speed & Distance</div>
+          <div class="list">
+            <button class="item js-open-fuel">
+              <div class="icon-wrap icon-time">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Finding Time</div>
+                <div class="item-sub">Calculate elapsed time from distance and ground speed</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
 
-<div class="group">
-  <div class="group-title">TIME, SPEED & DISTANCE</div>
-  <div class="list">
+            <button class="item">
+              <div class="icon-wrap icon-time">
+                <svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-7"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Finding Speed</div>
+                <div class="item-sub">Compute speed using known distance and time</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
 
-    <div class="item">
-      <div class="icon">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
-      </div>
-      <div class="text">
-        <div class="title">Finding Time</div>
-        <div class="sub">Calculate time from distance & speed</div>
-      </div>
-      <div class="arrow"></div>
+            <button class="item">
+              <div class="icon-wrap icon-time">
+                <svg viewBox="0 0 24 24"><path d="M4 18h16"/><path d="M6 18V9m6 9V6m6 12v-5"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Point of No Return</div>
+                <div class="item-sub">Outbound and return fuel planning with clear result blocks</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Unit Conversions</div>
+          <div class="list">
+            <button class="item">
+              <div class="icon-wrap icon-conv">
+                <svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/><path d="M9 5l-2 2 2 2M15 19l2-2-2-2"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Temperature</div>
+                <div class="item-sub">Celsius, Fahrenheit, Kelvin and quick cockpit references</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-conv">
+                <svg viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Distance</div>
+                <div class="item-sub">NM, KM, miles and simple route conversion tools</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Aircraft & Performance</div>
+          <div class="list">
+            <button class="item js-open-fuel">
+              <div class="icon-wrap icon-fuel">
+                <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Fuel Calculator</div>
+                <div class="item-sub">Trip fuel, endurance, burn rate and reserve planning</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-alt">
+                <svg viewBox="0 0 24 24"><path d="M12 4v16"/><path d="M8 8l4-4 4 4"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Altitude</div>
+                <div class="item-sub">Pressure altitude, density altitude, and ISA reference</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+
+            <button class="item">
+              <div class="icon-wrap icon-wind">
+                <svg viewBox="0 0 24 24"><path d="M3 8h10a2 2 0 1 0-2-2"/><path d="M3 12h15a2 2 0 1 1-2 2"/><path d="M3 16h8"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Wind</div>
+                <div class="item-sub">Headwind, crosswind, wind correction and runway use</div>
+              </div>
+              <div class="item-arrow"></div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FUEL DEMO -->
+      <section class="screen" id="screen-fuel">
+        <div class="calc-shell">
+          <div class="section-title">Input Parameters</div>
+
+          <div class="field-list">
+            <div class="field-row">
+              <div class="field-label">Distance</div>
+              <input class="field-value" value="250" />
+              <div class="field-unit">NM</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-label">Ground Speed</div>
+              <input class="field-value" value="150" />
+              <div class="field-unit">KT</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-label">Fuel Burn</div>
+              <input class="field-value" value="220" />
+              <div class="field-unit">L/H</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-label">Reserve</div>
+              <input class="field-value" value="60" />
+              <div class="field-unit">L</div>
+            </div>
+          </div>
+
+          <button class="btn btn-calc">Calculate</button>
+
+          <div class="section-title">Answer</div>
+          <div class="answer">
+            <div class="answer-label">Trip Fuel Required</div>
+            <div class="answer-value">427 L</div>
+            <div class="answer-sub">Estimated time enroute: 1 hr 40 min</div>
+          </div>
+        </div>
+
+        <div class="hint-card">
+          This is a layout preview only. Your final calculator logic can be connected later without changing the visual structure.
+        </div>
+      </section>
+
+      <nav class="tabbar">
+        <button class="tab active" data-tab="menu">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <span>Menu</span>
+          <div class="dot"></div>
+        </button>
+
+        <button class="tab" data-tab="fuel">
+          <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg>
+          <span>Fuel</span>
+          <div class="dot"></div>
+        </button>
+
+        <button class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+          <span>Time</span>
+          <div class="dot"></div>
+        </button>
+
+        <button class="tab">
+          <svg viewBox="0 0 24 24"><path d="M3 8h10a2 2 0 1 0-2-2"/><path d="M3 12h15a2 2 0 1 1-2 2"/><path d="M3 16h8"/></svg>
+          <span>Wind</span>
+          <div class="dot"></div>
+        </button>
+      </nav>
     </div>
-
-    <div class="item">
-      <div class="icon">
-        <svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-7"/></svg>
-      </div>
-      <div class="text">
-        <div class="title">Finding Speed</div>
-        <div class="sub">Calculate speed from distance & time</div>
-      </div>
-      <div class="arrow"></div>
-    </div>
-
-    <div class="item">
-      <div class="icon">
-        <svg viewBox="0 0 24 24"><path d="M4 18h16"/><path d="M6 18V9m6 9V6m6 12v-5"/></svg>
-      </div>
-      <div class="text">
-        <div class="title">Point of No Return</div>
-        <div class="sub">Fuel & return calculation</div>
-      </div>
-      <div class="arrow"></div>
-    </div>
-
   </div>
-</div>
 
-<div class="group">
-  <div class="group-title">UNIT CONVERSIONS</div>
-  <div class="list">
+  <script>
+    const menuScreen = document.getElementById('screen-menu');
+    const fuelScreen = document.getElementById('screen-fuel');
+    const topTitle = document.getElementById('topTitle');
+    const backBtn = document.getElementById('backBtn');
+    const tabs = document.querySelectorAll('.tab');
+    const openFuelButtons = document.querySelectorAll('.js-open-fuel');
 
-    <div class="item">
-      <div class="icon">
-        <svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/></svg>
-      </div>
-      <div class="text">
-        <div class="title">Temperature</div>
-        <div class="sub">Celsius, Fahrenheit, Kelvin</div>
-      </div>
-      <div class="arrow"></div>
-    </div>
+    function activateTab(name){
+      tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === name);
+      });
+    }
 
-    <div class="item">
-      <div class="icon">
-        <svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>
-      </div>
-      <div class="text">
-        <div class="title">Distance</div>
-        <div class="sub">NM, KM, miles</div>
-      </div>
-      <div class="arrow"></div>
-    </div>
+    function openMenu(){
+      menuScreen.classList.add('active');
+      fuelScreen.classList.remove('active');
+      topTitle.textContent = 'Main Menu';
+      backBtn.style.visibility = 'hidden';
+      activateTab('menu');
+    }
 
-  </div>
-</div>
+    function openFuel(){
+      menuScreen.classList.remove('active');
+      fuelScreen.classList.add('active');
+      topTitle.textContent = 'Fuel Calculator';
+      backBtn.style.visibility = 'visible';
+      activateTab('fuel');
+    }
 
-<div class="group">
-  <div class="group-title">AIRCRAFT & PERFORMANCE</div>
-  <div class="list">
+    openFuelButtons.forEach(btn => {
+      btn.addEventListener('click', openFuel);
+    });
 
-    <div class="item">
-      <div class="icon">
-        <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/></svg>
-      </div>
-      <div class="text">
-        <div class="title">Fuel Calculator</div>
-        <div class="sub">Burn & endurance</div>
-      </div>
-      <div class="arrow"></div>
-    </div>
+    backBtn.addEventListener('click', openMenu);
 
-    <div class="item">
-      <div class="icon">
-        <svg viewBox="0 0 24 24"><path d="M12 4v16"/></svg>
-      </div>
-      <div class="text">
-        <div class="title">Altitude</div>
-        <div class="sub">Pressure & density altitude</div>
-      </div>
-      <div class="arrow"></div>
-    </div>
-
-    <div class="item">
-      <div class="icon">
-        <svg viewBox="0 0 24 24"><path d="M3 8h10"/></svg>
-      </div>
-      <div class="text">
-        <div class="title">Wind</div>
-        <div class="sub">Headwind & crosswind</div>
-      </div>
-      <div class="arrow"></div>
-    </div>
-
-  </div>
-</div>
-
-<div class="spacer"></div>
-
-</div>
-
-<div class="tabbar">
-  <div class="tab active">
-    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    Menu
-    <div class="dot"></div>
-  </div>
-
-  <div class="tab">
-    <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/></svg>
-    Fuel
-  </div>
-
-  <div class="tab">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-    Time
-  </div>
-
-  <div class="tab">
-    <svg viewBox="0 0 24 24"><path d="M3 8h10"/></svg>
-    Wind
-  </div>
-</div>
-
-</div>
-
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        if (tab.dataset.tab === 'menu') openMenu();
+        if (tab.dataset.tab === 'fuel') openFuel();
+      });
+    });
+  </script>
 </body>
-</html>
+</html>  
