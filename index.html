@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -756,20 +757,20 @@
 
       <section class="screen active" id="screen-menu">
         <div class="hero">
-          <h1>Aviation Pro</h1>
-          <p>Professional quick-reference calculations for fuel, flight, atmosphere, safety margins, conversions, and cockpit utility tools.</p>
+          <h1 data-i18n="hero_title">Aviation Pro</h1>
+          <p data-i18n="hero_subtitle">Professional quick-reference calculations for fuel, flight, atmosphere, safety margins, conversions, and cockpit utility tools.</p>
         </div>
 
         <div class="group">
-          <div class="group-label">Calculators</div>
+          <div class="group-label" data-i18n="group_calculators">Calculators</div>
           <div class="list">
             <button class="item" data-screen="fuel">
               <div class="icon-wrap icon-fuel">
                 <svg viewBox="0 0 24 24"><path d="M5 20h10V8H5z"/><path d="M15 10h2l2 2v8a1 1 0 0 1-1 1h-3"/><path d="M8 4h4"/></svg>
               </div>
               <div class="item-text">
-                <div class="item-title">Fuel</div>
-                <div class="item-sub">Mass, gallons, required fuel, endurance</div>
+                <div class="item-title" data-i18n="menu_fuel_title">Fuel</div>
+                <div class="item-sub" data-i18n="menu_fuel_sub">Mass, gallons, required fuel, endurance</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -779,8 +780,8 @@
                 <svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5a4 4 0 0 0-4-2H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H9a4 4 0 0 1-4-2"/></svg>
               </div>
               <div class="item-text">
-                <div class="item-title">Cost</div>
-                <div class="item-sub">Hourly, per minute, per NM, per 100 NM</div>
+                <div class="item-title" data-i18n="menu_cost_title">Cost</div>
+                <div class="item-sub" data-i18n="menu_cost_sub">Hourly, per minute, per NM, per 100 NM</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -790,8 +791,8 @@
                 <svg viewBox="0 0 24 24"><path d="M2 16l20-4-20-4 4 4-4 4z"/></svg>
               </div>
               <div class="item-text">
-                <div class="item-title">Flight</div>
-                <div class="item-sub">GS, ETE, WCA, heading, PNR, TOD</div>
+                <div class="item-title" data-i18n="menu_flight_title">Flight</div>
+                <div class="item-sub" data-i18n="menu_flight_sub">GS, ETE, WCA, heading, PNR, TOD</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -801,8 +802,8 @@
                 <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M8 9a4 4 0 1 1 8 0v7a4 4 0 1 1-8 0z"/></svg>
               </div>
               <div class="item-text">
-                <div class="item-title">Atmosphere</div>
-                <div class="item-sub">Density altitude, QNH, TAS approximation</div>
+                <div class="item-title" data-i18n="menu_atmo_title">Atmosphere</div>
+                <div class="item-sub" data-i18n="menu_atmo_sub">Density altitude, QNH, TAS approximation</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -812,8 +813,8 @@
                 <svg viewBox="0 0 24 24"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7z"/></svg>
               </div>
               <div class="item-text">
-                <div class="item-title">Safety</div>
-                <div class="item-sub">Wind components, weight &amp; balance</div>
+                <div class="item-title" data-i18n="menu_safety_title">Safety</div>
+                <div class="item-sub" data-i18n="menu_safety_sub">Wind components, weight &amp; balance</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -823,8 +824,8 @@
                 <svg viewBox="0 0 24 24"><path d="M14 7l3-3 3 3-3 3z"/><path d="M3 21l8-8"/><path d="M10 4l10 10"/></svg>
               </div>
               <div class="item-text">
-                <div class="item-title">Tools</div>
-                <div class="item-sub">Converters, timer, notes</div>
+                <div class="item-title" data-i18n="menu_tools_title">Tools</div>
+                <div class="item-sub" data-i18n="menu_tools_sub">Converters, timer, notes</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -834,8 +835,8 @@
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M1 12h6M17 12h6"/></svg>
               </div>
               <div class="item-text">
-                <div class="item-title">System</div>
-                <div class="item-sub">Quick-access grouped pages</div>
+                <div class="item-title" data-i18n="menu_system_title">System</div>
+                <div class="item-sub" data-i18n="menu_system_sub">Quick-access grouped pages</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -846,9 +847,9 @@
       <section class="screen" id="screen-fuel">
         <div class="calc-shell">
           <div class="tabs-row">
-            <button class="tab-btn active" data-tab="fuel-main">Fuel</button>
-            <button class="tab-btn" data-tab="fuel-required">Required</button>
-            <button class="tab-btn" data-tab="fuel-endurance">Endurance</button>
+            <button class="tab-btn active" data-tab="fuel-main" data-i18n="tab_fuel_main">Fuel</button>
+            <button class="tab-btn" data-tab="fuel-required" data-i18n="tab_fuel_required">Required</button>
+            <button class="tab-btn" data-tab="fuel-endurance" data-i18n="tab_fuel_endurance">Endurance</button>
           </div>
 
           <div class="tab-content active" id="tab-fuel-main">
@@ -1663,25 +1664,25 @@
           </div>
 
           <div class="tab-content" id="tab-tools-timer">
-            <div class="section-title">Cockpit Timer</div>
+            <div class="section-title" data-i18n="section_timer">Cockpit Timer</div>
             <div class="timer-card">
               <div class="timer-display" id="timerDisplay">00:00:00</div>
               <div class="timer-actions">
-                <button class="timer-btn timer-start" id="timerStart">Start</button>
-                <button class="timer-btn timer-stop" id="timerStop">Stop</button>
-                <button class="timer-btn timer-reset" id="timerReset">Reset</button>
+                <button class="timer-btn timer-start" id="timerStart" data-i18n="btn_start">Start</button>
+                <button class="timer-btn timer-stop" id="timerStop" data-i18n="btn_stop">Stop</button>
+                <button class="timer-btn timer-reset" id="timerReset" data-i18n="btn_reset">Reset</button>
               </div>
             </div>
           </div>
 
           <div class="tab-content" id="tab-tools-notes">
-            <div class="section-title">Notes</div>
+            <div class="section-title" data-i18n="section_notes">Notes</div>
             <div class="notes-wrap">
-              <textarea class="notes-box" id="notesBox" placeholder="Write your notes here..."></textarea>
+              <textarea class="notes-box" id="notesBox" placeholder="Write your notes here..." data-i18n-placeholder="notes_placeholder"></textarea>
               <div class="notes-actions">
-                <button class="note-btn note-save" id="notesSave">Save</button>
-                <button class="note-btn note-copy" id="notesCopy">Copy</button>
-                <button class="note-btn note-clear" id="notesClear">Clear</button>
+                <button class="note-btn note-save" id="notesSave" data-i18n="btn_save">Save</button>
+                <button class="note-btn note-copy" id="notesCopy" data-i18n="btn_copy">Copy</button>
+                <button class="note-btn note-clear" id="notesClear" data-i18n="btn_clear">Clear</button>
               </div>
             </div>
           </div>
@@ -1690,23 +1691,35 @@
 
       <section class="screen" id="screen-system">
         <div class="calc-shell">
-          <div class="section-title">System Pages</div>
+          <div class="section-title" data-i18n="section_language">Language</div>
+          <div class="field-list">
+            <div class="field-row">
+              <div class="field-label" data-i18n="label_language">Interface Language</div>
+              <select class="field-select" id="appLang">
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+              </select>
+              <div class="field-unit"></div>
+            </div>
+          </div>
+
+          <div class="section-title" data-i18n="section_system_pages">System Pages</div>
           <div class="tool-grid">
             <div class="tool-card">
-              <div class="tool-label">Fuel</div>
-              <div class="tool-value">Mass, required, endurance</div>
+              <div class="tool-label" data-i18n="system_fuel_label">Fuel</div>
+              <div class="tool-value" data-i18n="system_fuel_value">Mass, required, endurance</div>
             </div>
             <div class="tool-card">
-              <div class="tool-label">Flight</div>
-              <div class="tool-value">GS, PNR, TOD</div>
+              <div class="tool-label" data-i18n="system_flight_label">Flight</div>
+              <div class="tool-value" data-i18n="system_flight_value">GS, PNR, TOD</div>
             </div>
             <div class="tool-card">
-              <div class="tool-label">Atmosphere</div>
-              <div class="tool-value">DA, QNH, TAS</div>
+              <div class="tool-label" data-i18n="system_atmo_label">Atmosphere</div>
+              <div class="tool-value" data-i18n="system_atmo_value">DA, QNH, TAS</div>
             </div>
             <div class="tool-card">
-              <div class="tool-label">Safety</div>
-              <div class="tool-value">Wind, W&amp;B</div>
+              <div class="tool-label" data-i18n="system_safety_label">Safety</div>
+              <div class="tool-value" data-i18n="system_safety_value">Wind, W&amp;B</div>
             </div>
           </div>
         </div>
@@ -1715,42 +1728,42 @@
       <nav class="tabbar">
         <button class="tab active" data-screen="menu">
           <svg viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
-          <span>Home</span>
+          <span data-i18n="nav_home">Home</span>
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="fuel">
           <svg viewBox="0 0 24 24"><path d="M5 20h10V8H5z"/><path d="M15 10h2l2 2v8a1 1 0 0 1-1 1h-3"/><path d="M8 4h4"/></svg>
-          <span>Fuel</span>
+          <span data-i18n="nav_fuel">Fuel</span>
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="cost">
           <svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5a4 4 0 0 0-4-2H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H9a4 4 0 0 1-4-2"/></svg>
-          <span>Cost</span>
+          <span data-i18n="nav_cost">Cost</span>
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="flight">
           <svg viewBox="0 0 24 24"><path d="M2 16l20-4-20-4 4 4-4 4z"/></svg>
-          <span>Flight</span>
+          <span data-i18n="nav_flight">Flight</span>
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="atmo">
           <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M8 9a4 4 0 1 1 8 0v7a4 4 0 1 1-8 0z"/></svg>
-          <span>Atmo</span>
+          <span data-i18n="nav_atmo">Atmo</span>
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="safety">
           <svg viewBox="0 0 24 24"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7z"/></svg>
-          <span>Safety</span>
+          <span data-i18n="nav_safety">Safety</span>
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="tools">
           <svg viewBox="0 0 24 24"><path d="M14 7l3-3 3 3-3 3z"/><path d="M3 21l8-8"/><path d="M10 4l10 10"/></svg>
-          <span>Tools</span>
+          <span data-i18n="nav_tools">Tools</span>
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="system">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M1 12h6M17 12h6"/></svg>
-          <span>System</span>
+          <span data-i18n="nav_system">System</span>
           <div class="dot"></div>
         </button>
       </nav>
@@ -1762,16 +1775,90 @@
       function $(sel){ return document.querySelector(sel); }
       function $$(sel){ return Array.from(document.querySelectorAll(sel)); }
 
-      var screenConfig = {
-        menu:{ title:'Aviation Pro', bg:'bg-menu' },
-        fuel:{ title:'Fuel', bg:'bg-fuel' },
-        cost:{ title:'Cost', bg:'bg-cost' },
-        flight:{ title:'Flight', bg:'bg-flight' },
-        atmo:{ title:'Atmosphere', bg:'bg-atmo' },
-        safety:{ title:'Safety', bg:'bg-safety' },
-        tools:{ title:'Tools', bg:'bg-tools' },
-        system:{ title:'System', bg:'bg-system' }
+      var App = {
+        Utils:{},
+        UI:{},
+        Modules:{},
+        Tools:{},
+        Init:{},
+        I18n:{}
       };
+
+      var screenConfig = {
+        menu:{ titleKey:'screen_menu', bg:'bg-menu' },
+        fuel:{ titleKey:'screen_fuel', bg:'bg-fuel' },
+        cost:{ titleKey:'screen_cost', bg:'bg-cost' },
+        flight:{ titleKey:'screen_flight', bg:'bg-flight' },
+        atmo:{ titleKey:'screen_atmo', bg:'bg-atmo' },
+        safety:{ titleKey:'screen_safety', bg:'bg-safety' },
+        tools:{ titleKey:'screen_tools', bg:'bg-tools' },
+        system:{ titleKey:'screen_system', bg:'bg-system' }
+      };
+
+      var DEFAULT_LANG = 'en';
+      var translations = {
+        en: {
+          screen_menu:'Aviation Pro', screen_fuel:'Fuel', screen_cost:'Cost', screen_flight:'Flight', screen_atmo:'Atmosphere', screen_safety:'Safety', screen_tools:'Tools', screen_system:'System',
+          group_calculators:'Calculators', hero_title:'Aviation Pro', hero_subtitle:'Professional quick-reference calculations for fuel, flight, atmosphere, safety margins, conversions, and cockpit utility tools.',
+          menu_fuel_title:'Fuel', menu_fuel_sub:'Mass, gallons, required fuel, endurance', menu_cost_title:'Cost', menu_cost_sub:'Hourly, per minute, per NM, per 100 NM',
+          menu_flight_title:'Flight', menu_flight_sub:'GS, ETE, WCA, heading, PNR, TOD', menu_atmo_title:'Atmosphere', menu_atmo_sub:'Density altitude, QNH, TAS approximation',
+          menu_safety_title:'Safety', menu_safety_sub:'Wind components, weight & balance', menu_tools_title:'Tools', menu_tools_sub:'Converters, timer, notes', menu_system_title:'System', menu_system_sub:'Quick-access grouped pages',
+          tab_fuel_main:'Fuel', tab_fuel_required:'Required', tab_fuel_endurance:'Endurance',
+          section_timer:'Cockpit Timer', btn_start:'Start', btn_stop:'Stop', btn_reset:'Reset', section_notes:'Notes', notes_placeholder:'Write your notes here...', btn_save:'Save', btn_copy:'Copy', btn_clear:'Clear',
+          section_language:'Language', label_language:'Interface Language', section_system_pages:'System Pages',
+          system_fuel_label:'Fuel', system_fuel_value:'Mass, required, endurance', system_flight_label:'Flight', system_flight_value:'GS, PNR, TOD', system_atmo_label:'Atmosphere', system_atmo_value:'DA, QNH, TAS', system_safety_label:'Safety', system_safety_value:'Wind, W&B',
+          nav_home:'Home', nav_fuel:'Fuel', nav_cost:'Cost', nav_flight:'Flight', nav_atmo:'Atmo', nav_safety:'Safety', nav_tools:'Tools', nav_system:'System'
+        },
+        ru: {
+          screen_menu:'Aviation Pro', screen_fuel:'Топливо', screen_cost:'Стоимость', screen_flight:'Полёт', screen_atmo:'Атмосфера', screen_safety:'Безопасность', screen_tools:'Инструменты', screen_system:'Система',
+          group_calculators:'Калькуляторы', hero_title:'Aviation Pro', hero_subtitle:'Профессиональные быстрые расчёты по топливу, полёту, атмосфере, запасам безопасности, конвертерам и cockpit-инструментам.',
+          menu_fuel_title:'Топливо', menu_fuel_sub:'Масса, галлоны, потребное топливо, продолжительность', menu_cost_title:'Стоимость', menu_cost_sub:'За час, за минуту, за NM, за 100 NM',
+          menu_flight_title:'Полёт', menu_flight_sub:'GS, ETE, WCA, курс, PNR, TOD', menu_atmo_title:'Атмосфера', menu_atmo_sub:'Плотностная высота, QNH, приближение TAS',
+          menu_safety_title:'Безопасность', menu_safety_sub:'Компоненты ветра, вес и центровка', menu_tools_title:'Инструменты', menu_tools_sub:'Конвертеры, таймер, заметки', menu_system_title:'Система', menu_system_sub:'Быстрый доступ к разделам',
+          tab_fuel_main:'Топливо', tab_fuel_required:'Потребное', tab_fuel_endurance:'Продолжительность',
+          section_timer:'Таймер кабины', btn_start:'Старт', btn_stop:'Стоп', btn_reset:'Сброс', section_notes:'Заметки', notes_placeholder:'Введите заметки...', btn_save:'Сохранить', btn_copy:'Копировать', btn_clear:'Очистить',
+          section_language:'Язык', label_language:'Язык интерфейса', section_system_pages:'Системные страницы',
+          system_fuel_label:'Топливо', system_fuel_value:'Масса, потребное, продолжительность', system_flight_label:'Полёт', system_flight_value:'GS, PNR, TOD', system_atmo_label:'Атмосфера', system_atmo_value:'DA, QNH, TAS', system_safety_label:'Безопасность', system_safety_value:'Ветер, В&Ц',
+          nav_home:'Главная', nav_fuel:'Топливо', nav_cost:'Стоимость', nav_flight:'Полёт', nav_atmo:'Атмо', nav_safety:'Безопасн.', nav_tools:'Инстр.', nav_system:'Система'
+        }
+      };
+
+      var currentLang = DEFAULT_LANG;
+
+      function t(key){
+        var pack = translations[currentLang] || translations[DEFAULT_LANG] || {};
+        if(Object.prototype.hasOwnProperty.call(pack, key)) return pack[key];
+        var fallback = translations[DEFAULT_LANG] || {};
+        return Object.prototype.hasOwnProperty.call(fallback, key) ? fallback[key] : key;
+      }
+
+      function applyTranslations(){
+        $$('[data-i18n]').forEach(function(el){ el.textContent = t(el.getAttribute('data-i18n')); });
+        $$('[data-i18n-placeholder]').forEach(function(el){ el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder'))); });
+        var active = $$('.screen.active')[0];
+        var activeName = active ? active.id.replace('screen-','') : 'menu';
+        var cfg = screenConfig[activeName] || screenConfig.menu;
+        $('#topTitle').textContent = t(cfg.titleKey);
+        if($('#appLang')) $('#appLang').value = currentLang;
+      }
+
+      function setLanguage(lang){
+        if(!translations[lang]) lang = DEFAULT_LANG;
+        currentLang = lang;
+        try{ localStorage.setItem('aviationProLang', lang); }catch(e){}
+        applyTranslations();
+      }
+
+      function initI18n(){
+        var saved = DEFAULT_LANG;
+        try{ saved = localStorage.getItem('aviationProLang') || DEFAULT_LANG; }catch(e){}
+        currentLang = translations[saved] ? saved : DEFAULT_LANG;
+        applyTranslations();
+        if($('#appLang')){
+          $('#appLang').value = currentLang;
+          $('#appLang').addEventListener('change', function(){ setLanguage(this.value); });
+        }
+      }
 
       function showScreen(name){
         $$('.screen').forEach(function(s){ s.classList.remove('active'); });
@@ -1783,7 +1870,7 @@
         });
 
         var cfg = screenConfig[name] || screenConfig.menu;
-        $('#topTitle').textContent = cfg.title;
+        $('#topTitle').textContent = t(cfg.titleKey);
         $('#bgLayer').className = 'bg ' + cfg.bg;
         $('#backBtn').style.visibility = name === 'menu' ? 'hidden' : 'visible';
       }
@@ -1865,143 +1952,382 @@
         return d.base - d.slope * (t - 15);
       }
 
-      function calcFuel(){
-        var type = $('#fuelType').value;
-        var vol = num($('#fuelVol').value);
-        var temp = num($('#fuelTemp').value);
-        if(!validPositive(vol)){
-          setText('#fuelMass','-');
-          setText('#fuelLbs','-');
-          setText('#fuelUsg','-');
-          setText('#fuelImp','-');
+      function clearFuelOutputs(){
+        setText('#fuelMass','-');
+        setText('#fuelLbs','-');
+        setText('#fuelUsg','-');
+        setText('#fuelImp','-');
+      }
+
+      function readFuelInputs(){
+        return {
+          type: $('#fuelType') ? $('#fuelType').value : 'jeta1',
+          volumeLitersRaw: $('#fuelVol') ? $('#fuelVol').value : '',
+          temperatureCRaw: $('#fuelTemp') ? $('#fuelTemp').value : ''
+        };
+      }
+
+      function normalizeFuelInputs(input){
+        var type = input && input.type ? input.type : 'jeta1';
+        if(['jeta1','jeta','avgas'].indexOf(type) === -1) type = 'jeta1';
+
+        var volumeLiters = num(input ? input.volumeLitersRaw : null);
+        var temperatureC = num(input ? input.temperatureCRaw : null);
+
+        return {
+          type: type,
+          volumeLiters: volumeLiters,
+          temperatureC: temperatureC
+        };
+      }
+
+      function calculateFuel(input){
+        if(!validPositive(input.volumeLiters)) return null;
+
+        var density = fuelDensity(input.type, input.temperatureC);
+        var massKg = input.volumeLiters * density;
+
+        return {
+          massKg: massKg,
+          massLbs: massKg * 2.20462,
+          volumeUsg: input.volumeLiters * 0.264172,
+          volumeImp: input.volumeLiters * 0.219969
+        };
+      }
+
+      function renderFuel(result){
+        if(!result){
+          clearFuelOutputs();
           return;
         }
-        var dens = fuelDensity(type, temp);
-        var mass = vol * dens;
-        setText('#fuelMass', mass.toFixed(1));
-        setText('#fuelLbs', (mass * 2.20462).toFixed(1));
-        setText('#fuelUsg', (vol * 0.264172).toFixed(1));
-        setText('#fuelImp', (vol * 0.219969).toFixed(1));
+
+        setText('#fuelMass', result.massKg.toFixed(1));
+        setText('#fuelLbs', result.massLbs.toFixed(1));
+        setText('#fuelUsg', result.volumeUsg.toFixed(1));
+        setText('#fuelImp', result.volumeImp.toFixed(1));
+      }
+
+      function updateFuel(){
+        var raw = readFuelInputs();
+        var input = normalizeFuelInputs(raw);
+        var result = calculateFuel(input);
+        renderFuel(result);
+      }
+
+      function calcFuel(){
+        updateFuel();
+      }
+
+      function clearFuelReqOutputs(){
+        setText('#freqTotal','-');
+        setText('#freqTrip','-');
+        setText('#freqReserve','-');
+        setText('#freqTime','-');
+      }
+
+      function readFuelReqInputs(){
+        return {
+          groundSpeedRaw: $('#freqGs') ? $('#freqGs').value : '',
+          distanceRaw: $('#freqDist') ? $('#freqDist').value : '',
+          fuelFlowRaw: $('#freqFlow') ? $('#freqFlow').value : '',
+          reserveRaw: $('#freqRes') ? $('#freqRes').value : ''
+        };
+      }
+
+      function normalizeFuelReqInputs(input){
+        return {
+          groundSpeed: num(input ? input.groundSpeedRaw : null),
+          distance: num(input ? input.distanceRaw : null),
+          fuelFlow: num(input ? input.fuelFlowRaw : null),
+          reserve: num(input ? input.reserveRaw : null)
+        };
+      }
+
+      function calculateFuelReq(input){
+        if(!input) return null;
+        if(!validPositive(input.groundSpeed) || !validPositive(input.distance) || !validPositive(input.fuelFlow) || input.reserve === null || input.reserve < 0){
+          return null;
+        }
+
+        var timeHours = input.distance / input.groundSpeed;
+        var tripFuel = timeHours * input.fuelFlow;
+        var totalFuel = tripFuel + input.reserve;
+
+        return {
+          timeHours: timeHours,
+          tripFuel: tripFuel,
+          totalFuel: totalFuel,
+          reserve: input.reserve
+        };
+      }
+
+      function renderFuelReq(result){
+        if(!result){
+          clearFuelReqOutputs();
+          return;
+        }
+
+        setText('#freqTotal', result.totalFuel.toFixed(1));
+        setText('#freqTrip', result.tripFuel.toFixed(1));
+        setText('#freqReserve', result.reserve.toFixed(1));
+        setText('#freqTime', fmtTime(result.timeHours));
+      }
+
+      function updateFuelReq(){
+        var raw = readFuelReqInputs();
+        var input = normalizeFuelReqInputs(raw);
+        var result = calculateFuelReq(input);
+        renderFuelReq(result);
       }
 
       function calcFuelReq(){
-        var gs = num($('#freqGs').value);
-        var dist = num($('#freqDist').value);
-        var flow = num($('#freqFlow').value);
-        var res = num($('#freqRes').value);
-        if(!validPositive(gs) || !validPositive(dist) || !validPositive(flow) || res === null || res < 0){
-          setText('#freqTotal','-');
-          setText('#freqTrip','-');
-          setText('#freqReserve','-');
-          setText('#freqTime','-');
+        updateFuelReq();
+      }
+
+      function clearEnduranceOutputs(){
+        setText('#endTime','-');
+      }
+
+      function readEnduranceInputs(){
+        return {
+          fuelRaw: $('#endFuel') ? $('#endFuel').value : '',
+          flowRaw: $('#endFlow') ? $('#endFlow').value : ''
+        };
+      }
+
+      function normalizeEnduranceInputs(input){
+        return {
+          fuel: num(input ? input.fuelRaw : null),
+          flow: num(input ? input.flowRaw : null)
+        };
+      }
+
+      function calculateEndurance(input){
+        if(!validPositive(input.fuel) || !validPositive(input.flow)) return null;
+        return {
+          timeText: fmtTime(input.fuel / input.flow)
+        };
+      }
+
+      function renderEndurance(result){
+        if(!result){
+          clearEnduranceOutputs();
           return;
         }
-        var time = dist / gs;
-        var trip = time * flow;
-        var total = trip + res;
-        setText('#freqTotal', total.toFixed(1));
-        setText('#freqTrip', trip.toFixed(1));
-        setText('#freqReserve', res.toFixed(1));
-        setText('#freqTime', fmtTime(time));
+        setText('#endTime', result.timeText);
+      }
+
+      function updateEndurance(){
+        var raw = readEnduranceInputs();
+        var input = normalizeEnduranceInputs(raw);
+        var result = calculateEndurance(input);
+        renderEndurance(result);
       }
 
       function calcEndurance(){
-        var fuel = num($('#endFuel').value);
-        var flow = num($('#endFlow').value);
-        if(!validPositive(fuel) || !validPositive(flow)){
-          setText('#endTime','-');
+        updateEndurance();
+      }
+
+      function clearCostOutputs(){
+        setText('#costHour','-');
+        setText('#costMin','-');
+        setText('#costNm','-');
+        setText('#cost100','-');
+      }
+
+      function readCostInputs(){
+        return {
+          fuelFlowRaw: $('#costFlow') ? $('#costFlow').value : '',
+          fuelPriceRaw: $('#costPrice') ? $('#costPrice').value : '',
+          groundSpeedRaw: $('#costGs') ? $('#costGs').value : ''
+        };
+      }
+
+      function normalizeCostInputs(input){
+        return {
+          fuelFlow: num(input ? input.fuelFlowRaw : null),
+          fuelPrice: num(input ? input.fuelPriceRaw : null),
+          groundSpeed: num(input ? input.groundSpeedRaw : null)
+        };
+      }
+
+      function calculateCost(input){
+        if(!validPositive(input.fuelFlow) || !validPositive(input.fuelPrice)) return null;
+
+        var perHour = input.fuelFlow * input.fuelPrice;
+        var perMinute = perHour / 60;
+        var perNm = validPositive(input.groundSpeed) ? (perHour / input.groundSpeed) : null;
+
+        return {
+          perHour: perHour,
+          perMinute: perMinute,
+          perNm: perNm,
+          per100Nm: perNm === null ? null : perNm * 100
+        };
+      }
+
+      function renderCost(result){
+        if(!result){
+          clearCostOutputs();
           return;
         }
-        setText('#endTime', fmtTime(fuel / flow));
+
+        setText('#costHour', result.perHour.toFixed(2));
+        setText('#costMin', result.perMinute.toFixed(2));
+
+        if(result.perNm === null){
+          setText('#costNm','-');
+          setText('#cost100','-');
+          return;
+        }
+
+        setText('#costNm', result.perNm.toFixed(2));
+        setText('#cost100', result.per100Nm.toFixed(2));
+      }
+
+      function updateCost(){
+        var raw = readCostInputs();
+        var input = normalizeCostInputs(raw);
+        var result = calculateCost(input);
+        renderCost(result);
       }
 
       function calcCost(){
-        var flow = num($('#costFlow').value);
-        var price = num($('#costPrice').value);
-        var gs = num($('#costGs').value);
-
-        if(!validPositive(flow) || !validPositive(price)){
-          setText('#costHour','-');
-          setText('#costMin','-');
-          setText('#costNm','-');
-          setText('#cost100','-');
-          return;
-        }
-
-        var perHour = flow * price;
-        setText('#costHour', perHour.toFixed(2));
-        setText('#costMin', (perHour / 60).toFixed(2));
-
-        if(validPositive(gs)){
-          setText('#costNm', (perHour / gs).toFixed(2));
-          setText('#cost100', ((perHour / gs) * 100).toFixed(2));
-        } else {
-          setText('#costNm','-');
-          setText('#cost100','-');
-        }
+        updateCost();
       }
 
-      function calcFlightBasic(){
-        var tas = num($('#flightTas').value);
-        var dist = num($('#flightDist').value);
-        var crs = num($('#flightCrs').value);
-        var wdir = num($('#flightWdir').value);
-        var wspd = num($('#flightWspd').value);
+      function clearFlightBasicOutputs(){
+        setText('#flightGs','-');
+        setText('#flightEte','-');
+        setText('#flightWca','-');
+        setText('#flightHdg','-');
+      }
 
-        if(!validPositive(tas) || !validPositive(dist) || crs === null || wdir === null || wspd === null || wspd < 0){
-          setText('#flightGs','-');
-          setText('#flightEte','-');
-          setText('#flightWca','-');
-          setText('#flightHdg','-');
-          return;
+      function readFlightBasicInputs(){
+        return {
+          tasRaw: $('#flightTas') ? $('#flightTas').value : null,
+          distRaw: $('#flightDist') ? $('#flightDist').value : null,
+          crsRaw: $('#flightCrs') ? $('#flightCrs').value : null,
+          wdirRaw: $('#flightWdir') ? $('#flightWdir').value : null,
+          wspdRaw: $('#flightWspd') ? $('#flightWspd').value : null
+        };
+      }
+
+      function normalizeFlightBasicInputs(input){
+        return {
+          tas: num(input ? input.tasRaw : null),
+          dist: num(input ? input.distRaw : null),
+          crs: num(input ? input.crsRaw : null),
+          wdir: num(input ? input.wdirRaw : null),
+          wspd: num(input ? input.wspdRaw : null)
+        };
+      }
+
+      function calculateFlightBasic(input){
+        if(!validPositive(input.tas) || !validPositive(input.dist) || input.crs === null || input.wdir === null || input.wspd === null || input.wspd < 0){
+          return null;
         }
 
-        var rel = normalize180(wdir - crs);
+        var rel = normalize180(input.wdir - input.crs);
         var relRad = rel * Math.PI / 180;
-        var cross = wspd * Math.sin(relRad);
-        var head = wspd * Math.cos(relRad);
+        var cross = input.wspd * Math.sin(relRad);
+        var head = input.wspd * Math.cos(relRad);
 
-        var ratio = cross / tas;
+        var ratio = cross / input.tas;
         if(ratio > 1 || ratio < -1){
-          setText('#flightGs','-');
-          setText('#flightEte','-');
-          setText('#flightWca','-');
-          setText('#flightHdg','-');
-          return;
+          return null;
         }
 
         var wca = Math.asin(ratio) * 180 / Math.PI;
-        var gs = tas * Math.cos(wca * Math.PI / 180) - head;
+        var gs = input.tas * Math.cos(wca * Math.PI / 180) - head;
 
         if(!isFinite(gs) || gs <= 0){
-          setText('#flightGs','-');
-          setText('#flightEte','-');
-          setText('#flightWca','-');
-          setText('#flightHdg','-');
+          return null;
+        }
+
+        return {
+          gs: gs,
+          eteHours: input.dist / gs,
+          wca: normalize180(wca),
+          hdg: clampHeading(input.crs + wca)
+        };
+      }
+
+      function renderFlightBasic(result){
+        if(!result){
+          clearFlightBasicOutputs();
           return;
         }
 
-        setText('#flightGs', gs.toFixed(1));
-        setText('#flightEte', fmtTime(dist / gs));
-        setText('#flightWca', normalize180(wca).toFixed(1) + '°');
-        setText('#flightHdg', clampHeading(crs + wca) + '°');
+        setText('#flightGs', result.gs.toFixed(1));
+        setText('#flightEte', fmtTime(result.eteHours));
+        setText('#flightWca', result.wca.toFixed(1) + '°');
+        setText('#flightHdg', result.hdg + '°');
+      }
+
+      function updateFlightBasic(){
+        var raw = readFlightBasicInputs();
+        var input = normalizeFlightBasicInputs(raw);
+        var result = calculateFlightBasic(input);
+        renderFlightBasic(result);
+      }
+
+      function calcFlightBasic(){
+        updateFlightBasic();
+      }
+
+      function clearDensityAltitudeOutputs(){
+        setText('#atmoDa','-');
+      }
+
+      function readDensityAltitudeInputs(){
+        return {
+          elevation: num($('#atmoElev').value),
+          oat: num($('#atmoOat').value),
+          qnh: num($('#atmoQnh').value)
+        };
+      }
+
+      function normalizeDensityAltitudeInputs(raw){
+        if(!raw) return null;
+        return {
+          elevation: raw.elevation,
+          oat: raw.oat,
+          qnh: raw.qnh
+        };
+      }
+
+      function calculateDensityAltitude(input){
+        if(!input) return null;
+        if(input.elevation === null || input.oat === null || !validPositive(input.qnh)) return null;
+
+        var pressureAlt = input.elevation + (1013.25 - input.qnh) * 30;
+        var isaTemp = 15 - (pressureAlt / 1000) * 2;
+        var da = pressureAlt + 120 * (input.oat - isaTemp);
+
+        return {
+          densityAltitude: da
+        };
+      }
+
+      function renderDensityAltitude(result){
+        if(!result){
+          clearDensityAltitudeOutputs();
+          return;
+        }
+
+        setText('#atmoDa', result.densityAltitude.toFixed(0));
+      }
+
+      function updateDensityAltitude(){
+        var raw = readDensityAltitudeInputs();
+        var input = normalizeDensityAltitudeInputs(raw);
+        var result = calculateDensityAltitude(input);
+        renderDensityAltitude(result);
       }
 
       function calcDensityAltitude(){
-        var elev = num($('#atmoElev').value);
-        var oat = num($('#atmoOat').value);
-        var qnh = num($('#atmoQnh').value);
-
-        if(elev === null || oat === null || !validPositive(qnh)){
-          setText('#atmoDa','-');
-          return;
-        }
-
-        var pressureAlt = elev + (1013.25 - qnh) * 30;
-        var isaTemp = 15 - (pressureAlt / 1000) * 2;
-        var da = pressureAlt + 120 * (oat - isaTemp);
-
-        setText('#atmoDa', da.toFixed(0));
+        updateDensityAltitude();
       }
 
       var qnhSyncLock = false;
@@ -2036,151 +2362,404 @@
         }
       }
 
-      function calcTasApprox(){
-        var ias = num($('#tasIas').value);
-        var alt = num($('#tasAlt').value);
-        var oat = num($('#tasOat').value);
+      function clearTasApproxOutputs(){
+        setText('#tasOut','-');
+      }
 
-        if(!validPositive(ias) || alt === null || oat === null){
-          setText('#tasOut','-');
+      function readTasApproxInputs(){
+        return {
+          iasRaw: $('#tasIas') ? $('#tasIas').value : '',
+          altitudeRaw: $('#tasAlt') ? $('#tasAlt').value : '',
+          oatRaw: $('#tasOat') ? $('#tasOat').value : ''
+        };
+      }
+
+      function normalizeTasApproxInputs(input){
+        return {
+          ias: num(input ? input.iasRaw : null),
+          altitude: num(input ? input.altitudeRaw : null),
+          oat: num(input ? input.oatRaw : null)
+        };
+      }
+
+      function calculateTasApprox(input){
+        if(!validPositive(input.ias) || input.altitude === null || input.oat === null) return null;
+
+        var tas = input.ias * (1 + (input.altitude / 1000) * 0.02);
+
+        return {
+          tas: tas,
+          oat: input.oat
+        };
+      }
+
+      function renderTasApprox(result){
+        if(!result){
+          clearTasApproxOutputs();
           return;
         }
 
-        var tas = ias * (1 + (alt / 1000) * 0.02);
-        setText('#tasOut', tas.toFixed(1));
+        setText('#tasOut', result.tas.toFixed(1));
+      }
+
+      function updateTasApprox(){
+        var raw = readTasApproxInputs();
+        var input = normalizeTasApproxInputs(raw);
+        var result = calculateTasApprox(input);
+        renderTasApprox(result);
+      }
+
+      function calcTasApprox(){
+        updateTasApprox();
+      }
+
+      function clearWindOutputs(){
+        setText('#windHead','-');
+        setText('#windCross','-');
+        setText('#windSide','-');
+
+        if($('#compassRunway')) {
+          $('#compassRunway').style.transform = 'translate(-50%,-100%) rotate(0deg)';
+        }
+        if($('#compassWind')) {
+          $('#compassWind').style.transform = 'translate(-50%,-100%) rotate(45deg)';
+        }
+      }
+
+      function readWindInputs(){
+        return {
+          rwyRaw: $('#windRwy') ? $('#windRwy').value : null,
+          dirRaw: $('#windDir') ? $('#windDir').value : null,
+          spdRaw: $('#windSpd') ? $('#windSpd').value : null
+        };
+      }
+
+      function normalizeWindInputs(input){
+        return {
+          rwy: num(input ? input.rwyRaw : null),
+          dir: num(input ? input.dirRaw : null),
+          spd: num(input ? input.spdRaw : null)
+        };
+      }
+
+      function calculateWind(input){
+        if(input.rwy === null || input.dir === null || input.spd === null || input.spd < 0){
+          return null;
+        }
+
+        var rel = normalize180(input.dir - input.rwy);
+        var rad = rel * Math.PI / 180;
+        var head = input.spd * Math.cos(rad);
+        var cross = input.spd * Math.sin(rad);
+
+        return {
+          head: head,
+          cross: cross,
+          runwayHeading: clampHeading(input.rwy),
+          windHeading: clampHeading(input.dir)
+        };
+      }
+
+      function renderWind(result){
+        if(!result){
+          clearWindOutputs();
+          return;
+        }
+
+        setText('#windHead', Math.abs(result.head).toFixed(1) + (result.head >= 0 ? ' HW' : ' TW'));
+        setText('#windCross', Math.abs(result.cross).toFixed(1) + ' kt');
+        setText('#windSide', result.cross >= 0 ? 'R' : 'L');
+
+        if($('#compassRunway')) {
+          $('#compassRunway').style.transform = 'translate(-50%,-100%) rotate(' + result.runwayHeading + 'deg)';
+        }
+        if($('#compassWind')) {
+          $('#compassWind').style.transform = 'translate(-50%,-100%) rotate(' + result.windHeading + 'deg)';
+        }
+      }
+
+      function updateWind(){
+        var raw = readWindInputs();
+        var input = normalizeWindInputs(raw);
+        var result = calculateWind(input);
+        renderWind(result);
       }
 
       function calcWind(){
-        var rwy = num($('#windRwy').value);
-        var dir = num($('#windDir').value);
-        var spd = num($('#windSpd').value);
-
-        if(rwy === null || dir === null || spd === null || spd < 0){
-          setText('#windHead','-');
-          setText('#windCross','-');
-          setText('#windSide','-');
-          return;
-        }
-
-        var rel = normalize180(dir - rwy);
-        var rad = rel * Math.PI / 180;
-        var head = spd * Math.cos(rad);
-        var cross = spd * Math.sin(rad);
-
-        setText('#windHead', (Math.abs(head)).toFixed(1) + (head >= 0 ? ' HW' : ' TW'));
-        setText('#windCross', Math.abs(cross).toFixed(1) + ' kt');
-        setText('#windSide', cross >= 0 ? 'R' : 'L');
-
-        $('#compassRunway').style.transform = 'translate(-50%,-100%) rotate(' + clampHeading(rwy) + 'deg)';
-        $('#compassWind').style.transform = 'translate(-50%,-100%) rotate(' + clampHeading(dir) + 'deg)';
+        updateWind();
       }
 
-      function calcWB(){
-        var rows = $$('.wb-row');
+      function clearWBOutputs(){
+        $$('.wb-row').forEach(function(row){
+          var momentCell = row.querySelector('.wb-moment');
+          if(momentCell){
+            momentCell.textContent = '-';
+          }
+        });
+        setText('#wbTotalW','-');
+        setText('#wbTotalM','-');
+        setText('#wbCg','-');
+        setText('#wbStatus','INVALID INPUT');
+      }
+
+      function readWBInputs(){
+        return {
+          rows: $$('.wb-row').map(function(row){
+            return {
+              row: row,
+              weightRaw: row.querySelector('.wb-weight') ? row.querySelector('.wb-weight').value : '',
+              armRaw: row.querySelector('.wb-arm') ? row.querySelector('.wb-arm').value : ''
+            };
+          }),
+          maxWeightRaw: $('#wbTable') ? $('#wbTable').dataset.maxWeight : null,
+          minCgRaw: $('#wbTable') ? $('#wbTable').dataset.minCg : null,
+          maxCgRaw: $('#wbTable') ? $('#wbTable').dataset.maxCg : null
+        };
+      }
+
+      function normalizeWBInputs(input){
+        return {
+          rows: (input && input.rows ? input.rows : []).map(function(item){
+            return {
+              row: item.row,
+              weight: num(item.weightRaw),
+              arm: num(item.armRaw)
+            };
+          }),
+          maxWeight: num(input ? input.maxWeightRaw : null),
+          minCg: num(input ? input.minCgRaw : null),
+          maxCg: num(input ? input.maxCgRaw : null)
+        };
+      }
+
+      function calculateWB(input){
         var totalW = 0;
         var totalM = 0;
         var hasInvalid = false;
+        var rowResults = [];
 
-        rows.forEach(function(row){
-          var w = num(row.querySelector('.wb-weight').value);
-          var a = num(row.querySelector('.wb-arm').value);
-          var momentCell = row.querySelector('.wb-moment');
-
-          if(w === null && a === null){
-            momentCell.textContent = '-';
+        (input && input.rows ? input.rows : []).forEach(function(item){
+          if(item.weight === null && item.arm === null){
+            rowResults.push({ row: item.row, moment: null, invalid: false });
             return;
           }
 
-          if(w === null || a === null || w < 0){
-            momentCell.textContent = '-';
+          if(item.weight === null || item.arm === null || item.weight < 0){
             hasInvalid = true;
+            rowResults.push({ row: item.row, moment: null, invalid: true });
             return;
           }
 
-          var m = w * a;
-          totalW += w;
-          totalM += m;
-          momentCell.textContent = m.toFixed(1);
+          var moment = item.weight * item.arm;
+          totalW += item.weight;
+          totalM += moment;
+          rowResults.push({ row: item.row, moment: moment, invalid: false });
         });
 
         if(hasInvalid){
-          setText('#wbTotalW','-');
-          setText('#wbTotalM','-');
-          setText('#wbCg','-');
-          setText('#wbStatus','INVALID INPUT');
-          return;
+          return {
+            rowResults: rowResults,
+            totalWeight: null,
+            totalMoment: null,
+            cg: null,
+            status: 'INVALID INPUT'
+          };
         }
 
-        setText('#wbTotalW', totalW.toFixed(1));
-        setText('#wbTotalM', totalM.toFixed(1));
-
         if(totalW <= 0){
-          setText('#wbCg','-');
-          setText('#wbStatus','INVALID INPUT');
-          return;
+          return {
+            rowResults: rowResults,
+            totalWeight: totalW,
+            totalMoment: totalM,
+            cg: null,
+            status: 'INVALID INPUT'
+          };
         }
 
         var cg = totalM / totalW;
-        setText('#wbCg', cg.toFixed(2));
 
-        var table = $('#wbTable');
-        var maxWeight = num(table.dataset.maxWeight);
-        var minCg = num(table.dataset.minCg);
-        var maxCg = num(table.dataset.maxCg);
+        if(input.maxWeight === null || input.minCg === null || input.maxCg === null){
+          return {
+            rowResults: rowResults,
+            totalWeight: totalW,
+            totalMoment: totalM,
+            cg: cg,
+            status: 'LIMITS NOT SET'
+          };
+        }
 
-        if(maxWeight === null || minCg === null || maxCg === null){
-          setText('#wbStatus', 'LIMITS NOT SET');
+        var inLimits = totalW <= input.maxWeight && cg >= input.minCg && cg <= input.maxCg;
+
+        return {
+          rowResults: rowResults,
+          totalWeight: totalW,
+          totalMoment: totalM,
+          cg: cg,
+          status: inLimits ? 'IN LIMITS' : 'OUT OF LIMITS'
+        };
+      }
+
+      function renderWB(result){
+        if(!result){
+          clearWBOutputs();
           return;
         }
 
-        var inLimits = totalW <= maxWeight && cg >= minCg && cg <= maxCg;
-        setText('#wbStatus', inLimits ? 'IN LIMITS' : 'OUT OF LIMITS');
+        (result.rowResults || []).forEach(function(item){
+          var momentCell = item.row ? item.row.querySelector('.wb-moment') : null;
+          if(momentCell){
+            momentCell.textContent = item.moment === null ? '-' : item.moment.toFixed(1);
+          }
+        });
+
+        if(result.totalWeight === null || result.totalMoment === null){
+          setText('#wbTotalW','-');
+          setText('#wbTotalM','-');
+          setText('#wbCg','-');
+          setText('#wbStatus', result.status || 'INVALID INPUT');
+          return;
+        }
+
+        setText('#wbTotalW', result.totalWeight.toFixed(1));
+        setText('#wbTotalM', result.totalMoment.toFixed(1));
+
+        if(result.cg === null){
+          setText('#wbCg','-');
+          setText('#wbStatus', result.status || 'INVALID INPUT');
+          return;
+        }
+
+        setText('#wbCg', result.cg.toFixed(2));
+        setText('#wbStatus', result.status || 'INVALID INPUT');
+      }
+
+      function updateWB(){
+        var raw = readWBInputs();
+        var input = normalizeWBInputs(raw);
+        var result = calculateWB(input);
+        renderWB(result);
+      }
+
+      function calcWB(){
+        updateWB();
+      }
+
+      function clearPNROutputs(){
+        setText('#pnrTime','-');
+        setText('#pnrDist','-');
+      }
+
+      function readPNRInputs(){
+        return {
+          outGsRaw: $('#pnrOutGs') ? $('#pnrOutGs').value : '',
+          retGsRaw: $('#pnrRetGs') ? $('#pnrRetGs').value : '',
+          endRaw: $('#pnrEnd') ? $('#pnrEnd').value : ''
+        };
+      }
+
+      function normalizePNRInputs(input){
+        return {
+          outGs: num(input ? input.outGsRaw : null),
+          retGs: num(input ? input.retGsRaw : null),
+          end: num(input ? input.endRaw : null)
+        };
+      }
+
+      function calculatePNR(input){
+        if(!input || !validPositive(input.outGs) || !validPositive(input.retGs) || !validPositive(input.end)){
+          return null;
+        }
+
+        var pnrTime = (input.end * input.retGs) / (input.outGs + input.retGs);
+        var pnrDist = input.outGs * pnrTime;
+
+        if(!isFinite(pnrTime) || pnrTime < 0 || !isFinite(pnrDist) || pnrDist < 0){
+          return null;
+        }
+
+        return {
+          timeHours: pnrTime,
+          distanceNm: pnrDist
+        };
+      }
+
+      function renderPNR(result){
+        if(!result){
+          clearPNROutputs();
+          return;
+        }
+
+        setText('#pnrTime', fmtTime(result.timeHours));
+        setText('#pnrDist', result.distanceNm.toFixed(1) + ' NM');
+      }
+
+      function updatePNR(){
+        var raw = readPNRInputs();
+        var input = normalizePNRInputs(raw);
+        var result = calculatePNR(input);
+        renderPNR(result);
       }
 
       function calcPNR(){
-        var outGs = num($('#pnrOutGs').value);
-        var retGs = num($('#pnrRetGs').value);
-        var end = num($('#pnrEnd').value);
-
-        if(!validPositive(outGs) || !validPositive(retGs) || !validPositive(end)){
-          setText('#pnrTime','-');
-          setText('#pnrDist','-');
-          return;
-        }
-
-        var pnrTime = (end * retGs) / (outGs + retGs);
-        var pnrDist = outGs * pnrTime;
-
-        if(!isFinite(pnrTime) || pnrTime < 0 || !isFinite(pnrDist) || pnrDist < 0){
-          setText('#pnrTime','-');
-          setText('#pnrDist','-');
-          return;
-        }
-
-        setText('#pnrTime', fmtTime(pnrTime));
-        setText('#pnrDist', pnrDist.toFixed(1) + ' NM');
+        updatePNR();
       }
 
-      function calcTOD(){
-        var alt = num($('#todAlt').value);
-        var vs = num($('#todVs').value);
-        var gs = num($('#todGs').value);
+      function clearTODOutputs(){
+        setText('#todDist','-');
+      }
 
-        if(!validPositive(alt) || !validPositive(vs) || !validPositive(gs)){
-          setText('#todDist','-');
-          return;
+      function readTODInputs(){
+        return {
+          altRaw: $('#todAlt') ? $('#todAlt').value : '',
+          vsRaw: $('#todVs') ? $('#todVs').value : '',
+          gsRaw: $('#todGs') ? $('#todGs').value : ''
+        };
+      }
+
+      function normalizeTODInputs(input){
+        return {
+          alt: num(input ? input.altRaw : null),
+          vs: num(input ? input.vsRaw : null),
+          gs: num(input ? input.gsRaw : null)
+        };
+      }
+
+      function calculateTOD(input){
+        if(!input || !validPositive(input.alt) || !validPositive(input.vs) || !validPositive(input.gs)){
+          return null;
         }
 
-        var timeMin = alt / vs;
-        var nmPerMin = gs / 60;
+        var timeMin = input.alt / input.vs;
+        var nmPerMin = input.gs / 60;
         var dist = timeMin * nmPerMin;
 
         if(!isFinite(timeMin) || timeMin < 0 || !isFinite(nmPerMin) || nmPerMin < 0 || !isFinite(dist) || dist < 0){
-          setText('#todDist','-');
+          return null;
+        }
+
+        return {
+          dist: dist
+        };
+      }
+
+      function renderTOD(result){
+        if(!result){
+          clearTODOutputs();
           return;
         }
 
-        setText('#todDist', dist.toFixed(1) + ' NM');
+        setText('#todDist', result.dist.toFixed(1) + ' NM');
+      }
+
+      function updateTOD(){
+        var raw = readTODInputs();
+        var input = normalizeTODInputs(raw);
+        var result = calculateTOD(input);
+        renderTOD(result);
+      }
+
+      function calcTOD(){
+        updateTOD();
       }
 
 
@@ -2582,10 +3161,8 @@
         timerState.elapsed += Date.now() - timerState.start;
         timerState.running = false;
         clearInterval(timerState.iv);
-        calcPNRPro();
-      calcTODPro();
-      calcWBPro();
-      renderTimer();
+        timerState.iv = null;
+        renderTimer();
       }
 
       function timerReset(){
@@ -2664,83 +3241,140 @@
         });
       }
 
-      $$('.item[data-screen]').forEach(function(btn){
-        btn.addEventListener('click', function(){ showScreen(btn.dataset.screen); });
-      });
+      function initDOM(){
+        $$('.tabs-row').forEach(App.UI.setupTabs);
+      }
 
-      $$('.tabbar .tab').forEach(function(tab){
-        tab.addEventListener('click', function(){ showScreen(tab.dataset.screen); });
-      });
+      function initNavigation(){
+        $$('.item[data-screen]').forEach(function(btn){
+          btn.addEventListener('click', function(){ App.UI.showScreen(btn.dataset.screen); });
+        });
 
-      $('#backBtn').addEventListener('click', function(){ showScreen('menu'); });
+        $$('.tabbar .tab').forEach(function(tab){
+          tab.addEventListener('click', function(){ App.UI.showScreen(tab.dataset.screen); });
+        });
 
-      $$('.tabs-row').forEach(setupTabs);
+        $('#backBtn').addEventListener('click', function(){ App.UI.showScreen('menu'); });
+      }
 
-      bindInputs(['#fuelType','#fuelVol','#fuelTemp'], calcFuel);
-      bindInputs(['#costFlow','#costPrice','#costGs'], calcCost);
-      bindInputs(['#flightTas','#flightDist','#flightCrs','#flightWdir','#flightWspd'], calcFlightBasic);
-      bindInputs(['#freqGs','#freqDist','#freqFlow','#freqRes'], calcFuelReq);
-      bindInputs(['#endFuel','#endFlow'], calcEndurance);
-      bindInputs(['#atmoElev','#atmoOat','#atmoQnh'], calcDensityAltitude);
-      bindInputs(['#tasIas','#tasAlt','#tasOat'], calcTasApprox);
-      bindInputs(['#windRwy','#windDir','#windSpd'], calcWind);
-      bindInputs(['#pnrOutGs','#pnrRetGs','#pnrEnd'], calcPNR);
-      bindInputs(['#todAlt','#todVs','#todGs'], calcTOD);
+      function initBindings(){
+        App.UI.bindInputs(['#fuelType','#fuelVol','#fuelTemp'], App.Modules.updateFuel);
+        App.UI.bindInputs(['#costFlow','#costPrice','#costGs'], App.Modules.updateCost);
+        App.UI.bindInputs(['#flightTas','#flightDist','#flightCrs','#flightWdir','#flightWspd'], App.Modules.updateFlightBasic);
+        App.UI.bindInputs(['#freqGs','#freqDist','#freqFlow','#freqRes'], App.Modules.updateFuelReq);
+        App.UI.bindInputs(['#endFuel','#endFlow'], App.Modules.updateEndurance);
+        App.UI.bindInputs(['#atmoElev','#atmoOat','#atmoQnh'], App.Modules.updateDensityAltitude);
+        App.UI.bindInputs(['#tasIas','#tasAlt','#tasOat'], App.Modules.updateTasApprox);
+        App.UI.bindInputs(['#windRwy','#windDir','#windSpd'], App.Modules.updateWind);
+        App.UI.bindInputs(['#pnrOutGs','#pnrRetGs','#pnrEnd'], App.Modules.updatePNR);
+        App.UI.bindInputs(['#todAlt','#todVs','#todGs'], App.Modules.updateTOD);
 
-      $$('.wb-row input').forEach(function(i){ i.addEventListener('input', calcWB); });
+        $$('.wb-row input').forEach(function(i){ i.addEventListener('input', App.Modules.updateWB); i.addEventListener('change', App.Modules.updateWB); });
 
-      $('#qnhHpa').addEventListener('input', function(){ syncQnh('hpa'); });
-      $('#qnhInhg').addEventListener('input', function(){ syncQnh('inhg'); });
-      $('#qnhMmhg').addEventListener('input', function(){ syncQnh('mmhg'); });
+        $('#qnhHpa').addEventListener('input', function(){ syncQnh('hpa'); });
+        $('#qnhInhg').addEventListener('input', function(){ syncQnh('inhg'); });
+        $('#qnhMmhg').addEventListener('input', function(){ syncQnh('mmhg'); });
 
-      $('#spdKt').addEventListener('input', function(){ setSpeedFrom('kt'); });
-      $('#spdKmh').addEventListener('input', function(){ setSpeedFrom('kmh'); });
-      $('#spdMph').addEventListener('input', function(){ setSpeedFrom('mph'); });
+        $('#spdKt').addEventListener('input', function(){ setSpeedFrom('kt'); });
+        $('#spdKmh').addEventListener('input', function(){ setSpeedFrom('kmh'); });
+        $('#spdMph').addEventListener('input', function(){ setSpeedFrom('mph'); });
 
-      $('#dstNm').addEventListener('input', function(){ setDistanceFrom('nm'); });
-      $('#dstKm').addEventListener('input', function(){ setDistanceFrom('km'); });
-      $('#dstSm').addEventListener('input', function(){ setDistanceFrom('sm'); });
+        $('#dstNm').addEventListener('input', function(){ setDistanceFrom('nm'); });
+        $('#dstKm').addEventListener('input', function(){ setDistanceFrom('km'); });
+        $('#dstSm').addEventListener('input', function(){ setDistanceFrom('sm'); });
 
-      $('#massKg').addEventListener('input', function(){ setMassFrom('kg'); });
-      $('#massLbs').addEventListener('input', function(){ setMassFrom('lbs'); });
-      $('#volL').addEventListener('input', function(){ setMassFrom('l'); });
-      $('#volUs').addEventListener('input', function(){ setMassFrom('us'); });
+        $('#massKg').addEventListener('input', function(){ setMassFrom('kg'); });
+        $('#massLbs').addEventListener('input', function(){ setMassFrom('lbs'); });
+        $('#volL').addEventListener('input', function(){ setMassFrom('l'); });
+        $('#volUs').addEventListener('input', function(){ setMassFrom('us'); });
 
-      $('#tmpC').addEventListener('input', function(){ setTempFrom('c'); });
-      $('#tmpF').addEventListener('input', function(){ setTempFrom('f'); });
-      $('#tmpK').addEventListener('input', function(){ setTempFrom('k'); });
+        $('#tmpC').addEventListener('input', function(){ setTempFrom('c'); });
+        $('#tmpF').addEventListener('input', function(){ setTempFrom('f'); });
+        $('#tmpK').addEventListener('input', function(){ setTempFrom('k'); });
 
-      $('#timerStart').addEventListener('click', timerStart);
-      $('#timerStop').addEventListener('click', timerStop);
-      $('#timerReset').addEventListener('click', timerReset);
+        $('#timerStart').addEventListener('click', App.Tools.timerStart);
+        $('#timerStop').addEventListener('click', App.Tools.timerStop);
+        $('#timerReset').addEventListener('click', App.Tools.timerReset);
 
-      bindInputs(['#pnrProFuel','#pnrProReserve','#pnrProFlowOut','#pnrProFlowBack','#pnrProGsOut','#pnrProGsBack'], calcPNRPro);
-      bindInputs(['#todProCruiseAlt','#todProTargetAlt','#todProTransAlt','#todProTasMach','#todProWindCruise','#todProVsMach','#todProTasIas','#todProWindLow','#todProVsIas'], calcTODPro);
-      ['#wbProPilotW','#wbProPilotA','#wbProCopilotW','#wbProCopilotA','#wbProPaxW','#wbProPaxA','#wbProCargoW','#wbProCargoA','#wbProFuelW','#wbProFuelA','#wbProBurn','#wbProMinCg','#wbProMaxCg','#wbProMaxW'].forEach(function(id){
-        var el = $(id);
-        if(el){
-          el.addEventListener('input', calcWBPro);
-          el.addEventListener('change', calcWBPro);
-        }
-      });
+        App.UI.bindInputs(['#pnrProFuel','#pnrProReserve','#pnrProFlowOut','#pnrProFlowBack','#pnrProGsOut','#pnrProGsBack'], App.Modules.updatePNRPro);
+        App.UI.bindInputs(['#todProCruiseAlt','#todProTargetAlt','#todProTransAlt','#todProTasMach','#todProWindCruise','#todProVsMach','#todProTasIas','#todProWindLow','#todProVsIas'], App.Modules.updateTODPro);
+        ['#wbProPilotW','#wbProPilotA','#wbProCopilotW','#wbProCopilotA','#wbProPaxW','#wbProPaxA','#wbProCargoW','#wbProCargoA','#wbProFuelW','#wbProFuelA','#wbProBurn','#wbProMinCg','#wbProMaxCg','#wbProMaxW'].forEach(function(id){
+          var el = $(id);
+          if(el){
+            el.addEventListener('input', App.Modules.updateWBPro);
+            el.addEventListener('change', App.Modules.updateWBPro);
+          }
+        });
+      }
 
-      initNotes();
-      updateClock();
-      setInterval(updateClock, 1000);
+      function initModules(){
+        App.Tools.initNotes();
+        initI18n();
+        updateClock();
+        setInterval(updateClock, 1000);
+      }
 
-      calcFuel();
-      calcCost();
-      calcFlightBasic();
-      calcFuelReq();
-      calcEndurance();
-      calcDensityAltitude();
-      calcTasApprox();
-      calcWind();
-      calcWB();
-      calcPNR();
-      calcTOD();
-      renderTimer();
-      showScreen('menu');
+      function renderInitialState(){
+        updateFuel();
+        updateCost();
+        updateFlightBasic();
+        updateFuelReq();
+        updateEndurance();
+        updateDensityAltitude();
+        updateTasApprox();
+        updateWind();
+        updateWB();
+        updatePNR();
+        updateTOD();
+        renderTimer();
+      }
+
+      App.UI.showScreen = showScreen;
+      App.UI.setupTabs = setupTabs;
+      App.UI.bindInputs = bindInputs;
+
+      App.Tools.timerStart = timerStart;
+      App.Tools.timerStop = timerStop;
+      App.Tools.timerReset = timerReset;
+      App.Tools.initNotes = initNotes;
+      App.Tools.notesCopy = notesCopy;
+
+      App.Modules.updateFuel = updateFuel;
+      App.Modules.updateCost = updateCost;
+      App.Modules.updateFlightBasic = updateFlightBasic;
+      App.Modules.updateFuelReq = updateFuelReq;
+      App.Modules.updateEndurance = updateEndurance;
+      App.Modules.updateDensityAltitude = updateDensityAltitude;
+      App.Modules.updateTasApprox = updateTasApprox;
+      App.Modules.updateWind = updateWind;
+      App.Modules.updateWB = updateWB;
+      App.Modules.updatePNR = updatePNR;
+      App.Modules.updateTOD = updateTOD;
+      App.Modules.updatePNRPro = calcPNRPro;
+      App.Modules.updateTODPro = calcTODPro;
+      App.Modules.updateWBPro = calcWBPro;
+
+      App.Init.initDOM = initDOM;
+      App.Init.initNavigation = initNavigation;
+      App.Init.initBindings = initBindings;
+      App.Init.initModules = initModules;
+      App.Init.renderInitialState = renderInitialState;
+
+      App.I18n.t = t;
+      App.I18n.setLanguage = setLanguage;
+      App.I18n.applyTranslations = applyTranslations;
+      App.I18n.init = initI18n;
+
+      App.initApp = function(){
+        App.Init.initDOM();
+        App.Init.initNavigation();
+        App.Init.initBindings();
+        App.Init.initModules();
+        App.Init.renderInitialState();
+        App.UI.showScreen('menu');
+      };
+
+      App.initApp();
     })();
   </script>
 </body>
