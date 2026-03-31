@@ -1,1111 +1,1274 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Aviation Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aviation Pro Logic Fixed</title>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-
-    :root{
-      --bg-dark:#07101f;
-      --card:#f6f8fb;
-      --card-2:#fbfcfe;
-      --text:#121826;
-      --muted:#6b7280;
-      --muted-2:#8792a2;
-      --line:#e7ebf1;
-      --section:rgba(255,255,255,.78);
-      --green:#3fbf62;
-      --green-2:#2fa24e;
-      --blue:#3b82f6;
-      --blue-2:#2563eb;
-      --orange:#d97706;
-      --header-h:64px;
-      --tabbar-h:82px;
-      --content-max:760px;
-      --shadow-card:0 12px 30px rgba(0,0,0,.18);
-      --shadow-soft:0 8px 20px rgba(0,0,0,.12);
-      --fs-hero:30px;
-      --fs-title:18px;
-      --fs-item-title:16px;
-      --fs-body:14px;
-      --fs-label:13px;
-      --fs-small:11px;
-      --fs-value-big:26px;
-      --fs-value:18px;
-      --fs-value-small:15px;
-      --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0 .03 .05'/></feComponentTransfer></filter><rect width='120' height='120' filter='url(%23n)' opacity='0.20'/></svg>");
-    }
-
+    *{box-sizing:border-box}
     body{
-      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      background:var(--bg-dark);
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:#0b1220;
+      color:#e8eefc;
+    }
+    .app{
+      max-width:1100px;
+      margin:0 auto;
+      padding:20px;
+    }
+    h1,h2{
+      margin:0 0 12px;
+    }
+    .muted{
+      color:#9fb0d3;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+      gap:16px;
+    }
+    .card{
+      background:#121b2e;
+      border:1px solid #24314f;
+      border-radius:14px;
+      padding:16px;
+      box-shadow:0 8px 24px rgba(0,0,0,.25);
+    }
+    .card h2{
+      font-size:18px;
+      margin-bottom:14px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns:1fr 130px 70px;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .row label{
+      font-size:14px;
+      color:#dbe6ff;
+    }
+    input, select, textarea, button{
+      font:inherit;
+    }
+    input, select, textarea{
+      width:100%;
+      background:#0d1526;
+      color:#f3f7ff;
+      border:1px solid #314364;
+      border-radius:10px;
+      padding:10px 12px;
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color:#60a5fa;
+      box-shadow:0 0 0 3px rgba(96,165,250,.15);
+    }
+    .unit{
+      color:#93a7d1;
+      font-size:13px;
+      text-align:right;
+    }
+    .results{
+      margin-top:12px;
+      padding:12px;
+      background:#0d1526;
+      border:1px solid #2b3b5f;
+      border-radius:12px;
+    }
+    .res{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      padding:6px 0;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .res:last-child{
+      border-bottom:none;
+    }
+    .res b{
       color:#fff;
-      min-height:100vh;
-      overflow-x:hidden;
     }
-
-    html[dir="rtl"] body{direction:rtl}
-    html[dir="rtl"] .item{text-align:right}
-    html[dir="rtl"] .item-arrow{transform:rotate(-135deg)}
-    html[dir="rtl"] .chev{transform:rotate(-135deg)}
-    html[dir="rtl"] .back{left:auto;right:16px}
-    html[dir="rtl"] .right{right:auto;left:16px}
-    html[dir="rtl"] .field-value,html[dir="rtl"] .field-select{text-align:left}
-    html[dir="rtl"] .field-unit{text-align:left}
-
-    .mono,.field-value,.field-select,.answer-value,.answer-item-value,.timer-display,.tool-value,.wb-moment,.wb-arm,.wb-weight,#clockDisplay{
-      font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
-      font-variant-numeric:tabular-nums;
+    .ok{ color:#86efac; }
+    .warn{ color:#fbbf24; }
+    .bad{ color:#fca5a5; }
+    .status{
+      min-height:20px;
+      margin-top:8px;
+      font-size:13px;
     }
-
-    .bg{position:fixed;inset:0;z-index:-3;background-size:cover;background-position:center;transition:background-image .45s ease}
-    .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,11,20,.18) 0%,rgba(6,11,20,.38) 48%,rgba(6,11,20,.70) 100%)}
-
-    .bg-menu{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-Ez889A91dg8W5kQDhf2mvwFJdMrg58.webp')}
-    .bg-fuel{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/istockphoto-1053505692-612x612-VkvezcjUzqFCZ6bhwOpgU24Wjy3MUj.jpg')}
-    .bg-cost{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-sIMtD1RlziEl1Oih0ZfS7f6XoyjBQu.jpg')}
-    .bg-flight{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1521722685154115526-2UsZXMr3sFh5xPg1YgmY8DiE4goAm3.jpg')}
-    .bg-atmo{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kabina-Airbus-A380-600x320-LPLi9CDKC6lmGaQzhW2kRgyC01Wn7w.jpg')}
-    .bg-safety{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Kabina-pilotov-A319-yWCHxgcCU7MgUCdNZFvtjiNdtCHjiZ.jpg')}
-    .bg-tools{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2023-11-21_02-13-56-1skru2MqtcsuqEmh5U8tFZiryQWcVO.jpg')}
-    .bg-system{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-sIMtD1RlziEl1Oih0ZfS7f6XoyjBQu.jpg')}
-
-    .app{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 16px 100px}
-    .phone{width:100%;max-width:var(--content-max);min-height:calc(100vh - 32px);border-radius:32px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.34);background:rgba(7,16,31,.20);border:1px solid rgba(255,255,255,.07);position:relative;backdrop-filter:blur(10px)}
-
-    .topbar{height:var(--header-h);display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:20;background:linear-gradient(180deg,rgba(9,16,30,.92),rgba(10,18,34,.84));backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 6px 18px rgba(0,0,0,.10)}
-    .topbar .back,.topbar .right{position:absolute;top:0;height:100%;display:flex;align-items:center;color:#dbe4f0;font-size:var(--fs-body);font-weight:500;letter-spacing:.08px}
-    .topbar .back{left:16px;gap:6px;cursor:pointer}
-    .topbar .right{right:16px;gap:10px}
-    .chev{width:10px;height:10px;border-left:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:rotate(45deg);margin-left:2px}
-    .title{font-size:var(--fs-title);font-weight:700;letter-spacing:-0.2px;color:#fff}
-
-    .lang-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#fff;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer}
-
-    .screen{display:none;padding:16px 14px 24px}
-    .screen.active{display:block}
-    .hero{margin:6px 4px 14px;color:#fff}
-    .hero h1{font-size:var(--fs-hero);line-height:1.02;font-weight:800;letter-spacing:-0.4px;margin-bottom:6px}
-    .hero p{font-size:var(--fs-body);color:rgba(255,255,255,.84);max-width:540px;line-height:1.45;font-weight:500}
-    .group{margin-bottom:18px}
-    .group-label{font-size:12px;font-weight:700;color:var(--section);letter-spacing:1.6px;padding:0 12px 9px;text-transform:uppercase}
-
-    .list,.calc-shell{position:relative;background:linear-gradient(180deg,var(--card),#f2f5fa),var(--noise);background-blend-mode:normal,overlay;border:1px solid rgba(255,255,255,.42);box-shadow:var(--shadow-card)}
-    .list{border-radius:24px;overflow:hidden}
-
-    .item{width:100%;border:none;background:transparent;display:flex;align-items:center;gap:14px;text-align:left;padding:18px;color:var(--text);cursor:pointer;position:relative;transition:background .16s ease,transform .12s ease}
-    .item + .item{border-top:1px solid var(--line)}
-    .item:hover{background:rgba(59,130,246,.03)}
-    .item:active{transform:scale(.997)}
-
-    .icon-wrap{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;border:1px solid rgba(255,255,255,.44);background:rgba(255,255,255,.68);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
-    .icon-wrap svg,.tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.90}
-
-    .icon-fuel{color:#c46a18}
-    .icon-cost{color:#2e9e4b}
-    .icon-flight{color:#2d6ce8}
-    .icon-atmo{color:#7450d6}
-    .icon-safety{color:#d33636}
-    .icon-tools{color:#c48211}
-    .icon-system{color:#168b69}
-
-    .item-text{min-width:0;flex:1}
-    .item-title{font-size:var(--fs-item-title);font-weight:700;color:var(--text);line-height:1.12;margin-bottom:4px;letter-spacing:-0.2px}
-    .item-sub{font-size:var(--fs-body);color:rgba(0,0,0,0.55);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-weight:500}
-    .item-arrow{width:10px;height:10px;border-right:1.8px solid #a0a9b7;border-top:1.8px solid #a0a9b7;transform:rotate(45deg);flex:0 0 auto;margin-right:4px;opacity:.9}
-
-    .calc-shell{border-radius:24px;padding:16px}
-    .section-title{font-size:var(--fs-small);font-weight:700;letter-spacing:1px;color:rgba(0,0,0,0.45);margin:2px 2px 10px;text-transform:uppercase}
-    .field-list{background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:16px;backdrop-filter:blur(6px)}
-    .field-row{min-height:58px;display:grid;grid-template-columns:1.12fr 1fr auto;align-items:center;gap:12px;padding:0 16px}
-    .field-row + .field-row{border-top:1px solid var(--line)}
-    .field-label{font-size:var(--fs-label);font-weight:600;color:#1f2937;letter-spacing:0}
-    .field-value,.field-select{justify-self:end;width:100%;text-align:right;border:none;background:transparent;outline:none;color:var(--orange)}
-    .field-value{max-width:160px;font-size:var(--fs-value);font-weight:600;letter-spacing:-0.2px}
-    .field-select{max-width:220px;font-size:var(--fs-value);font-weight:600;letter-spacing:-0.2px;cursor:pointer}
-    .field-value:focus,.field-select:focus{color:var(--blue-2)}
-    .field-unit{font-size:12px;font-weight:600;color:rgba(0,0,0,0.45);letter-spacing:0.3px;min-width:42px;text-align:right}
-
-    .answer{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(63,191,98,.90),rgba(47,162,78,.92)),var(--noise);background-blend-mode:normal,overlay;border-radius:20px;color:#fff;padding:16px 18px;box-shadow:0 12px 22px rgba(47,162,78,.22);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(10px)}
-    .answer-label{font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;opacity:0.8;margin-bottom:8px}
-    .answer-value{font-size:var(--fs-value-big);line-height:1.08;font-weight:700;letter-spacing:-0.3px}
-    .answer-sub{font-size:var(--fs-body);opacity:.94;margin-top:7px;font-weight:500}
-    .answer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.20)}
-    .answer-item{text-align:center}
-    .answer-item-label{font-size:10px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-    .answer-item-value{font-size:var(--fs-value-small);font-weight:600;margin-top:3px}
-
-    .tabs-row{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-    .tabs-row::-webkit-scrollbar{display:none}
-    .tab-btn{padding:10px 16px;background:rgba(0,0,0,.045);border:none;border-radius:12px;font-size:var(--fs-label);font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;letter-spacing:0.1px}
-    .tab-btn.active{background:var(--blue);color:#fff;box-shadow:0 8px 16px rgba(59,130,246,.18)}
-    .tab-content{display:none}
-    .tab-content.active{display:block}
-    .stack{display:grid;gap:16px}
-    .tool-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
-    .tool-card{background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:16px;padding:14px}
-    .tool-label{font-size:var(--fs-small);text-transform:uppercase;color:rgba(0,0,0,0.45);letter-spacing:.8px;font-weight:700;margin-bottom:6px}
-    .tool-value{font-size:var(--fs-value);font-weight:600;color:var(--text);letter-spacing:-0.2px}
-
-    .wind-compass{width:180px;height:180px;margin:20px auto;position:relative;border:2px solid var(--line);border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 70%)}
-    .compass-center{position:absolute;top:50%;left:50%;width:10px;height:10px;background:var(--blue);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(59,130,246,.28)}
-    .compass-runway{position:absolute;top:50%;left:50%;width:4px;height:60px;background:linear-gradient(180deg,var(--green),rgba(63,191,98,.28));transform-origin:center bottom;transform:translate(-50%,-100%);border-radius:2px}
-    .compass-wind{position:absolute;top:50%;left:50%;width:3px;height:55px;background:linear-gradient(180deg,#ef4444,rgba(239,68,68,.30));transform-origin:center bottom;transform:translate(-50%,-100%) rotate(45deg);border-radius:2px}
-    .compass-labels{position:absolute;inset:0;font-size:var(--fs-small);font-weight:600;color:var(--muted)}
-    .compass-labels span{position:absolute}
-    .compass-labels .n{top:6px;left:50%;transform:translateX(-50%);color:var(--blue)}
-    .compass-labels .s{bottom:6px;left:50%;transform:translateX(-50%)}
-    .compass-labels .e{right:6px;top:50%;transform:translateY(-50%)}
-    .compass-labels .w{left:6px;top:50%;transform:translateY(-50%)}
-
-    .wb-table{background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:16px}
-    .wb-head,.wb-row{display:grid;grid-template-columns:1.3fr .8fr .8fr .9fr;gap:10px;padding:12px 14px;align-items:center}
-    .wb-head{background:rgba(0,0,0,.03);color:rgba(0,0,0,0.45);font-size:var(--fs-small);text-transform:uppercase;letter-spacing:.7px;font-weight:700}
-    .wb-row{font-size:var(--fs-body);color:var(--text);font-weight:500}
-    .wb-row + .wb-row{border-top:1px solid var(--line)}
-    .wb-row input{width:100%;border:none;background:transparent;outline:none;font:inherit;color:var(--text)}
-    .wb-row .wb-arm,.wb-row .wb-weight,.wb-row .wb-moment{text-align:right;font-weight:600;letter-spacing:-0.2px}
-
-    .timer-display{font-size:42px;font-weight:700;text-align:center;color:var(--text);padding:24px;letter-spacing:-1.4px}
-    .timer-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-    .timer-btn{padding:14px 24px;border:none;border-radius:14px;font-size:var(--fs-body);font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:0.1px}
-    .timer-btn.start{background:var(--green);color:#fff}
-    .timer-btn.stop{background:#ef4444;color:#fff}
-    .timer-btn.reset{background:#e9eef5;color:var(--text)}
-
-    .notes-box{width:100%;min-height:220px;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:var(--fs-body);resize:vertical;outline:none;background:rgba(255,255,255,.86);color:var(--text);font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;font-variant-numeric:tabular-nums;line-height:1.45;font-weight:500}
-    .notes-box:focus{border-color:var(--blue)}
-    .notes-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-    .notes-btn{padding:10px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:var(--fs-label);font-weight:600;color:var(--text);cursor:pointer;letter-spacing:0.1px}
-    .notes-btn:hover{border-color:var(--blue)}
-    .notes-btn.danger:hover{border-color:#ef4444;color:#ef4444}
-
-    .tabbar{position:sticky;bottom:0;z-index:22;height:var(--tabbar-h);background:linear-gradient(180deg,rgba(9,16,30,.92),rgba(7,14,28,.90));backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:flex-start;justify-content:space-around;padding-top:10px;box-shadow:0 -6px 16px rgba(0,0,0,.10)}
-    .tab{border:none;background:transparent;color:rgba(255,255,255,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:50px;cursor:pointer;padding:2px 6px;position:relative;transition:transform .15s ease,color .15s ease}
-    .tab:active{transform:scale(.95)}
-    .tab span{font-size:10px;font-weight:600;letter-spacing:0.2px}
-    .tab.active{color:#fff;text-shadow:none}
-    .tab.active::after{content:"";position:absolute;bottom:0;width:28px;height:3px;background:var(--green);border-radius:2px}
-    .tab .dot{visibility:hidden}
-    .tab.active .dot{visibility:visible;width:5px;height:5px;border-radius:50%;background:var(--green);margin-top:-1px;box-shadow:0 0 6px rgba(63,191,98,.26)}
-
-    .helper{font-size:var(--fs-small);color:rgba(0,0,0,0.45);margin-top:-6px;margin-bottom:12px;font-weight:500}
-
-    @media(max-width:700px){
-      .phone{border-radius:0;min-height:100vh}
-      .app{padding:0 0 92px}
-      .hero h1{font-size:28px}
-      .field-row{grid-template-columns:1fr .82fr auto}
-      .field-value,.field-select{font-size:17px}
-      .answer-grid{grid-template-columns:repeat(2,1fr)}
-      .tool-grid{grid-template-columns:1fr}
-      .wb-head,.wb-row{grid-template-columns:1.2fr .8fr .8fr .9fr;font-size:13px}
-      .timer-display{font-size:36px}
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    button{
+      background:#2563eb;
+      color:#fff;
+      border:none;
+      border-radius:10px;
+      padding:10px 14px;
+      cursor:pointer;
+    }
+    button:hover{
+      background:#1d4ed8;
+    }
+    button.secondary{
+      background:#334155;
+    }
+    button.secondary:hover{
+      background:#475569;
+    }
+    textarea{
+      min-height:160px;
+      resize:vertical;
+    }
+    .converter-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+    .converter-grid .row{
+      grid-template-columns:1fr;
+      margin-bottom:0;
+    }
+    .timer-box{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .timer-display{
+      font-size:36px;
+      font-weight:700;
+      letter-spacing:1px;
+    }
+    @media (max-width:700px){
+      .row{
+        grid-template-columns:1fr;
+      }
+      .unit{
+        text-align:left;
+      }
+      .converter-grid{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="bg bg-menu" id="bgLayer"></div>
+<div class="app">
+  <h1>Aviation Pro — Logic Fixed</h1>
+  <p class="muted">Single-file HTML+CSS+JS version with corrected validation, safer calculations, manual notes control, and centralized logic handling.</p>
 
-  <div class="app">
-    <div class="phone">
-      <header class="topbar">
-        <div class="back" id="backBtn" style="visibility:hidden">
-          <span class="chev"></span>
-          <span data-i18n="back">Back</span>
+  <div class="grid">
+
+    <section class="card">
+      <h2>Fuel</h2>
+      <div class="row">
+        <label for="fuelType">Fuel Type</label>
+        <select id="fuelType">
+          <option value="jeta1">Jet A-1</option>
+          <option value="jeta">Jet A</option>
+          <option value="avgas">Avgas</option>
+        </select>
+        <div class="unit"></div>
+      </div>
+      <div class="row">
+        <label for="fuelVol">Volume</label>
+        <input id="fuelVol" type="number" step="any" />
+        <div class="unit">L</div>
+      </div>
+      <div class="row">
+        <label for="fuelTemp">Fuel Temperature</label>
+        <input id="fuelTemp" type="number" step="any" />
+        <div class="unit">°C</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>Mass</span><b id="fuelMass">-</b></div>
+        <div class="res"><span>Mass</span><b id="fuelLbs">-</b></div>
+        <div class="res"><span>US Gallons</span><b id="fuelUsg">-</b></div>
+        <div class="res"><span>Imp Gallons</span><b id="fuelImp">-</b></div>
+      </div>
+      <div class="status" id="fuelStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Operating Cost</h2>
+      <div class="row">
+        <label for="costFlow">Fuel Flow</label>
+        <input id="costFlow" type="number" step="any" />
+        <div class="unit">L/h</div>
+      </div>
+      <div class="row">
+        <label for="costPrice">Price</label>
+        <input id="costPrice" type="number" step="any" />
+        <div class="unit">/L</div>
+      </div>
+      <div class="row">
+        <label for="costGs">Ground Speed</label>
+        <input id="costGs" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>Cost per Hour</span><b id="costHour">-</b></div>
+        <div class="res"><span>Cost per Minute</span><b id="costMin">-</b></div>
+        <div class="res"><span>Cost per NM</span><b id="costNm">-</b></div>
+        <div class="res"><span>Cost per 100 NM</span><b id="cost100">-</b></div>
+      </div>
+      <div class="status" id="costStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Flight Basic</h2>
+      <div class="row">
+        <label for="flightTas">TAS</label>
+        <input id="flightTas" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="row">
+        <label for="flightDist">Distance</label>
+        <input id="flightDist" type="number" step="any" />
+        <div class="unit">NM</div>
+      </div>
+      <div class="row">
+        <label for="flightCrs">Course</label>
+        <input id="flightCrs" type="number" step="any" />
+        <div class="unit">°</div>
+      </div>
+      <div class="row">
+        <label for="flightWdir">Wind Direction</label>
+        <input id="flightWdir" type="number" step="any" />
+        <div class="unit">°</div>
+      </div>
+      <div class="row">
+        <label for="flightWspd">Wind Speed</label>
+        <input id="flightWspd" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>GS</span><b id="flightGs">-</b></div>
+        <div class="res"><span>ETE</span><b id="flightEte">-</b></div>
+        <div class="res"><span>WCA</span><b id="flightWca">-</b></div>
+        <div class="res"><span>Heading</span><b id="flightHdg">-</b></div>
+      </div>
+      <div class="status" id="flightStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Fuel Required</h2>
+      <div class="row">
+        <label for="freqGs">GS</label>
+        <input id="freqGs" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="row">
+        <label for="freqDist">Distance</label>
+        <input id="freqDist" type="number" step="any" />
+        <div class="unit">NM</div>
+      </div>
+      <div class="row">
+        <label for="freqFlow">Fuel Flow</label>
+        <input id="freqFlow" type="number" step="any" />
+        <div class="unit">L/h</div>
+      </div>
+      <div class="row">
+        <label for="freqRes">Reserve</label>
+        <input id="freqRes" type="number" step="any" />
+        <div class="unit">L</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>Trip Fuel</span><b id="freqTrip">-</b></div>
+        <div class="res"><span>Reserve</span><b id="freqResOut">-</b></div>
+        <div class="res"><span>Total Fuel</span><b id="freqTotal">-</b></div>
+        <div class="res"><span>Flight Time</span><b id="freqTime">-</b></div>
+      </div>
+      <div class="status" id="freqStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Endurance</h2>
+      <div class="row">
+        <label for="endFuel">Usable Fuel</label>
+        <input id="endFuel" type="number" step="any" />
+        <div class="unit">L</div>
+      </div>
+      <div class="row">
+        <label for="endFlow">Fuel Flow</label>
+        <input id="endFlow" type="number" step="any" />
+        <div class="unit">L/h</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>Endurance</span><b id="endTime">-</b></div>
+        <div class="res"><span>Decimal</span><b id="endDecimal">-</b></div>
+      </div>
+      <div class="status" id="endStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Density Altitude</h2>
+      <div class="row">
+        <label for="atmoElev">Elevation</label>
+        <input id="atmoElev" type="number" step="any" />
+        <div class="unit">ft</div>
+      </div>
+      <div class="row">
+        <label for="atmoOat">OAT</label>
+        <input id="atmoOat" type="number" step="any" />
+        <div class="unit">°C</div>
+      </div>
+      <div class="row">
+        <label for="atmoQnh">QNH</label>
+        <input id="atmoQnh" type="number" step="any" />
+        <div class="unit">hPa</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>Pressure Altitude</span><b id="atmoPa">-</b></div>
+        <div class="res"><span>ISA Temp</span><b id="atmoIsa">-</b></div>
+        <div class="res"><span>ISA Deviation</span><b id="atmoDev">-</b></div>
+        <div class="res"><span>Density Altitude</span><b id="atmoDa">-</b></div>
+      </div>
+      <div class="status" id="atmoStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>QNH Converter</h2>
+      <div class="row">
+        <label for="qnhHpa">QNH</label>
+        <input id="qnhHpa" type="number" step="any" />
+        <div class="unit">hPa</div>
+      </div>
+      <div class="row">
+        <label for="qnhInhg">QNH</label>
+        <input id="qnhInhg" type="number" step="any" />
+        <div class="unit">inHg</div>
+      </div>
+      <div class="row">
+        <label for="qnhMmhg">QNH</label>
+        <input id="qnhMmhg" type="number" step="any" />
+        <div class="unit">mmHg</div>
+      </div>
+      <div class="status" id="qnhStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>TAS Approx</h2>
+      <div class="row">
+        <label for="tasIas">IAS</label>
+        <input id="tasIas" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="row">
+        <label for="tasAlt">Altitude</label>
+        <input id="tasAlt" type="number" step="any" />
+        <div class="unit">ft</div>
+      </div>
+      <div class="row">
+        <label for="tasOat">OAT</label>
+        <input id="tasOat" type="number" step="any" />
+        <div class="unit">°C</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>TAS Approx</span><b id="tasOut">-</b></div>
+        <div class="res"><span>Note</span><b id="tasNote">-</b></div>
+      </div>
+      <div class="status" id="tasStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Wind Components</h2>
+      <div class="row">
+        <label for="windRwy">Runway Heading</label>
+        <input id="windRwy" type="number" step="any" />
+        <div class="unit">°</div>
+      </div>
+      <div class="row">
+        <label for="windDir">Wind Direction</label>
+        <input id="windDir" type="number" step="any" />
+        <div class="unit">°</div>
+      </div>
+      <div class="row">
+        <label for="windSpd">Wind Speed</label>
+        <input id="windSpd" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>Crosswind</span><b id="windCross">-</b></div>
+        <div class="res"><span>Headwind</span><b id="windHead">-</b></div>
+        <div class="res"><span>Tailwind</span><b id="windTail">-</b></div>
+      </div>
+      <div class="status" id="windStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Weight & Balance</h2>
+      <div class="row"><label for="wbEmptyWt">Empty Weight</label><input id="wbEmptyWt" type="number" step="any"><div class="unit">kg</div></div>
+      <div class="row"><label for="wbEmptyArm">Empty Arm</label><input id="wbEmptyArm" type="number" step="any"><div class="unit">mm</div></div>
+
+      <div class="row"><label for="wbCrewWt">Crew Weight</label><input id="wbCrewWt" type="number" step="any"><div class="unit">kg</div></div>
+      <div class="row"><label for="wbCrewArm">Crew Arm</label><input id="wbCrewArm" type="number" step="any"><div class="unit">mm</div></div>
+
+      <div class="row"><label for="wbPaxWt">Pax Weight</label><input id="wbPaxWt" type="number" step="any"><div class="unit">kg</div></div>
+      <div class="row"><label for="wbPaxArm">Pax Arm</label><input id="wbPaxArm" type="number" step="any"><div class="unit">mm</div></div>
+
+      <div class="row"><label for="wbFuelWt">Fuel Weight</label><input id="wbFuelWt" type="number" step="any"><div class="unit">kg</div></div>
+      <div class="row"><label for="wbFuelArm">Fuel Arm</label><input id="wbFuelArm" type="number" step="any"><div class="unit">mm</div></div>
+
+      <div class="row"><label for="wbCargoWt">Cargo Weight</label><input id="wbCargoWt" type="number" step="any"><div class="unit">kg</div></div>
+      <div class="row"><label for="wbCargoArm">Cargo Arm</label><input id="wbCargoArm" type="number" step="any"><div class="unit">mm</div></div>
+
+      <div class="results">
+        <div class="res"><span>Total Weight</span><b id="wbTotal">-</b></div>
+        <div class="res"><span>Total Moment</span><b id="wbTotalMom">-</b></div>
+        <div class="res"><span>CG</span><b id="wbCg">-</b></div>
+      </div>
+      <div class="status" id="wbStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Top of Descent</h2>
+      <div class="row">
+        <label for="todCruise">Cruise Altitude</label>
+        <input id="todCruise" type="number" step="any" />
+        <div class="unit">ft</div>
+      </div>
+      <div class="row">
+        <label for="todTarget">Target Altitude</label>
+        <input id="todTarget" type="number" step="any" />
+        <div class="unit">ft</div>
+      </div>
+      <div class="row">
+        <label for="todGs">GS</label>
+        <input id="todGs" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="row">
+        <label for="todAngle">Descent Angle</label>
+        <input id="todAngle" type="number" step="any" />
+        <div class="unit">°</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>Distance to TOD</span><b id="todDist">-</b></div>
+        <div class="res"><span>Required VS</span><b id="todVs">-</b></div>
+      </div>
+      <div class="status" id="todStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Point of No Return</h2>
+      <div class="row">
+        <label for="pnrFuel">Total Fuel</label>
+        <input id="pnrFuel" type="number" step="any" />
+        <div class="unit">L</div>
+      </div>
+      <div class="row">
+        <label for="pnrRes">Reserve</label>
+        <input id="pnrRes" type="number" step="any" />
+        <div class="unit">L</div>
+      </div>
+      <div class="row">
+        <label for="pnrFlowOut">Flow Out</label>
+        <input id="pnrFlowOut" type="number" step="any" />
+        <div class="unit">L/h</div>
+      </div>
+      <div class="row">
+        <label for="pnrFlowBack">Flow Back</label>
+        <input id="pnrFlowBack" type="number" step="any" />
+        <div class="unit">L/h</div>
+      </div>
+      <div class="row">
+        <label for="pnrGsOut">GS Out</label>
+        <input id="pnrGsOut" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="row">
+        <label for="pnrGsBack">GS Back</label>
+        <input id="pnrGsBack" type="number" step="any" />
+        <div class="unit">kt</div>
+      </div>
+      <div class="results">
+        <div class="res"><span>Distance to PNR</span><b id="pnrDist">-</b></div>
+        <div class="res"><span>Time to PNR</span><b id="pnrTime">-</b></div>
+      </div>
+      <div class="status" id="pnrStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Converters</h2>
+      <div class="converter-grid">
+        <div>
+          <h3>Speed</h3>
+          <div class="row"><input id="convKt" type="number" step="any" placeholder="KT"></div>
+          <div class="row"><input id="convKmh" type="number" step="any" placeholder="KM/H"></div>
+          <div class="row"><input id="convMph" type="number" step="any" placeholder="MPH"></div>
+          <div class="row"><input id="convMs" type="number" step="any" placeholder="M/S"></div>
         </div>
-        <div class="title" id="topTitle">Aviation Pro</div>
-        <div class="right">
-          <button class="lang-btn" id="langBtn">EN</button>
-          <span id="clockDisplay">00:00Z</span>
+        <div>
+          <h3>Distance</h3>
+          <div class="row"><input id="convNm" type="number" step="any" placeholder="NM"></div>
+          <div class="row"><input id="convKm" type="number" step="any" placeholder="KM"></div>
+          <div class="row"><input id="convMi" type="number" step="any" placeholder="MI"></div>
+          <div class="row"><input id="convFt" type="number" step="any" placeholder="FT"></div>
         </div>
-      </header>
-
-      <section class="screen active" id="screen-menu">
-        <div class="hero">
-          <h1 data-i18n="appTitle">Aviation Pro</h1>
-          <p data-i18n="appDesc">Advanced aviation tools for real flight operations</p>
+        <div>
+          <h3>Volume</h3>
+          <div class="row"><input id="convL" type="number" step="any" placeholder="L"></div>
+          <div class="row"><input id="convUsg" type="number" step="any" placeholder="USG"></div>
+          <div class="row"><input id="convImpg" type="number" step="any" placeholder="IMPG"></div>
         </div>
-
-        <div class="group">
-          <div class="group-label" data-i18n="calculators">Calculators</div>
-          <div class="list">
-            <button class="item" data-screen="fuel">
-              <div class="icon-wrap icon-fuel">
-                <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg>
-              </div>
-              <div class="item-text">
-                <div class="item-title" data-i18n="fuelCalc">Fuel Calculator</div>
-                <div class="item-sub" data-i18n="fuelDesc">Mass, volume, temperature correction</div>
-              </div>
-              <div class="item-arrow"></div>
-            </button>
-
-            <button class="item" data-screen="cost">
-              <div class="icon-wrap icon-cost">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9h6M9 15h6"/></svg>
-              </div>
-              <div class="item-text">
-                <div class="item-title" data-i18n="costCalc">Cost Calculator</div>
-                <div class="item-sub" data-i18n="costDesc">Per hour, per NM, per 100 NM</div>
-              </div>
-              <div class="item-arrow"></div>
-            </button>
-
-            <button class="item" data-screen="flight">
-              <div class="icon-wrap icon-flight">
-                <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
-              </div>
-              <div class="item-text">
-                <div class="item-title" data-i18n="flightCalc">Flight Planning</div>
-                <div class="item-sub" data-i18n="flightDesc">GS, ETE, wind correction, fuel required</div>
-              </div>
-              <div class="item-arrow"></div>
-            </button>
-
-            <button class="item" data-screen="atmo">
-              <div class="icon-wrap icon-atmo">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v6M12 17v6"/></svg>
-              </div>
-              <div class="item-text">
-                <div class="item-title" data-i18n="atmoCalc">Atmosphere</div>
-                <div class="item-sub" data-i18n="atmoDesc">Density altitude, QNH, TAS</div>
-              </div>
-              <div class="item-arrow"></div>
-            </button>
-
-            <button class="item" data-screen="safety">
-              <div class="icon-wrap icon-safety">
-                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </div>
-              <div class="item-text">
-                <div class="item-title" data-i18n="safetyCalc">Safety</div>
-                <div class="item-sub" data-i18n="safetyDesc">Wind, W&B, TOD, PNR</div>
-              </div>
-              <div class="item-arrow"></div>
-            </button>
-
-            <button class="item" data-screen="tools">
-              <div class="icon-wrap icon-tools">
-                <svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/><path d="M9 5l-2 2 2 2M15 19l2-2-2-2"/></svg>
-              </div>
-              <div class="item-text">
-                <div class="item-title" data-i18n="convCalc">Converters</div>
-                <div class="item-sub" data-i18n="convDesc">Speed, distance, volume, mass, temp</div>
-              </div>
-              <div class="item-arrow"></div>
-            </button>
-
-            <button class="item" data-screen="system">
-              <div class="icon-wrap icon-system">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M1 12h6M17 12h6"/></svg>
-              </div>
-              <div class="item-text">
-                <div class="item-title" data-i18n="sysCalc">System</div>
-                <div class="item-sub" data-i18n="sysDesc">Timer, notes</div>
-              </div>
-              <div class="item-arrow"></div>
-            </button>
-          </div>
+        <div>
+          <h3>Mass</h3>
+          <div class="row"><input id="convKg" type="number" step="any" placeholder="KG"></div>
+          <div class="row"><input id="convLbs" type="number" step="any" placeholder="LBS"></div>
         </div>
-      </section>
-
-      <section class="screen" id="screen-fuel">
-        <div class="calc-shell">
-          <div class="section-title" data-i18n="fuelType">Fuel Type</div>
-          <div class="field-list">
-            <div class="field-row">
-              <div class="field-label" data-i18n="type">Type</div>
-              <select class="field-select" id="fuelType">
-                <option value="jeta1">Jet A-1 (0.800)</option>
-                <option value="jeta">Jet A (0.804)</option>
-                <option value="avgas">Avgas 100LL (0.721)</option>
-              </select>
-              <div class="field-unit"></div>
-            </div>
-          </div>
-
-          <div class="section-title" data-i18n="input">Input</div>
-          <div class="field-list">
-            <div class="field-row">
-              <div class="field-label" data-i18n="volume">Volume</div>
-              <input class="field-value" id="fuelVol" type="number" placeholder="0" />
-              <div class="field-unit">L</div>
-            </div>
-            <div class="field-row">
-              <div class="field-label" data-i18n="temperature">Temperature</div>
-              <input class="field-value" id="fuelTemp" type="number" value="15" />
-              <div class="field-unit">°C</div>
-            </div>
-          </div>
-
-          <div class="section-title" data-i18n="result">Result</div>
-          <div class="answer">
-            <div class="answer-label" data-i18n="fuelMass">Fuel Mass</div>
-            <div class="answer-value"><span id="fuelMass">-</span> KG</div>
-            <div class="answer-grid">
-              <div class="answer-item"><div class="answer-item-label">LBS</div><div class="answer-item-value" id="fuelLbs">-</div></div>
-              <div class="answer-item"><div class="answer-item-label">US GAL</div><div class="answer-item-value" id="fuelUsg">-</div></div>
-              <div class="answer-item"><div class="answer-item-label">IMP GAL</div><div class="answer-item-value" id="fuelImp">-</div></div>
-            </div>
-          </div>
+        <div>
+          <h3>Temperature</h3>
+          <div class="row"><input id="convC" type="number" step="any" placeholder="°C"></div>
+          <div class="row"><input id="convF" type="number" step="any" placeholder="°F"></div>
+          <div class="row"><input id="convK" type="number" step="any" placeholder="K"></div>
         </div>
-      </section>
+      </div>
+      <div class="status" id="convStatus"></div>
+    </section>
 
-      <section class="screen" id="screen-cost">
-        <div class="calc-shell">
-          <div class="section-title" data-i18n="input">Input</div>
-          <div class="field-list">
-            <div class="field-row">
-              <div class="field-label" data-i18n="currency">Currency</div>
-              <select class="field-select" id="costCurrency">
-                <option value="USD">USD ($)</option>
-                <option value="AED">AED (د.إ)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="RUB">RUB (₽)</option>
-                <option value="INR">INR (₹)</option>
-                <option value="PHP">PHP (₱)</option>
-              </select>
-              <div class="field-unit"></div>
-            </div>
-            <div class="field-row">
-              <div class="field-label" data-i18n="fuelFlow">Fuel Flow</div>
-              <input class="field-value" id="costFlow" type="number" placeholder="0" />
-              <div class="field-unit">L/H</div>
-            </div>
-            <div class="field-row">
-              <div class="field-label" data-i18n="priceL">Price/Liter</div>
-              <input class="field-value" id="costPrice" type="number" placeholder="0.00" step="0.01" />
-              <div class="field-unit" id="costPriceUnit">$</div>
-            </div>
-            <div class="field-row">
-              <div class="field-label" data-i18n="groundSpeed">Ground Speed</div>
-              <input class="field-value" id="costGs" type="number" placeholder="0" />
-              <div class="field-unit">KT</div>
-            </div>
-          </div>
-
-          <div class="section-title" data-i18n="result">Result</div>
-          <div class="answer">
-            <div class="answer-label" data-i18n="costPerHour">Cost per Hour</div>
-            <div class="answer-value"><span id="costSymbol">$</span><span id="costHour">-</span></div>
-            <div class="answer-grid">
-              <div class="answer-item"><div class="answer-item-label" data-i18n="perMin">Per Min</div><div class="answer-item-value" id="costMin">-</div></div>
-              <div class="answer-item"><div class="answer-item-label" data-i18n="perNM">Per NM</div><div class="answer-item-value" id="costNm">-</div></div>
-              <div class="answer-item"><div class="answer-item-label" data-i18n="per100">Per 100 NM</div><div class="answer-item-value" id="cost100">-</div></div>
-            </div>
-          </div>
+    <section class="card">
+      <h2>Timer</h2>
+      <div class="timer-box">
+        <div class="timer-display" id="timerDisplay">00:00:00</div>
+        <div class="toolbar">
+          <button id="timerToggle">Start</button>
+          <button id="timerReset" class="secondary">Reset</button>
         </div>
-      </section>
-            <section class="screen" id="screen-flight">
-        <div class="calc-shell">
-          <div class="tabs-row">
-            <button class="tab-btn active" data-tab="basic" data-i18n="basic">Basic</button>
-            <button class="tab-btn" data-tab="fuelreq" data-i18n="fuelReq">Fuel Req</button>
-            <button class="tab-btn" data-tab="endur" data-i18n="endurance">Endurance</button>
-          </div>
+      </div>
+    </section>
 
-          <div class="tab-content active" id="tab-basic">
-            <div class="section-title" data-i18n="input">Input</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">TAS</div><input class="field-value" id="flightTas" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="distance">Distance</div><input class="field-value" id="flightDist" type="number" placeholder="0"><div class="field-unit">NM</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="course">Course</div><input class="field-value" id="flightCrs" type="number" placeholder="0"><div class="field-unit">°</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="windFrom">Wind From</div><input class="field-value" id="flightWdir" type="number" placeholder="0"><div class="field-unit">°</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="windSpeed">Wind Speed</div><input class="field-value" id="flightWspd" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" data-i18n="groundSpeed">Ground Speed</div>
-              <div class="answer-value"><span id="flightGs">-</span> KT</div>
-              <div class="answer-grid">
-                <div class="answer-item"><div class="answer-item-label">ETE</div><div class="answer-item-value" id="flightEte">-</div></div>
-                <div class="answer-item"><div class="answer-item-label">WCA</div><div class="answer-item-value" id="flightWca">-</div></div>
-                <div class="answer-item"><div class="answer-item-label">HDG</div><div class="answer-item-value" id="flightHdg">-</div></div>
-              </div>
-            </div>
-          </div>
+    <section class="card">
+      <h2>Notes</h2>
+      <textarea id="notesBox" placeholder="Flight notes..."></textarea>
+      <div class="toolbar">
+        <button id="notesSave">Save</button>
+        <button id="notesCopy" class="secondary">Copy</button>
+        <button id="notesClear" class="secondary">Clear</button>
+      </div>
+      <div class="status" id="notesStatus"></div>
+    </section>
 
-          <div class="tab-content" id="tab-fuelreq">
-            <div class="section-title" data-i18n="input">Input</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label" data-i18n="groundSpeed">Ground Speed</div><input class="field-value" id="freqGs" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="distance">Distance</div><input class="field-value" id="freqDist" type="number" placeholder="0"><div class="field-unit">NM</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="fuelFlow">Fuel Flow</div><input class="field-value" id="freqFlow" type="number" placeholder="0"><div class="field-unit">L/H</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="reserve">Reserve</div><input class="field-value" id="freqRes" type="number" placeholder="0"><div class="field-unit">L</div></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" data-i18n="tripFuel">Trip Fuel</div>
-              <div class="answer-value"><span id="freqTrip">-</span> L</div>
-              <div class="answer-grid">
-                <div class="answer-item"><div class="answer-item-label">+ Reserve</div><div class="answer-item-value" id="freqResOut">-</div></div>
-                <div class="answer-item"><div class="answer-item-label" data-i18n="total">Total</div><div class="answer-item-value" id="freqTotal">-</div></div>
-                <div class="answer-item"><div class="answer-item-label" data-i18n="time">Time</div><div class="answer-item-value" id="freqTime">-</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-endur">
-            <div class="section-title" data-i18n="input">Input</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label" data-i18n="fuelAvail">Fuel Available</div><input class="field-value" id="endFuel" type="number" placeholder="0"><div class="field-unit">L</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="fuelFlow">Fuel Flow</div><input class="field-value" id="endFlow" type="number" placeholder="0"><div class="field-unit">L/H</div></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" data-i18n="endurance">Endurance</div>
-              <div class="answer-value" id="endTime">-</div>
-              <div class="answer-sub" id="endDecimal">-</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="screen" id="screen-atmo">
-        <div class="calc-shell">
-          <div class="tabs-row">
-            <button class="tab-btn active" data-tab="da" data-i18n="densityAlt">Density Alt</button>
-            <button class="tab-btn" data-tab="qnh">QNH</button>
-            <button class="tab-btn" data-tab="tas">TAS</button>
-          </div>
-
-          <div class="tab-content active" id="tab-da">
-            <div class="section-title" data-i18n="input">Input</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label" data-i18n="elevation">Elevation</div><input class="field-value" id="atmoElev" type="number" placeholder="0"><div class="field-unit">FT</div></div>
-              <div class="field-row"><div class="field-label">OAT</div><input class="field-value" id="atmoOat" type="number" value="15"><div class="field-unit">°C</div></div>
-              <div class="field-row"><div class="field-label">QNH</div><input class="field-value" id="atmoQnh" type="number" value="1013.25" step="0.01"><div class="field-unit">hPa</div></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" data-i18n="densityAltitude">Density Altitude</div>
-              <div class="answer-value"><span id="atmoDa">-</span> FT</div>
-              <div class="answer-grid">
-                <div class="answer-item"><div class="answer-item-label">Press Alt</div><div class="answer-item-value" id="atmoPa">-</div></div>
-                <div class="answer-item"><div class="answer-item-label">ISA Temp</div><div class="answer-item-value" id="atmoIsa">-</div></div>
-                <div class="answer-item"><div class="answer-item-label">ISA Dev</div><div class="answer-item-value" id="atmoDev">-</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-qnh">
-            <div class="section-title" data-i18n="qnhConv">QNH Converter</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">hPa</div><input class="field-value" id="qnhHpa" type="number" placeholder="1013.25" step="0.01"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">inHg</div><input class="field-value" id="qnhInhg" type="number" placeholder="29.92" step="0.01"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">mmHg</div><input class="field-value" id="qnhMmhg" type="number" placeholder="760" step="0.1"><div class="field-unit"></div></div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-tas">
-            <div class="section-title" data-i18n="input">Input</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">IAS/CAS</div><input class="field-value" id="tasIas" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label">Press Alt</div><input class="field-value" id="tasAlt" type="number" placeholder="0"><div class="field-unit">FT</div></div>
-              <div class="field-row"><div class="field-label">OAT</div><input class="field-value" id="tasOat" type="number" placeholder="0"><div class="field-unit">°C</div></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" data-i18n="trueAirspeed">True Airspeed</div>
-              <div class="answer-value"><span id="tasVal">-</span> KT</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="screen" id="screen-safety">
-        <div class="calc-shell">
-          <div class="tabs-row">
-            <button class="tab-btn active" data-tab="wind" data-i18n="wind">Wind</button>
-            <button class="tab-btn" data-tab="wb">W&B</button>
-            <button class="tab-btn" data-tab="tod">TOD</button>
-            <button class="tab-btn" data-tab="pnr">PNR</button>
-          </div>
-
-          <div class="tab-content active" id="tab-wind">
-            <div class="section-title" data-i18n="input">Input</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label" data-i18n="runwayHdg">Runway Hdg</div><input class="field-value" id="windRwy" type="number" placeholder="360"><div class="field-unit">°</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="windFrom">Wind From</div><input class="field-value" id="windDir" type="number" placeholder="0"><div class="field-unit">°</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="windSpeed">Wind Speed</div><input class="field-value" id="windSpd" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-            </div>
-            <div class="wind-compass">
-              <div class="compass-runway" id="compassRwy"></div>
-              <div class="compass-wind" id="compassWind"></div>
-              <div class="compass-center"></div>
-              <div class="compass-labels"><span class="n">N</span><span class="s">S</span><span class="e">E</span><span class="w">W</span></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" id="windLabel" data-i18n="headwind">Headwind</div>
-              <div class="answer-value"><span id="windHead">-</span> KT</div>
-              <div class="answer-sub"><span data-i18n="crosswind">Crosswind</span>: <span id="windCross">-</span> KT</div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-wb">
-            <div class="section-title" data-i18n="weightBalance">Weight & Balance</div>
-            <div class="wb-table">
-              <div class="wb-head">
-                <div data-i18n="item">Item</div>
-                <div data-i18n="weight">Weight</div>
-                <div data-i18n="arm">Arm</div>
-                <div data-i18n="moment">Moment</div>
-              </div>
-              <div class="wb-row"><div data-i18n="emptyWt">Empty Wt</div><input class="wb-weight" id="wbEmpty" type="number" placeholder="0"><input class="wb-arm" id="wbEmptyArm" type="number" placeholder="0"><div class="wb-moment" id="wbEmptyMom">-</div></div>
-              <div class="wb-row"><div data-i18n="crew">Crew</div><input class="wb-weight" id="wbCrew" type="number" placeholder="0"><input class="wb-arm" id="wbCrewArm" type="number" placeholder="0"><div class="wb-moment" id="wbCrewMom">-</div></div>
-              <div class="wb-row"><div data-i18n="pax">Pax</div><input class="wb-weight" id="wbPax" type="number" placeholder="0"><input class="wb-arm" id="wbPaxArm" type="number" placeholder="0"><div class="wb-moment" id="wbPaxMom">-</div></div>
-              <div class="wb-row"><div data-i18n="fuel">Fuel</div><input class="wb-weight" id="wbFuel" type="number" placeholder="0"><input class="wb-arm" id="wbFuelArm" type="number" placeholder="0"><div class="wb-moment" id="wbFuelMom">-</div></div>
-              <div class="wb-row"><div data-i18n="cargo">Cargo</div><input class="wb-weight" id="wbCargo" type="number" placeholder="0"><input class="wb-arm" id="wbCargoArm" type="number" placeholder="0"><div class="wb-moment" id="wbCargoMom">-</div></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" data-i18n="totalWeight">Total Weight</div>
-              <div class="answer-value"><span id="wbTotal">-</span> KG</div>
-              <div class="answer-sub">CG: <span id="wbCg">-</span> mm | <span data-i18n="moment">Moment</span>: <span id="wbTotalMom">-</span></div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-tod">
-            <div class="section-title" data-i18n="topOfDescent">Top of Descent</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label" data-i18n="cruiseAlt">Cruise Alt</div><input class="field-value" id="todCruise" type="number" placeholder="35000"><div class="field-unit">FT</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="targetAlt">Target Alt</div><input class="field-value" id="todTarget" type="number" placeholder="3000"><div class="field-unit">FT</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="groundSpeed">Ground Spd</div><input class="field-value" id="todGs" type="number" placeholder="450"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="descentAngle">Angle</div><input class="field-value" id="todAngle" type="number" value="3" step="0.1"><div class="field-unit">°</div></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" data-i18n="distToTOD">Distance to TOD</div>
-              <div class="answer-value"><span id="todDist">-</span> NM</div>
-              <div class="answer-sub">V/S: <span id="todVs">-</span> fpm</div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-pnr">
-            <div class="section-title" data-i18n="pointNoReturn">Point of No Return</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label" data-i18n="totalFuel">Total Fuel</div><input class="field-value" id="pnrFuel" type="number" placeholder="0"><div class="field-unit">L</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="reserve">Reserve</div><input class="field-value" id="pnrRes" type="number" placeholder="0"><div class="field-unit">L</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="flowOut">Flow Out</div><input class="field-value" id="pnrFlowOut" type="number" placeholder="0"><div class="field-unit">L/H</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="flowBack">Flow Back</div><input class="field-value" id="pnrFlowBack" type="number" placeholder="0"><div class="field-unit">L/H</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="gsOut">GS Out</div><input class="field-value" id="pnrGsOut" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label" data-i18n="gsBack">GS Back</div><input class="field-value" id="pnrGsBack" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-            </div>
-            <div class="section-title" data-i18n="result">Result</div>
-            <div class="answer">
-              <div class="answer-label" data-i18n="pnrDist">PNR Distance</div>
-              <div class="answer-value"><span id="pnrDist">-</span> NM</div>
-              <div class="answer-sub"><span data-i18n="timeToPNR">Time to PNR</span>: <span id="pnrTime">-</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="screen" id="screen-tools">
-        <div class="calc-shell">
-          <div class="tabs-row">
-            <button class="tab-btn active" data-tab="speed" data-i18n="speed">Speed</button>
-            <button class="tab-btn" data-tab="dist" data-i18n="distance">Distance</button>
-            <button class="tab-btn" data-tab="vol" data-i18n="volume">Volume</button>
-            <button class="tab-btn" data-tab="mass" data-i18n="mass">Mass</button>
-            <button class="tab-btn" data-tab="temp" data-i18n="temp">Temp</button>
-          </div>
-
-          <div class="tab-content active" id="tab-speed">
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">Knots</div><input class="field-value" id="convKt" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label">KM/H</div><input class="field-value" id="convKmh" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">MPH</div><input class="field-value" id="convMph" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">M/S</div><input class="field-value" id="convMs" type="number" placeholder="0"><div class="field-unit"></div></div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-dist">
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">NM</div><input class="field-value" id="convNm" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">KM</div><input class="field-value" id="convKm" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Miles</div><input class="field-value" id="convMi" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Feet</div><input class="field-value" id="convFt" type="number" placeholder="0"><div class="field-unit"></div></div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-vol">
-            <div class="field-list">
-              <div class="field-row"><div class="field-label" data-i18n="liters">Liters</div><input class="field-value" id="convL" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">US Gallons</div><input class="field-value" id="convUsg" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Imp Gallons</div><input class="field-value" id="convImpg" type="number" placeholder="0"><div class="field-unit"></div></div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-mass">
-            <div class="field-list">
-              <div class="field-row"><div class="field-label" data-i18n="kilograms">Kilograms</div><input class="field-value" id="convKg" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label" data-i18n="pounds">Pounds</div><input class="field-value" id="convLbs" type="number" placeholder="0"><div class="field-unit"></div></div>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-temp">
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">Celsius</div><input class="field-value" id="convC" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Fahrenheit</div><input class="field-value" id="convF" type="number" placeholder="32"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Kelvin</div><input class="field-value" id="convK" type="number" placeholder="273.15"><div class="field-unit"></div></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="screen" id="screen-system">
-        <div class="calc-shell">
-          <div class="tabs-row">
-            <button class="tab-btn active" data-tab="timer" data-i18n="timer">Timer</button>
-            <button class="tab-btn" data-tab="notes" data-i18n="notes">Notes</button>
-          </div>
-
-          <div class="tab-content active" id="tab-timer">
-            <div class="timer-display" id="timerDisplay">00:00:00</div>
-            <div class="timer-btns">
-              <button class="timer-btn start" id="timerToggle" data-i18n="start">START</button>
-              <button class="timer-btn reset" id="timerReset" data-i18n="reset">RESET</button>
-            </div>
-          </div>
-
-          <div class="tab-content" id="tab-notes">
-            <textarea class="notes-box" id="notesArea" data-i18n-placeholder="notesPlaceholder" placeholder="Flight notes..."></textarea>
-            <div class="notes-actions">
-              <button class="notes-btn" id="notesExport" data-i18n="export">Export</button>
-              <button class="notes-btn danger" id="notesClear" data-i18n="clear">Clear</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <nav class="tabbar">
-        <button class="tab active" data-screen="menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span data-i18n="menu">Menu</span><div class="dot"></div></button>
-        <button class="tab" data-screen="fuel"><svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg><span data-i18n="fuel">Fuel</span><div class="dot"></div></button>
-        <button class="tab" data-screen="flight"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg><span data-i18n="flight">Flight</span><div class="dot"></div></button>
-        <button class="tab" data-screen="safety"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span data-i18n="safety">Safety</span><div class="dot"></div></button>
-        <button class="tab" data-screen="tools"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/></svg><span data-i18n="tools">Tools</span><div class="dot"></div></button>
-      </nav>
-    </div>
   </div>
-  <script>
+</div>
+
+<script>
 (function(){
-var $=function(s){return document.querySelector(s)};
-var $$=function(s){return[].slice.call(document.querySelectorAll(s))};
-var num=function(v){var n=parseFloat(v);return isFinite(n)?n:null};
-var fmtTime=function(h){if(h===null||h<0)return'-';var hr=Math.floor(h),mn=Math.round((h-hr)*60);if(mn===60){hr++;mn=0}return String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0')};
-var degRad=function(d){return d*Math.PI/180};
+  'use strict';
 
-var LANGS=['en','ru','ar','fil','hi'];
-var currentLang='en';
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
 
-var i18n={
-  en:{
-    back:'Back',appTitle:'Aviation Pro',appDesc:'Advanced aviation tools for real flight operations',
-    calculators:'Calculators',fuelCalc:'Fuel Calculator',fuelDesc:'Mass, volume, temperature correction',
-    costCalc:'Cost Calculator',costDesc:'Per hour, per NM, per 100 NM',
-    flightCalc:'Flight Planning',flightDesc:'GS, ETE, wind correction, fuel required',
-    atmoCalc:'Atmosphere',atmoDesc:'Density altitude, QNH, TAS',
-    safetyCalc:'Safety',safetyDesc:'Wind, W&B, TOD, PNR',
-    convCalc:'Converters',convDesc:'Speed, distance, volume, mass, temp',
-    sysCalc:'System',sysDesc:'Timer, notes',
-    fuelType:'Fuel Type',type:'Type',input:'Input',volume:'Volume',temperature:'Temperature',result:'Result',fuelMass:'Fuel Mass',
-    currency:'Currency',fuelFlow:'Fuel Flow',priceL:'Price/Liter',groundSpeed:'Ground Speed',costPerHour:'Cost per Hour',perMin:'Per Min',perNM:'Per NM',per100:'Per 100 NM',
-    basic:'Basic',fuelReq:'Fuel Req',endurance:'Endurance',distance:'Distance',course:'Course',windFrom:'Wind From',windSpeed:'Wind Speed',tripFuel:'Trip Fuel',total:'Total',time:'Time',reserve:'Reserve',fuelAvail:'Fuel Available',
-    densityAlt:'Density Alt',elevation:'Elevation',densityAltitude:'Density Altitude',qnhConv:'QNH Converter',trueAirspeed:'True Airspeed',
-    wind:'Wind',runwayHdg:'Runway Hdg',headwind:'Headwind',tailwind:'Tailwind',crosswind:'Crosswind',
-    weightBalance:'Weight & Balance',item:'Item',weight:'Weight',arm:'Arm',moment:'Moment',emptyWt:'Empty Wt',crew:'Crew',pax:'Pax',fuel:'Fuel',cargo:'Cargo',totalWeight:'Total Weight',
-    topOfDescent:'Top of Descent',cruiseAlt:'Cruise Alt',targetAlt:'Target Alt',descentAngle:'Angle',distToTOD:'Distance to TOD',
-    pointNoReturn:'Point of No Return',totalFuel:'Total Fuel',flowOut:'Flow Out',flowBack:'Flow Back',gsOut:'GS Out',gsBack:'GS Back',pnrDist:'PNR Distance',timeToPNR:'Time to PNR',
-    speed:'Speed',mass:'Mass',temp:'Temp',liters:'Liters',kilograms:'Kilograms',pounds:'Pounds',
-    timer:'Timer',notes:'Notes',start:'START',stop:'STOP',reset:'RESET',export:'Export',clear:'Clear',notesPlaceholder:'Flight notes...',
-    menu:'Menu',flight:'Flight',safety:'Safety',tools:'Tools'
-  },
-  ru:{
-    back:'Назад',appTitle:'Aviation Pro',appDesc:'Профессиональные авиационные инструменты для реальных полетов',
-    calculators:'Калькуляторы',fuelCalc:'Расчет топлива',fuelDesc:'Масса, объем, температурная коррекция',
-    costCalc:'Расчет стоимости',costDesc:'За час, за NM, за 100 NM',
-    flightCalc:'Планирование полета',flightDesc:'GS, ETE, поправка на ветер, расход топлива',
-    atmoCalc:'Атмосфера',atmoDesc:'Плотностная высота, QNH, TAS',
-    safetyCalc:'Безопасность',safetyDesc:'Ветер, W&B, TOD, PNR',
-    convCalc:'Конвертеры',convDesc:'Скорость, расстояние, объем, масса, температура',
-    sysCalc:'Система',sysDesc:'Таймер, заметки',
-    fuelType:'Тип топлива',type:'Тип',input:'Ввод',volume:'Объем',temperature:'Температура',result:'Результат',fuelMass:'Масса топлива',
-    currency:'Валюта',fuelFlow:'Расход топлива',priceL:'Цена/Литр',groundSpeed:'Путевая скорость',costPerHour:'Стоимость в час',perMin:'За мин',perNM:'За NM',per100:'За 100 NM',
-    basic:'Основное',fuelReq:'Расход',endurance:'Запас хода',distance:'Расстояние',course:'Курс',windFrom:'Ветер от',windSpeed:'Скорость ветра',tripFuel:'Топливо на полет',total:'Всего',time:'Время',reserve:'Резерв',fuelAvail:'Доступно топлива',
-    densityAlt:'Плотн. высота',elevation:'Высота',densityAltitude:'Плотностная высота',qnhConv:'Конвертер QNH',trueAirspeed:'Истинная скорость',
-    wind:'Ветер',runwayHdg:'Курс ВПП',headwind:'Встречный',tailwind:'Попутный',crosswind:'Боковой',
-    weightBalance:'Вес и балансировка',item:'Позиция',weight:'Вес',arm:'Плечо',moment:'Момент',emptyWt:'Пустой',crew:'Экипаж',pax:'Пассажиры',fuel:'Топливо',cargo:'Груз',totalWeight:'Общий вес',
-    topOfDescent:'Точка снижения',cruiseAlt:'Эшелон',targetAlt:'Целевая высота',descentAngle:'Угол',distToTOD:'Дистанция до TOD',
-    pointNoReturn:'Точка невозврата',totalFuel:'Всего топлива',flowOut:'Расход туда',flowBack:'Расход обратно',gsOut:'GS туда',gsBack:'GS обратно',pnrDist:'Дистанция PNR',timeToPNR:'Время до PNR',
-    speed:'Скорость',mass:'Масса',temp:'Темп',liters:'Литры',kilograms:'Килограммы',pounds:'Фунты',
-    timer:'Таймер',notes:'Заметки',start:'СТАРТ',stop:'СТОП',reset:'СБРОС',export:'Экспорт',clear:'Очистить',notesPlaceholder:'Заметки полета...',
-    menu:'Меню',flight:'Полет',safety:'Безопасн.',tools:'Инструм.'
-  },
-  ar:{
-    back:'رجوع',appTitle:'Aviation Pro',appDesc:'أدوات طيران متقدمة لعمليات الطيران الحقيقية',
-    calculators:'الحاسبات',fuelCalc:'حاسبة الوقود',fuelDesc:'الكتلة والحجم وتصحيح درجة الحرارة',
-    costCalc:'حاسبة التكلفة',costDesc:'لكل ساعة، لكل NM، لكل 100 NM',
-    flightCalc:'تخطيط الرحلة',flightDesc:'GS، ETE، تصحيح الرياح، الوقود المطلوب',
-    atmoCalc:'الغلاف الجوي',atmoDesc:'ارتفاع الكثافة، QNH، TAS',
-    safetyCalc:'السلامة',safetyDesc:'الرياح، W&B، TOD، PNR',
-    convCalc:'المحولات',convDesc:'السرعة والمسافة والحجم والكتلة ودرجة الحرارة',
-    sysCalc:'النظام',sysDesc:'المؤقت، الملاحظات',
-    fuelType:'نوع الوقود',type:'النوع',input:'الإدخال',volume:'الحجم',temperature:'درجة الحرارة',result:'النتيجة',fuelMass:'كتلة الوقود',
-    currency:'العملة',fuelFlow:'تدفق الوقود',priceL:'السعر/لتر',groundSpeed:'السرعة الأرضية',costPerHour:'التكلفة لكل ساعة',perMin:'لكل دقيقة',perNM:'لكل NM',per100:'لكل 100 NM',
-    basic:'أساسي',fuelReq:'الوقود المطلوب',endurance:'المدى',distance:'المسافة',course:'المسار',windFrom:'الرياح من',windSpeed:'سرعة الرياح',tripFuel:'وقود الرحلة',total:'الإجمالي',time:'الوقت',reserve:'الاحتياطي',fuelAvail:'الوقود المتاح',
-    densityAlt:'ارتفاع الكثافة',elevation:'الارتفاع',densityAltitude:'ارتفاع الكثافة',qnhConv:'محول QNH',trueAirspeed:'السرعة الحقيقية',
-    wind:'الرياح',runwayHdg:'اتجاه المدرج',headwind:'رياح أمامية',tailwind:'رياح خلفية',crosswind:'رياح جانبية',
-    weightBalance:'الوزن والتوازن',item:'العنصر',weight:'الوزن',arm:'الذراع',moment:'العزم',emptyWt:'الوزن الفارغ',crew:'الطاقم',pax:'الركاب',fuel:'الوقود',cargo:'البضائع',totalWeight:'الوزن الإجمالي',
-    topOfDescent:'قمة النزول',cruiseAlt:'ارتفاع الرحلة',targetAlt:'الارتفاع المستهدف',descentAngle:'الزاوية',distToTOD:'المسافة إلى TOD',
-    pointNoReturn:'نقطة اللاعودة',totalFuel:'إجمالي الوقود',flowOut:'التدفق للخارج',flowBack:'التدفق للعودة',gsOut:'GS للخارج',gsBack:'GS للعودة',pnrDist:'مسافة PNR',timeToPNR:'الوقت إلى PNR',
-    speed:'السرعة',mass:'الكتلة',temp:'الحرارة',liters:'لترات',kilograms:'كيلوغرام',pounds:'باوند',
-    timer:'المؤقت',notes:'الملاحظات',start:'ابدأ',stop:'توقف',reset:'إعادة',export:'تصدير',clear:'مسح',notesPlaceholder:'ملاحظات الرحلة...',
-    menu:'القائمة',flight:'الرحلة',safety:'السلامة',tools:'الأدوات'
-  },
-  fil:{
-    back:'Bumalik',appTitle:'Aviation Pro',appDesc:'Advanced na aviation tools para sa totoong flight operations',
-    calculators:'Mga Calculator',fuelCalc:'Fuel Calculator',fuelDesc:'Mass, volume, temperature correction',
-    costCalc:'Cost Calculator',costDesc:'Per oras, per NM, per 100 NM',
-    flightCalc:'Flight Planning',flightDesc:'GS, ETE, wind correction, fuel required',
-    atmoCalc:'Atmosphere',atmoDesc:'Density altitude, QNH, TAS',
-    safetyCalc:'Kaligtasan',safetyDesc:'Hangin, W&B, TOD, PNR',
-    convCalc:'Mga Converter',convDesc:'Bilis, distansya, volume, mass, temp',
-    sysCalc:'Sistema',sysDesc:'Timer, mga tala',
-    fuelType:'Uri ng Fuel',type:'Uri',input:'Input',volume:'Volume',temperature:'Temperatura',result:'Resulta',fuelMass:'Fuel Mass',
-    currency:'Pera',fuelFlow:'Fuel Flow',priceL:'Presyo/Litro',groundSpeed:'Ground Speed',costPerHour:'Gastos per Oras',perMin:'Per Min',perNM:'Per NM',per100:'Per 100 NM',
-    basic:'Basic',fuelReq:'Fuel Req',endurance:'Endurance',distance:'Distansya',course:'Kurso',windFrom:'Hangin Mula',windSpeed:'Bilis ng Hangin',tripFuel:'Trip Fuel',total:'Kabuuan',time:'Oras',reserve:'Reserbang',fuelAvail:'Available na Fuel',
-    densityAlt:'Density Alt',elevation:'Elevation',densityAltitude:'Density Altitude',qnhConv:'QNH Converter',trueAirspeed:'True Airspeed',
-    wind:'Hangin',runwayHdg:'Runway Hdg',headwind:'Headwind',tailwind:'Tailwind',crosswind:'Crosswind',
-    weightBalance:'Weight & Balance',item:'Item',weight:'Timbang',arm:'Arm',moment:'Moment',emptyWt:'Empty Wt',crew:'Crew',pax:'Pasahero',fuel:'Fuel',cargo:'Kargamento',totalWeight:'Kabuuang Timbang',
-    topOfDescent:'Top of Descent',cruiseAlt:'Cruise Alt',targetAlt:'Target Alt',descentAngle:'Anggulo',distToTOD:'Distansya sa TOD',
-    pointNoReturn:'Point of No Return',totalFuel:'Kabuuang Fuel',flowOut:'Flow Out',flowBack:'Flow Back',gsOut:'GS Out',gsBack:'GS Back',pnrDist:'PNR Distance',timeToPNR:'Oras sa PNR',
-    speed:'Bilis',mass:'Mass',temp:'Temp',liters:'Litro',kilograms:'Kilogramo',pounds:'Pounds',
-    timer:'Timer',notes:'Mga Tala',start:'SIMULA',stop:'HINTO',reset:'RESET',export:'I-export',clear:'Burahin',notesPlaceholder:'Mga tala sa flight...',
-    menu:'Menu',flight:'Flight',safety:'Safety',tools:'Tools'
-  },
-  hi:{
-    back:'वापस',appTitle:'Aviation Pro',appDesc:'वास्तविक उड़ान संचालन के लिए उन्नत विमानन उपकरण',
-    calculators:'कैलकुलेटर',fuelCalc:'ईंधन कैलकुलेटर',fuelDesc:'द्रव्यमान, मात्रा, तापमान सुधार',
-    costCalc:'लागत कैलकुलेटर',costDesc:'प्रति घंटा, प्रति NM, प्रति 100 NM',
-    flightCalc:'उड़ान योजना',flightDesc:'GS, ETE, हवा सुधार, ईंधन आवश्यक',
-    atmoCalc:'वायुमंडल',atmoDesc:'घनत्व ऊंचाई, QNH, TAS',
-    safetyCalc:'सुरक्षा',safetyDesc:'हवा, W&B, TOD, PNR',
-    convCalc:'कन्वर्टर',convDesc:'गति, दूरी, मात्रा, द्रव्यमान, तापमान',
-    sysCalc:'सिस्टम',sysDesc:'टाइमर, नोट्स',
-    fuelType:'ईंधन प्रकार',type:'प्रकार',input:'इनपुट',volume:'मात्रा',temperature:'तापमान',result:'परिणाम',fuelMass:'ईंधन द्रव्यमान',
-    currency:'मुद्रा',fuelFlow:'ईंधन प्रवाह',priceL:'मूल्य/लीटर',groundSpeed:'भू गति',costPerHour:'प्रति घंटा लागत',perMin:'प्रति मिनट',perNM:'प्रति NM',per100:'प्रति 100 NM',
-    basic:'मूल',fuelReq:'ईंधन आवश्यक',endurance:'सहनशक्ति',distance:'दूरी',course:'पाठ्यक्रम',windFrom:'हवा से',windSpeed:'हवा की गति',tripFuel:'यात्रा ईंधन',total:'कुल',time:'समय',reserve:'रिजर्व',fuelAvail:'उपलब्ध ईंधन',
-    densityAlt:'घनत्व ऊंचाई',elevation:'ऊंचाई',densityAltitude:'घनत्व ऊंचाई',qnhConv:'QNH कनवर्टर',trueAirspeed:'वास्तविक वायुगति',
-    wind:'हवा',runwayHdg:'रनवे Hdg',headwind:'सामने की हवा',tailwind:'पीछे की हवा',crosswind:'क्रॉसविंड',
-    weightBalance:'वजन और संतुलन',item:'आइटम',weight:'वजन',arm:'आर्म',moment:'मोमेंट',emptyWt:'खाली वजन',crew:'चालक दल',pax:'यात्री',fuel:'ईंधन',cargo:'कार्गो',totalWeight:'कुल वजन',
-    topOfDescent:'अवरोहण शीर्ष',cruiseAlt:'क्रूज ऊंचाई',targetAlt:'लक्ष्य ऊंचाई',descentAngle:'कोण',distToTOD:'TOD तक दूरी',
-    pointNoReturn:'वापसी का बिंदु नहीं',totalFuel:'कुल ईंधन',flowOut:'बाहर प्रवाह',flowBack:'वापस प्रवाह',gsOut:'GS बाहर',gsBack:'GS वापस',pnrDist:'PNR दूरी',timeToPNR:'PNR तक समय',
-    speed:'गति',mass:'द्रव्यमान',temp:'तापमान',liters:'लीटर',kilograms:'किलोग्राम',pounds:'पाउंड',
-    timer:'टाइमर',notes:'नोट्स',start:'शुरू',stop:'रोकें',reset:'रीसेट',export:'निर्यात',clear:'साफ करें',notesPlaceholder:'उड़ान नोट्स...',
-    menu:'मेनू',flight:'उड़ान',safety:'सुरक्षा',tools:'उपकरण'
+  const FUEL = {
+    jeta1: 0.800,
+    jeta: 0.804,
+    avgas: 0.721
+  };
+
+  const NOTES_KEY = 'aviation_pro_notes_logic_fixed';
+
+  function num(v){
+    if (v === null || v === undefined) return null;
+    const s = String(v).trim().replace(',', '.');
+    if (s === '') return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : null;
   }
-};
 
-var CURRENCIES={USD:'$',AED:'د.إ',EUR:'€',RUB:'₽',INR:'₹',PHP:'₱'};
-var currentCurrency='USD';
-
-function setLang(lang){
-  currentLang=lang;
-  document.documentElement.lang=lang;
-  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
-  $('#langBtn').textContent=lang.toUpperCase();
-  $$('[data-i18n]').forEach(function(el){
-    var key=el.getAttribute('data-i18n');
-    if(i18n[lang]&&i18n[lang][key])el.textContent=i18n[lang][key];
-  });
-  $$('[data-i18n-placeholder]').forEach(function(el){
-    var key=el.getAttribute('data-i18n-placeholder');
-    if(i18n[lang]&&i18n[lang][key])el.placeholder=i18n[lang][key];
-  });
-  localStorage.setItem('avpro_lang',lang);
-}
-
-function cycleLang(){
-  var idx=LANGS.indexOf(currentLang);
-  idx=(idx+1)%LANGS.length;
-  setLang(LANGS[idx]);
-}
-
-var bgClasses={menu:'bg-menu',fuel:'bg-fuel',cost:'bg-cost',flight:'bg-flight',atmo:'bg-atmo',safety:'bg-safety',tools:'bg-tools',system:'bg-system'};
-var screenTitles={menu:'Aviation Pro',fuel:'fuelCalc',cost:'costCalc',flight:'flightCalc',atmo:'atmoCalc',safety:'safetyCalc',tools:'convCalc',system:'sysCalc'};
-
-function showScreen(id){
-  $$('.screen').forEach(function(s){s.classList.remove('active')});
-  $$('.tabbar .tab').forEach(function(t){t.classList.remove('active')});
-  var scr=$('#screen-'+id);if(scr)scr.classList.add('active');
-  var tab=$('.tabbar .tab[data-screen="'+id+'"]');if(tab)tab.classList.add('active');
-  var titleKey=screenTitles[id]||id;
-  $('#topTitle').textContent=id==='menu'?'Aviation Pro':(i18n[currentLang][titleKey]||titleKey);
-  $('#backBtn').style.visibility=id==='menu'?'hidden':'visible';
-  var bg=$('#bgLayer');
-  Object.values(bgClasses).forEach(function(c){if(c)bg.classList.remove(c)});
-  if(bgClasses[id])bg.classList.add(bgClasses[id]);
-}
-
-function setupTabs(container){
-  container.addEventListener('click',function(e){
-    var btn=e.target.closest('.tab-btn');if(!btn)return;
-    container.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
-    btn.classList.add('active');
-    var shell=container.closest('.calc-shell');
-    shell.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
-    var tab=$('#tab-'+btn.dataset.tab);if(tab)tab.classList.add('active');
-  });
-}
-
-function updateClock(){
-  var n=new Date();
-  $('#clockDisplay').textContent=String(n.getUTCHours()).padStart(2,'0')+':'+String(n.getUTCMinutes()).padStart(2,'0')+'Z';
-}
-
-var FUEL={jeta1:0.800,jeta:0.804,avgas:0.721};
-function calcFuel(){
-  var t=$('#fuelType').value,v=num($('#fuelVol').value),temp=num($('#fuelTemp').value);
-  if(v===null||v<=0){$('#fuelMass').textContent='-';$('#fuelLbs').textContent='-';$('#fuelUsg').textContent='-';$('#fuelImp').textContent='-';return}
-  var d=FUEL[t]*(1-0.00099*((temp||15)-15)),kg=v*d;
-  $('#fuelMass').textContent=Math.round(kg);
-  $('#fuelLbs').textContent=Math.round(kg*2.20462);
-  $('#fuelUsg').textContent=(v*0.264172).toFixed(1);
-  $('#fuelImp').textContent=(v*0.219969).toFixed(1);
-}
-
-function updateCurrencySymbol(){
-  var c=$('#costCurrency').value;
-  currentCurrency=c;
-  var sym=CURRENCIES[c]||'$';
-  $('#costPriceUnit').textContent=sym;
-  $('#costSymbol').textContent=sym;
-  calcCost();
-}
-
-function calcCost(){
-  var f=num($('#costFlow').value),p=num($('#costPrice').value),g=num($('#costGs').value);
-  var sym=CURRENCIES[currentCurrency]||'$';
-  if(!f||!p){$('#costHour').textContent='-';$('#costMin').textContent='-';$('#costNm').textContent='-';$('#cost100').textContent='-';return}
-  var cph=f*p;
-  $('#costHour').textContent=cph.toFixed(2);
-  $('#costMin').textContent=sym+(cph/60).toFixed(2);
-  if(g&&g>0){$('#costNm').textContent=sym+(cph/g).toFixed(3);$('#cost100').textContent=sym+(cph/g*100).toFixed(2)}
-  else{$('#costNm').textContent='-';$('#cost100').textContent='-'}
-}
-
-function calcFlightBasic(){
-  var tas=num($('#flightTas').value),dist=num($('#flightDist').value),crs=num($('#flightCrs').value),wd=num($('#flightWdir').value),ws=num($('#flightWspd').value);
-  if(!tas||tas<=0){$('#flightGs').textContent='-';$('#flightEte').textContent='-';$('#flightWca').textContent='-';$('#flightHdg').textContent='-';return}
-  var gs=tas,wca=0,hdg=crs||0;
-  if(ws&&ws>0&&crs!==null&&wd!==null){
-    var wa=degRad(wd-crs),xw=ws*Math.sin(wa),hw=ws*Math.cos(wa);
-    if(Math.abs(xw)<tas){wca=Math.asin(xw/tas)*180/Math.PI;gs=Math.sqrt(tas*tas-xw*xw)-hw;hdg=crs+wca;if(hdg<0)hdg+=360;if(hdg>=360)hdg-=360}
+  function getNum(sel){
+    const el = $(sel);
+    return el ? num(el.value) : null;
   }
-  if(gs<=0){$('#flightGs').textContent='0';$('#flightEte').textContent='-';return}
-  $('#flightGs').textContent=Math.round(gs);
-  $('#flightEte').textContent=dist&&dist>0?fmtTime(dist/gs):'-';
-  $('#flightWca').textContent=(wca>=0?'+':'')+wca.toFixed(1)+'°';
-  $('#flightHdg').textContent=Math.round(hdg)+'°';
-}
 
-function calcFuelReq(){
-  var gs=num($('#freqGs').value),d=num($('#freqDist').value),f=num($('#freqFlow').value),r=num($('#freqRes').value)||0;
-  if(!gs||!d||!f){$('#freqTrip').textContent='-';$('#freqResOut').textContent='-';$('#freqTotal').textContent='-';$('#freqTime').textContent='-';return}
-  var t=d/gs,trip=t*f;
-  $('#freqTrip').textContent=Math.round(trip);
-  $('#freqResOut').textContent=Math.round(r)+' L';
-  $('#freqTotal').textContent=Math.round(trip+r)+' L';
-  $('#freqTime').textContent=fmtTime(t);
-}
-
-function calcEndur(){
-  var f=num($('#endFuel').value),fl=num($('#endFlow').value);
-  if(!f||!fl){$('#endTime').textContent='-';$('#endDecimal').textContent='-';return}
-  var h=f/fl;
-  $('#endTime').textContent=fmtTime(h);
-  $('#endDecimal').textContent=h.toFixed(2)+' hours';
-}
-
-function calcDa(){
-  var el=num($('#atmoElev').value),oat=num($('#atmoOat').value),qnh=num($('#atmoQnh').value);
-  if(el===null||oat===null||qnh===null){$('#atmoDa').textContent='-';$('#atmoPa').textContent='-';$('#atmoIsa').textContent='-';$('#atmoDev').textContent='-';return}
-  var pa=el+(1013.25-qnh)*30,isa=15-2*(pa/1000),dev=oat-isa,da=pa+120*dev;
-  $('#atmoDa').textContent=Math.round(da);
-  $('#atmoPa').textContent=Math.round(pa)+' ft';
-  $('#atmoIsa').textContent=isa.toFixed(1)+'°C';
-  $('#atmoDev').textContent=(dev>=0?'+':'')+dev.toFixed(1)+'°C';
-}
-
-function convQnh(src){
-  var hpa,inhg,mmhg;
-  if(src==='hpa'){hpa=num($('#qnhHpa').value);if(hpa===null)return;inhg=hpa*0.02953;mmhg=hpa*0.75006}
-  else if(src==='inhg'){inhg=num($('#qnhInhg').value);if(inhg===null)return;hpa=inhg/0.02953;mmhg=hpa*0.75006}
-  else{mmhg=num($('#qnhMmhg').value);if(mmhg===null)return;hpa=mmhg/0.75006;inhg=hpa*0.02953}
-  if(src!=='hpa')$('#qnhHpa').value=hpa.toFixed(2);
-  if(src!=='inhg')$('#qnhInhg').value=inhg.toFixed(2);
-  if(src!=='mmhg')$('#qnhMmhg').value=mmhg.toFixed(1);
-}
-
-function calcTas(){
-  var ias=num($('#tasIas').value),alt=num($('#tasAlt').value),oat=num($('#tasOat').value);
-  if(!ias||alt===null||oat===null){$('#tasVal').textContent='-';return}
-  var isa=15-2*(alt/1000),tr=(273.15+oat)/(273.15+isa),pr=Math.pow(1-alt/145442,5.255876),dr=pr/tr;
-  $('#tasVal').textContent=Math.round(ias/Math.sqrt(dr));
-}
-
-function calcWind(){
-  var rwy=num($('#windRwy').value),dir=num($('#windDir').value),spd=num($('#windSpd').value);
-  if(rwy!==null)$('#compassRwy').style.transform='translate(-50%,-100%) rotate('+rwy+'deg)';
-  if(dir!==null)$('#compassWind').style.transform='translate(-50%,-100%) rotate('+dir+'deg)';
-  if(rwy===null||dir===null||!spd){$('#windHead').textContent='-';$('#windCross').textContent='-';return}
-  var a=degRad(dir-rwy),hw=spd*Math.cos(a),xw=spd*Math.sin(a);
-  var headKey=hw>=0?'headwind':'tailwind';
-  $('#windLabel').textContent=i18n[currentLang][headKey]||headKey;
-  $('#windHead').textContent=Math.round(Math.abs(hw));
-  $('#windCross').textContent=Math.round(Math.abs(xw))+' '+(xw>0?'R':'L');
-}
-
-function calcWB(){
-  var rows=[
-    {w:'wbEmpty',a:'wbEmptyArm',m:'wbEmptyMom'},
-    {w:'wbCrew',a:'wbCrewArm',m:'wbCrewMom'},
-    {w:'wbPax',a:'wbPaxArm',m:'wbPaxMom'},
-    {w:'wbFuel',a:'wbFuelArm',m:'wbFuelMom'},
-    {w:'wbCargo',a:'wbCargoArm',m:'wbCargoMom'}
-  ];
-  var tw=0,tm=0;
-  rows.forEach(function(r){
-    var w=num($('#'+r.w).value)||0,a=num($('#'+r.a).value)||0,m=w*a;
-    $('#'+r.m).textContent=m?Math.round(m):'-';
-    tw+=w;tm+=m;
-  });
-  if(tw===0){$('#wbTotal').textContent='-';$('#wbCg').textContent='-';$('#wbTotalMom').textContent='-';return}
-  $('#wbTotal').textContent=Math.round(tw);
-  $('#wbCg').textContent=(tm/tw).toFixed(1);
-  $('#wbTotalMom').textContent=Math.round(tm);
-}
-
-function calcTod(){
-  var cr=num($('#todCruise').value),tg=num($('#todTarget').value),gs=num($('#todGs').value),an=num($('#todAngle').value);
-  if(!cr||tg===null||!gs||!an||cr<=tg){$('#todDist').textContent='-';$('#todVs').textContent='-';return}
-  var diff=cr-tg,tod=diff/(Math.tan(degRad(an))*6076.12),vs=gs*Math.tan(degRad(an))*101.269;
-  $('#todDist').textContent=tod.toFixed(1);
-  $('#todVs').textContent=Math.round(vs);
-}
-
-function calcPnr(){
-  var f=num($('#pnrFuel').value),r=num($('#pnrRes').value)||0,fo=num($('#pnrFlowOut').value),fb=num($('#pnrFlowBack').value),go=num($('#pnrGsOut').value),gb=num($('#pnrGsBack').value);
-  if(!f||!fo||!fb||!go||!gb||f<=r){$('#pnrDist').textContent='-';$('#pnrTime').textContent='-';return}
-  var us=f-r,t=us/(fo+fb*(go/gb));
-  $('#pnrDist').textContent=Math.round(t*go);
-  $('#pnrTime').textContent=fmtTime(t);
-}
-
-function convSpeed(src){
-  var v=num($('#conv'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  var kt;if(src==='kt')kt=v;else if(src==='kmh')kt=v/1.852;else if(src==='mph')kt=v/1.15078;else kt=v/0.514444;
-  if(src!=='kt')$('#convKt').value=kt.toFixed(2);
-  if(src!=='kmh')$('#convKmh').value=(kt*1.852).toFixed(2);
-  if(src!=='mph')$('#convMph').value=(kt*1.15078).toFixed(2);
-  if(src!=='ms')$('#convMs').value=(kt*0.514444).toFixed(3);
-}
-
-function convDist(src){
-  var v=num($('#conv'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  var nm;if(src==='nm')nm=v;else if(src==='km')nm=v/1.852;else if(src==='mi')nm=v/1.15078;else nm=v/6076.12;
-  if(src!=='nm')$('#convNm').value=nm.toFixed(3);
-  if(src!=='km')$('#convKm').value=(nm*1.852).toFixed(3);
-  if(src!=='mi')$('#convMi').value=(nm*1.15078).toFixed(3);
-  if(src!=='ft')$('#convFt').value=Math.round(nm*6076.12);
-}
-
-function convVol(src){
-  var v=num($('#conv'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  var l;if(src==='l')l=v;else if(src==='usg')l=v/0.264172;else l=v/0.219969;
-  if(src!=='l')$('#convL').value=l.toFixed(2);
-  if(src!=='usg')$('#convUsg').value=(l*0.264172).toFixed(2);
-  if(src!=='impg')$('#convImpg').value=(l*0.219969).toFixed(2);
-}
-
-function convMass(src){
-  var v=num($('#conv'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  if(src==='kg')$('#convLbs').value=(v*2.20462).toFixed(2);
-  else $('#convKg').value=(v/2.20462).toFixed(2);
-}
-
-function convTemp(src){
-  var v=num($('#conv'+src.toUpperCase()).value);if(v===null)return;
-  var c;if(src==='c')c=v;else if(src==='f')c=(v-32)*5/9;else c=v-273.15;
-  if(src!=='c')$('#convC').value=c.toFixed(2);
-  if(src!=='f')$('#convF').value=(c*9/5+32).toFixed(2);
-  if(src!=='k')$('#convK').value=(c+273.15).toFixed(2);
-}
-
-var timerInt=null,timerSec=0,timerRun=false;
-function updateTimerDisplay(){
-  var h=Math.floor(timerSec/3600),m=Math.floor((timerSec%3600)/60),s=timerSec%60;
-  $('#timerDisplay').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-}
-function toggleTimer(){
-  var btn=$('#timerToggle');
-  if(timerRun){
-    clearInterval(timerInt);timerRun=false;
-    btn.textContent=i18n[currentLang].start||'START';
-    btn.classList.remove('stop');btn.classList.add('start');
-  }else{
-    timerInt=setInterval(function(){timerSec++;updateTimerDisplay()},1000);timerRun=true;
-    btn.textContent=i18n[currentLang].stop||'STOP';
-    btn.classList.remove('start');btn.classList.add('stop');
+  function setText(sel, value){
+    const el = $(sel);
+    if (el) el.textContent = value;
   }
-}
-function resetTimer(){
-  clearInterval(timerInt);timerRun=false;timerSec=0;updateTimerDisplay();
-  var btn=$('#timerToggle');
-  btn.textContent=i18n[currentLang].start||'START';
-  btn.classList.remove('stop');btn.classList.add('start');
-}
 
-function init(){
-  var savedLang=localStorage.getItem('avpro_lang');
-  if(savedLang&&LANGS.indexOf(savedLang)!==-1)setLang(savedLang);else setLang('en');
+  function setStatus(sel, text, cls=''){
+    const el = $(sel);
+    if (!el) return;
+    el.className = 'status ' + cls;
+    el.textContent = text || '';
+  }
 
-  $$('.item[data-screen]').forEach(function(i){i.addEventListener('click',function(){showScreen(i.dataset.screen)})});
-  $$('.tabbar .tab').forEach(function(t){t.addEventListener('click',function(){showScreen(t.dataset.screen)})});
-  $('#backBtn').addEventListener('click',function(){showScreen('menu')});
-  $('#langBtn').addEventListener('click',cycleLang);
-  $$('.tabs-row').forEach(setupTabs);
-  updateClock();setInterval(updateClock,1000);
+  function fmtTime(hours){
+    if (!Number.isFinite(hours) || hours < 0) return '-';
+    const totalMinutes = Math.round(hours * 60);
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  }
 
-  $('#fuelType').addEventListener('change',calcFuel);$('#fuelVol').addEventListener('input',calcFuel);$('#fuelTemp').addEventListener('input',calcFuel);
-  $('#costCurrency').addEventListener('change',updateCurrencySymbol);$('#costFlow').addEventListener('input',calcCost);$('#costPrice').addEventListener('input',calcCost);$('#costGs').addEventListener('input',calcCost);
-  ['flightTas','flightDist','flightCrs','flightWdir','flightWspd'].forEach(function(id){$('#'+id).addEventListener('input',calcFlightBasic)});
-  ['freqGs','freqDist','freqFlow','freqRes'].forEach(function(id){$('#'+id).addEventListener('input',calcFuelReq)});
-  $('#endFuel').addEventListener('input',calcEndur);$('#endFlow').addEventListener('input',calcEndur);
-  ['atmoElev','atmoOat','atmoQnh'].forEach(function(id){$('#'+id).addEventListener('input',calcDa)});
-  $('#qnhHpa').addEventListener('input',function(){convQnh('hpa')});$('#qnhInhg').addEventListener('input',function(){convQnh('inhg')});$('#qnhMmhg').addEventListener('input',function(){convQnh('mmhg')});
-  ['tasIas','tasAlt','tasOat'].forEach(function(id){$('#'+id).addEventListener('input',calcTas)});
-  ['windRwy','windDir','windSpd'].forEach(function(id){$('#'+id).addEventListener('input',calcWind)});
-  ['wbEmpty','wbEmptyArm','wbCrew','wbCrewArm','wbPax','wbPaxArm','wbFuel','wbFuelArm','wbCargo','wbCargoArm'].forEach(function(id){$('#'+id).addEventListener('input',calcWB)});
-  ['todCruise','todTarget','todGs','todAngle'].forEach(function(id){$('#'+id).addEventListener('input',calcTod)});
-  ['pnrFuel','pnrRes','pnrFlowOut','pnrFlowBack','pnrGsOut','pnrGsBack'].forEach(function(id){$('#'+id).addEventListener('input',calcPnr)});
-  $('#convKt').addEventListener('input',function(){convSpeed('kt')});$('#convKmh').addEventListener('input',function(){convSpeed('kmh')});$('#convMph').addEventListener('input',function(){convSpeed('mph')});$('#convMs').addEventListener('input',function(){convSpeed('ms')});
-  $('#convNm').addEventListener('input',function(){convDist('nm')});$('#convKm').addEventListener('input',function(){convDist('km')});$('#convMi').addEventListener('input',function(){convDist('mi')});$('#convFt').addEventListener('input',function(){convDist('ft')});
-  $('#convL').addEventListener('input',function(){convVol('l')});$('#convUsg').addEventListener('input',function(){convVol('usg')});$('#convImpg').addEventListener('input',function(){convVol('impg')});
-  $('#convKg').addEventListener('input',function(){convMass('kg')});$('#convLbs').addEventListener('input',function(){convMass('lbs')});
-  $('#convC').addEventListener('input',function(){convTemp('c')});$('#convF').addEventListener('input',function(){convTemp('f')});$('#convK').addEventListener('input',function(){convTemp('k')});
-  $('#timerToggle').addEventListener('click',toggleTimer);$('#timerReset').addEventListener('click',resetTimer);
-  $('#notesArea').value=localStorage.getItem('avpro_notes')||'';
-  $('#notesArea').addEventListener('input',function(){localStorage.setItem('avpro_notes',$('#notesArea').value)});
-  $('#notesExport').addEventListener('click',function(){var txt=$('#notesArea').value;if(!txt)return;var b=new Blob([txt],{type:'text/plain'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='flight_notes.txt';a.click()});
-  $('#notesClear').addEventListener('click',function(){$('#notesArea').value='';localStorage.removeItem('avpro_notes')});
-}
-document.addEventListener('DOMContentLoaded',init);
+  function degRad(d){ return d * Math.PI / 180; }
+  function radDeg(r){ return r * 180 / Math.PI; }
+
+  function normHeading(h){
+    if (!Number.isFinite(h)) return null;
+    let x = h % 360;
+    if (x < 0) x += 360;
+    return x;
+  }
+
+  function clearMany(selectors){
+    selectors.forEach(s => setText(s, '-'));
+  }
+
+  function validatePositive(value){
+    return value !== null && value > 0;
+  }
+
+  function validateNonNegative(value){
+    return value !== null && value >= 0;
+  }
+
+  function validateHeading(value){
+    return value !== null && value >= 0 && value <= 360;
+  }
+
+  function calcFuel(){
+    const type = $('#fuelType').value;
+    const vol = getNum('#fuelVol');
+    const temp = getNum('#fuelTemp');
+
+    if (!validatePositive(vol)){
+      clearMany(['#fuelMass','#fuelLbs','#fuelUsg','#fuelImp']);
+      setStatus('#fuelStatus', 'Enter valid fuel volume greater than zero.', 'warn');
+      return;
+    }
+
+    if (temp !== null && (temp < -80 || temp > 80)){
+      clearMany(['#fuelMass','#fuelLbs','#fuelUsg','#fuelImp']);
+      setStatus('#fuelStatus', 'Fuel temperature is outside a reasonable range.', 'bad');
+      return;
+    }
+
+    const refTemp = temp === null ? 15 : temp;
+    const density = FUEL[type] * (1 - 0.00099 * (refTemp - 15));
+    if (!Number.isFinite(density) || density <= 0){
+      clearMany(['#fuelMass','#fuelLbs','#fuelUsg','#fuelImp']);
+      setStatus('#fuelStatus', 'Calculated density is invalid.', 'bad');
+      return;
+    }
+
+    const kg = vol * density;
+    setText('#fuelMass', Math.round(kg) + ' kg');
+    setText('#fuelLbs', Math.round(kg * 2.20462) + ' lb');
+    setText('#fuelUsg', (vol * 0.264172).toFixed(1));
+    setText('#fuelImp', (vol * 0.219969).toFixed(1));
+    setStatus('#fuelStatus', temp === null ? 'Temperature not entered. 15°C used as reference.' : 'OK', 'ok');
+  }
+
+  function calcCost(){
+    const flow = getNum('#costFlow');
+    const price = getNum('#costPrice');
+    const gs = getNum('#costGs');
+
+    if (!validatePositive(flow) || !validatePositive(price)){
+      clearMany(['#costHour','#costMin','#costNm','#cost100']);
+      setStatus('#costStatus', 'Enter valid flow and price greater than zero.', 'warn');
+      return;
+    }
+
+    const cph = flow * price;
+    setText('#costHour', cph.toFixed(2));
+    setText('#costMin', (cph / 60).toFixed(2));
+
+    if (gs === null){
+      setText('#costNm', '-');
+      setText('#cost100', '-');
+      setStatus('#costStatus', 'Per-NM values require GS.', 'warn');
+      return;
+    }
+
+    if (gs <= 0){
+      setText('#costNm', '-');
+      setText('#cost100', '-');
+      setStatus('#costStatus', 'GS must be greater than zero.', 'bad');
+      return;
+    }
+
+    setText('#costNm', (cph / gs).toFixed(3));
+    setText('#cost100', ((cph / gs) * 100).toFixed(2));
+    setStatus('#costStatus', 'OK', 'ok');
+  }
+
+  function calcFlightBasic(){
+    const tas = getNum('#flightTas');
+    const dist = getNum('#flightDist');
+    const crs = getNum('#flightCrs');
+    const wdir = getNum('#flightWdir');
+    const wspd = getNum('#flightWspd');
+
+    if (!validatePositive(tas) || !validatePositive(dist) || !validateHeading(crs)){
+      clearMany(['#flightGs','#flightEte','#flightWca','#flightHdg']);
+      setStatus('#flightStatus', 'Enter valid TAS, distance, and course 0..360.', 'warn');
+      return;
+    }
+
+    const course = normHeading(crs);
+
+    if (wdir === null && wspd === null){
+      setText('#flightGs', tas.toFixed(0) + ' kt');
+      setText('#flightEte', fmtTime(dist / tas));
+      setText('#flightWca', '0.0°');
+      setText('#flightHdg', Math.round(course) + '°');
+      setStatus('#flightStatus', 'No wind entered. TAS used as GS.', 'warn');
+      return;
+    }
+
+    if (!validateHeading(wdir) || !validateNonNegative(wspd)){
+      clearMany(['#flightGs','#flightEte','#flightWca','#flightHdg']);
+      setStatus('#flightStatus', 'Wind direction must be 0..360 and wind speed must be >= 0.', 'bad');
+      return;
+    }
+
+    const rel = degRad(wdir - course);
+    const cross = wspd * Math.sin(rel);
+    const head = wspd * Math.cos(rel);
+
+    if (Math.abs(cross) > tas){
+      clearMany(['#flightGs','#flightEte','#flightWca','#flightHdg']);
+      setStatus('#flightStatus', 'Crosswind component exceeds TAS. Heading solution is impossible.', 'bad');
+      return;
+    }
+
+    const wca = radDeg(Math.asin(cross / tas));
+    const hdg = normHeading(course + wca);
+    const gs = tas * Math.cos(degRad(wca)) - head;
+
+    if (!Number.isFinite(gs) || gs <= 0){
+      setText('#flightGs', '0 kt');
+      setText('#flightEte', '-');
+      setText('#flightWca', (wca >= 0 ? '+' : '') + wca.toFixed(1) + '°');
+      setText('#flightHdg', Math.round(hdg) + '°');
+      setStatus('#flightStatus', 'Computed GS is zero or negative.', 'bad');
+      return;
+    }
+
+    setText('#flightGs', gs.toFixed(0) + ' kt');
+    setText('#flightEte', fmtTime(dist / gs));
+    setText('#flightWca', (wca >= 0 ? '+' : '') + wca.toFixed(1) + '°');
+    setText('#flightHdg', Math.round(hdg) + '°');
+    setStatus('#flightStatus', 'OK', 'ok');
+  }
+
+  function calcFuelReq(){
+    const gs = getNum('#freqGs');
+    const dist = getNum('#freqDist');
+    const flow = getNum('#freqFlow');
+    const reserve = getNum('#freqRes');
+
+    if (!validatePositive(gs) || !validatePositive(dist) || !validatePositive(flow)){
+      clearMany(['#freqTrip','#freqResOut','#freqTotal','#freqTime']);
+      setStatus('#freqStatus', 'Enter valid GS, distance, and flow greater than zero.', 'warn');
+      return;
+    }
+
+    if (reserve !== null && reserve < 0){
+      clearMany(['#freqTrip','#freqResOut','#freqTotal','#freqTime']);
+      setStatus('#freqStatus', 'Reserve cannot be negative.', 'bad');
+      return;
+    }
+
+    const res = reserve === null ? 0 : reserve;
+    const time = dist / gs;
+    const trip = time * flow;
+    const total = trip + res;
+
+    setText('#freqTrip', trip.toFixed(1) + ' L');
+    setText('#freqResOut', res.toFixed(1) + ' L');
+    setText('#freqTotal', total.toFixed(1) + ' L');
+    setText('#freqTime', fmtTime(time));
+    setStatus('#freqStatus', reserve === null ? 'Reserve not entered. 0 used.' : 'OK', reserve === null ? 'warn' : 'ok');
+  }
+
+  function calcEndurance(){
+    const fuel = getNum('#endFuel');
+    const flow = getNum('#endFlow');
+
+    if (!validatePositive(fuel) || !validatePositive(flow)){
+      clearMany(['#endTime','#endDecimal']);
+      setStatus('#endStatus', 'Enter valid fuel and flow greater than zero.', 'warn');
+      return;
+    }
+
+    const end = fuel / flow;
+    setText('#endTime', fmtTime(end));
+    setText('#endDecimal', end.toFixed(2) + ' h');
+    setStatus('#endStatus', 'OK', 'ok');
+  }
+
+  function calcDensityAltitude(){
+    const elev = getNum('#atmoElev');
+    const oat = getNum('#atmoOat');
+    const qnh = getNum('#atmoQnh');
+
+    if (elev === null || oat === null || qnh === null){
+      clearMany(['#atmoDa','#atmoPa','#atmoIsa','#atmoDev']);
+      setStatus('#atmoStatus', 'Enter elevation, OAT, and QNH.', 'warn');
+      return;
+    }
+
+    if (qnh < 850 || qnh > 1100){
+      clearMany(['#atmoDa','#atmoPa','#atmoIsa','#atmoDev']);
+      setStatus('#atmoStatus', 'QNH is outside a reasonable operational range.', 'bad');
+      return;
+    }
+
+    if (oat < -80 || oat > 60){
+      clearMany(['#atmoDa','#atmoPa','#atmoIsa','#atmoDev']);
+      setStatus('#atmoStatus', 'OAT is outside a reasonable operational range.', 'bad');
+      return;
+    }
+
+    const pa = elev + (1013.25 - qnh) * 27;
+    const isa = 15 - (2 * pa / 1000);
+    const dev = oat - isa;
+    const da = pa + 120 * dev;
+
+    setText('#atmoPa', pa.toFixed(0) + ' ft');
+    setText('#atmoIsa', isa.toFixed(1) + '°C');
+    setText('#atmoDev', (dev >= 0 ? '+' : '') + dev.toFixed(1) + '°C');
+    setText('#atmoDa', da.toFixed(0) + ' ft');
+    setStatus('#atmoStatus', 'Approximation only. Not for certified performance use.', 'warn');
+  }
+
+  function syncQnh(source){
+    const hpa = getNum('#qnhHpa');
+    const inhg = getNum('#qnhInhg');
+    const mmhg = getNum('#qnhMmhg');
+
+    try{
+      if (source === 'hpa'){
+        if (hpa === null || hpa <= 0) return;
+        $('#qnhInhg').value = (hpa * 0.0295299831).toFixed(2);
+        $('#qnhMmhg').value = (hpa * 0.750061683).toFixed(1);
+      } else if (source === 'inhg'){
+        if (inhg === null || inhg <= 0) return;
+        const H = inhg / 0.0295299831;
+        $('#qnhHpa').value = H.toFixed(2);
+        $('#qnhMmhg').value = (H * 0.750061683).toFixed(1);
+      } else if (source === 'mmhg'){
+        if (mmhg === null || mmhg <= 0) return;
+        const H2 = mmhg / 0.750061683;
+        $('#qnhHpa').value = H2.toFixed(2);
+        $('#qnhInhg').value = (H2 * 0.0295299831).toFixed(2);
+      }
+      setStatus('#qnhStatus', 'OK', 'ok');
+    } catch(err){
+      setStatus('#qnhStatus', 'QNH conversion error.', 'bad');
+    }
+  }
+
+  function calcTasApprox(){
+    const ias = getNum('#tasIas');
+    const alt = getNum('#tasAlt');
+    const oat = getNum('#tasOat');
+
+    if (!validatePositive(ias) || alt === null || oat === null){
+      setText('#tasOut', '-');
+      setText('#tasNote', '-');
+      setStatus('#tasStatus', 'Enter IAS, altitude, and OAT.', 'warn');
+      return;
+    }
+
+    if (alt < -1000 || alt > 45000){
+      setText('#tasOut', '-');
+      setText('#tasNote', '-');
+      setStatus('#tasStatus', 'Altitude is outside a reasonable range for this approximation.', 'bad');
+      return;
+    }
+
+    const isa = 15 - (2 * alt / 1000);
+    const tempDev = oat - isa;
+    const tempFactor = 1 + (tempDev * 0.001);
+    const altFactor = 1 + ((alt / 1000) * 0.02);
+    const tas = ias * altFactor * tempFactor;
+
+    if (!Number.isFinite(tas) || tas <= 0){
+      setText('#tasOut', '-');
+      setText('#tasNote', '-');
+      setStatus('#tasStatus', 'Approximation produced invalid result.', 'bad');
+      return;
+    }
+
+    setText('#tasOut', tas.toFixed(0) + ' kt');
+    setText('#tasNote', 'ISA dev ' + (tempDev >= 0 ? '+' : '') + tempDev.toFixed(1) + '°C');
+    setStatus('#tasStatus', 'Approximation only.', 'warn');
+  }
+
+  function calcWind(){
+    const rwy = getNum('#windRwy');
+    const dir = getNum('#windDir');
+    const spd = getNum('#windSpd');
+
+    if (!validateHeading(rwy) || !validateHeading(dir) || !validateNonNegative(spd)){
+      clearMany(['#windCross','#windHead','#windTail']);
+      setStatus('#windStatus', 'Enter runway and wind direction 0..360, wind speed >= 0.', 'warn');
+      return;
+    }
+
+    const angle = degRad(dir - rwy);
+    const cross = Math.abs(spd * Math.sin(angle));
+    const hw = spd * Math.cos(angle);
+    const head = hw > 0 ? hw : 0;
+    const tail = hw < 0 ? Math.abs(hw) : 0;
+
+    setText('#windCross', cross.toFixed(1) + ' kt');
+    setText('#windHead', head.toFixed(1) + ' kt');
+    setText('#windTail', tail.toFixed(1) + ' kt');
+    setStatus('#windStatus', 'OK', 'ok');
+  }
+
+  function calcWB(){
+    const rows = [
+      {w:'#wbEmptyWt', a:'#wbEmptyArm'},
+      {w:'#wbCrewWt',  a:'#wbCrewArm'},
+      {w:'#wbPaxWt',   a:'#wbPaxArm'},
+      {w:'#wbFuelWt',  a:'#wbFuelArm'},
+      {w:'#wbCargoWt', a:'#wbCargoArm'}
+    ];
+
+    let tw = 0;
+    let tm = 0;
+    let any = false;
+
+    for (const r of rows){
+      const w = getNum(r.w);
+      const a = getNum(r.a);
+
+      if (w === null && a === null) continue;
+      any = true;
+
+      if (!validateNonNegative(w) || a === null){
+        setText('#wbTotal', '-');
+        setText('#wbTotalMom', '-');
+        setText('#wbCg', '-');
+        setStatus('#wbStatus', 'Each entered row requires weight >= 0 and valid arm.', 'bad');
+        return;
+      }
+
+      const m = w * a;
+      tw += w;
+      tm += m;
+    }
+
+    if (!any || tw <= 0){
+      setText('#wbTotal', '-');
+      setText('#wbTotalMom', '-');
+      setText('#wbCg', '-');
+      setStatus('#wbStatus', 'Enter at least one complete row with positive total weight.', 'warn');
+      return;
+    }
+
+    setText('#wbTotal', tw.toFixed(1) + ' kg');
+    setText('#wbTotalMom', tm.toFixed(1));
+    setText('#wbCg', (tm / tw).toFixed(1) + ' mm');
+    setStatus('#wbStatus', 'CG limits are not checked in this generic version.', 'warn');
+  }
+
+  function calcTOD(){
+    const cr = getNum('#todCruise');
+    const tg = getNum('#todTarget');
+    const gs = getNum('#todGs');
+    const an = getNum('#todAngle');
+
+    if (cr === null || tg === null || !validatePositive(gs) || an === null){
+      clearMany(['#todDist','#todVs']);
+      setStatus('#todStatus', 'Enter cruise altitude, target altitude, GS, and descent angle.', 'warn');
+      return;
+    }
+
+    if (cr <= tg){
+      clearMany(['#todDist','#todVs']);
+      setStatus('#todStatus', 'Cruise altitude must be greater than target altitude.', 'bad');
+      return;
+    }
+
+    if (an <= 0 || an >= 10){
+      clearMany(['#todDist','#todVs']);
+      setStatus('#todStatus', 'Descent angle must be > 0 and < 10 degrees.', 'bad');
+      return;
+    }
+
+    const diff = cr - tg;
+    const angleRad = degRad(an);
+    const tan = Math.tan(angleRad);
+
+    if (!Number.isFinite(tan) || tan <= 0){
+      clearMany(['#todDist','#todVs']);
+      setStatus('#todStatus', 'Invalid descent angle.', 'bad');
+      return;
+    }
+
+    const todNm = diff / (tan * 6076.12);
+    const vs = gs * tan * 101.269;
+
+    setText('#todDist', todNm.toFixed(1) + ' NM');
+    setText('#todVs', Math.round(vs) + ' fpm');
+    setStatus('#todStatus', 'OK', 'ok');
+  }
+
+  function calcPNR(){
+    const f = getNum('#pnrFuel');
+    const r = getNum('#pnrRes');
+    const fo = getNum('#pnrFlowOut');
+    const fb = getNum('#pnrFlowBack');
+    const go = getNum('#pnrGsOut');
+    const gb = getNum('#pnrGsBack');
+
+    if (!validatePositive(f) || !validatePositive(fo) || !validatePositive(fb) || !validatePositive(go) || !validatePositive(gb)){
+      clearMany(['#pnrDist','#pnrTime']);
+      setStatus('#pnrStatus', 'Enter valid total fuel, both flows, and both GS values > 0.', 'warn');
+      return;
+    }
+
+    const reserve = r === null ? 0 : r;
+    if (reserve < 0){
+      clearMany(['#pnrDist','#pnrTime']);
+      setStatus('#pnrStatus', 'Reserve cannot be negative.', 'bad');
+      return;
+    }
+
+    if (f <= reserve){
+      clearMany(['#pnrDist','#pnrTime']);
+      setStatus('#pnrStatus', 'Total fuel must be greater than reserve.', 'bad');
+      return;
+    }
+
+    const usable = f - reserve;
+    const denom = fo + fb * (go / gb);
+
+    if (!Number.isFinite(denom) || denom <= 0){
+      clearMany(['#pnrDist','#pnrTime']);
+      setStatus('#pnrStatus', 'Invalid PNR denominator.', 'bad');
+      return;
+    }
+
+    const t = usable / denom;
+    if (!Number.isFinite(t) || t < 0){
+      clearMany(['#pnrDist','#pnrTime']);
+      setStatus('#pnrStatus', 'Invalid PNR time result.', 'bad');
+      return;
+    }
+
+    setText('#pnrDist', (t * go).toFixed(1) + ' NM');
+    setText('#pnrTime', fmtTime(t));
+    setStatus('#pnrStatus', reserve === 0 ? 'Reserve not entered. 0 used.' : 'OK', reserve === 0 ? 'warn' : 'ok');
+  }
+
+  function convSpeed(src){
+    const v = getNum('#conv' + src.charAt(0).toUpperCase() + src.slice(1));
+    if (v === null) return;
+    if (v < 0){ setStatus('#convStatus', 'Speed cannot be negative.', 'bad'); return; }
+
+    let kt;
+    if (src === 'kt') kt = v;
+    else if (src === 'kmh') kt = v / 1.852;
+    else if (src === 'mph') kt = v / 1.15078;
+    else kt = v / 0.514444;
+
+    if (src !== 'kt') $('#convKt').value = kt.toFixed(2);
+    if (src !== 'kmh') $('#convKmh').value = (kt * 1.852).toFixed(2);
+    if (src !== 'mph') $('#convMph').value = (kt * 1.15078).toFixed(2);
+    if (src !== 'ms') $('#convMs').value = (kt * 0.514444).toFixed(3);
+
+    setStatus('#convStatus', 'OK', 'ok');
+  }
+
+  function convDist(src){
+    const v = getNum('#conv' + src.charAt(0).toUpperCase() + src.slice(1));
+    if (v === null) return;
+    if (v < 0){ setStatus('#convStatus', 'Distance cannot be negative.', 'bad'); return; }
+
+    let nm;
+    if (src === 'nm') nm = v;
+    else if (src === 'km') nm = v / 1.852;
+    else if (src === 'mi') nm = v / 1.15078;
+    else nm = v / 6076.12;
+
+    if (src !== 'nm') $('#convNm').value = nm.toFixed(3);
+    if (src !== 'km') $('#convKm').value = (nm * 1.852).toFixed(3);
+    if (src !== 'mi') $('#convMi').value = (nm * 1.15078).toFixed(3);
+    if (src !== 'ft') $('#convFt').value = (nm * 6076.12).toFixed(1);
+
+    setStatus('#convStatus', 'OK', 'ok');
+  }
+
+  function convVol(src){
+    const v = getNum('#conv' + src.charAt(0).toUpperCase() + src.slice(1));
+    if (v === null) return;
+    if (v < 0){ setStatus('#convStatus', 'Volume cannot be negative.', 'bad'); return; }
+
+    let l;
+    if (src === 'l') l = v;
+    else if (src === 'usg') l = v / 0.264172;
+    else l = v / 0.219969;
+
+    if (src !== 'l') $('#convL').value = l.toFixed(2);
+    if (src !== 'usg') $('#convUsg').value = (l * 0.264172).toFixed(2);
+    if (src !== 'impg') $('#convImpg').value = (l * 0.219969).toFixed(2);
+
+    setStatus('#convStatus', 'OK', 'ok');
+  }
+
+  function convMass(src){
+    const v = getNum('#conv' + src.charAt(0).toUpperCase() + src.slice(1));
+    if (v === null) return;
+    if (v < 0){ setStatus('#convStatus', 'Mass cannot be negative.', 'bad'); return; }
+
+    if (src === 'kg') $('#convLbs').value = (v * 2.20462).toFixed(2);
+    else $('#convKg').value = (v / 2.20462).toFixed(2);
+
+    setStatus('#convStatus', 'OK', 'ok');
+  }
+
+  function convTemp(src){
+    const v = getNum('#conv' + src.toUpperCase());
+    if (v === null) return;
+
+    let c;
+    if (src === 'c') c = v;
+    else if (src === 'f') c = (v - 32) * 5 / 9;
+    else c = v - 273.15;
+
+    if (src !== 'c') $('#convC').value = c.toFixed(2);
+    if (src !== 'f') $('#convF').value = (c * 9 / 5 + 32).toFixed(2);
+    if (src !== 'k') $('#convK').value = (c + 273.15).toFixed(2);
+
+    setStatus('#convStatus', 'OK', 'ok');
+  }
+
+  let timerSec = 0;
+  let timerRun = false;
+  let timerInt = null;
+
+  function renderTimer(){
+    const h = Math.floor(timerSec / 3600);
+    const m = Math.floor((timerSec % 3600) / 60);
+    const s = timerSec % 60;
+    setText('#timerDisplay',
+      String(h).padStart(2,'0') + ':' +
+      String(m).padStart(2,'0') + ':' +
+      String(s).padStart(2,'0')
+    );
+  }
+
+  function toggleTimer(){
+    if (timerRun){
+      clearInterval(timerInt);
+      timerRun = false;
+      setText('#timerToggle', 'Start');
+    } else {
+      timerInt = setInterval(() => {
+        timerSec++;
+        renderTimer();
+      }, 1000);
+      timerRun = true;
+      setText('#timerToggle', 'Stop');
+    }
+  }
+
+  function resetTimer(){
+    clearInterval(timerInt);
+    timerRun = false;
+    timerSec = 0;
+    renderTimer();
+    setText('#timerToggle', 'Start');
+  }
+
+  function initNotes(){
+    const saved = localStorage.getItem(NOTES_KEY);
+    if (saved !== null) $('#notesBox').value = saved;
+
+    $('#notesSave').addEventListener('click', () => {
+      localStorage.setItem(NOTES_KEY, $('#notesBox').value);
+      setStatus('#notesStatus', 'Saved.', 'ok');
+    });
+
+    $('#notesCopy').addEventListener('click', async () => {
+      try{
+        await navigator.clipboard.writeText($('#notesBox').value || '');
+        setStatus('#notesStatus', 'Copied to clipboard.', 'ok');
+      }catch(e){
+        setStatus('#notesStatus', 'Clipboard copy failed.', 'bad');
+      }
+    });
+
+    $('#notesClear').addEventListener('click', () => {
+      $('#notesBox').value = '';
+      localStorage.removeItem(NOTES_KEY);
+      setStatus('#notesStatus', 'Cleared.', 'warn');
+    });
+  }
+
+  function bindInput(selectors, fn){
+    selectors.forEach(sel => {
+      const el = $(sel);
+      if (!el) return;
+      el.addEventListener('input', fn);
+      el.addEventListener('change', fn);
+    });
+  }
+
+  function init(){
+    bindInput(['#fuelType','#fuelVol','#fuelTemp'], calcFuel);
+    bindInput(['#costFlow','#costPrice','#costGs'], calcCost);
+    bindInput(['#flightTas','#flightDist','#flightCrs','#flightWdir','#flightWspd'], calcFlightBasic);
+    bindInput(['#freqGs','#freqDist','#freqFlow','#freqRes'], calcFuelReq);
+    bindInput(['#endFuel','#endFlow'], calcEndurance);
+    bindInput(['#atmoElev','#atmoOat','#atmoQnh'], calcDensityAltitude);
+    bindInput(['#tasIas','#tasAlt','#tasOat'], calcTasApprox);
+    bindInput(['#windRwy','#windDir','#windSpd'], calcWind);
+    bindInput([
+      '#wbEmptyWt','#wbEmptyArm','#wbCrewWt','#wbCrewArm',
+      '#wbPaxWt','#wbPaxArm','#wbFuelWt','#wbFuelArm',
+      '#wbCargoWt','#wbCargoArm'
+    ], calcWB);
+    bindInput(['#todCruise','#todTarget','#todGs','#todAngle'], calcTOD);
+    bindInput(['#pnrFuel','#pnrRes','#pnrFlowOut','#pnrFlowBack','#pnrGsOut','#pnrGsBack'], calcPNR);
+
+    $('#qnhHpa').addEventListener('input', () => syncQnh('hpa'));
+    $('#qnhInhg').addEventListener('input', () => syncQnh('inhg'));
+    $('#qnhMmhg').addEventListener('input', () => syncQnh('mmhg'));
+
+    $('#convKt').addEventListener('input', () => convSpeed('kt'));
+    $('#convKmh').addEventListener('input', () => convSpeed('kmh'));
+    $('#convMph').addEventListener('input', () => convSpeed('mph'));
+    $('#convMs').addEventListener('input', () => convSpeed('ms'));
+
+    $('#convNm').addEventListener('input', () => convDist('nm'));
+    $('#convKm').addEventListener('input', () => convDist('km'));
+    $('#convMi').addEventListener('input', () => convDist('mi'));
+    $('#convFt').addEventListener('input', () => convDist('ft'));
+
+    $('#convL').addEventListener('input', () => convVol('l'));
+    $('#convUsg').addEventListener('input', () => convVol('usg'));
+    $('#convImpg').addEventListener('input', () => convVol('impg'));
+
+    $('#convKg').addEventListener('input', () => convMass('kg'));
+    $('#convLbs').addEventListener('input', () => convMass('lbs'));
+
+    $('#convC').addEventListener('input', () => convTemp('c'));
+    $('#convF').addEventListener('input', () => convTemp('f'));
+    $('#convK').addEventListener('input', () => convTemp('k'));
+
+    $('#timerToggle').addEventListener('click', toggleTimer);
+    $('#timerReset').addEventListener('click', resetTimer);
+
+    initNotes();
+    renderTimer();
+  }
+
+  init();
 })();
 </script>
 </body>
