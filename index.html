@@ -1,290 +1,735 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Aviation Pro</title>
   <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg-dark:#07101f;
-  --card:#f8f9fb;
-  --card-2:#ffffff;
-  --text:#121826;
-  --muted:#6b7280;
-  --line:#e7ebf1;
-  --section:rgba(255,255,255,.78);
-  --green:#43c463;
-  --blue:#3b82f6;
-  --orange:#ff9f0a;
-  --header-h:64px;
-  --tabbar-h:82px;
-  --content-max:760px
-}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg-dark);
-  color:#fff;
-  min-height:100vh;
-  overflow-x:hidden
-}
+    *{box-sizing:border-box;margin:0;padding:0}
 
-.bg{
-  position:fixed;inset:0;z-index:-3;
-  background-size:cover;background-position:center;
-  transition:background-image 0.5s ease
-}
-.bg::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(6,11,20,.15) 0%,rgba(6,11,20,.35) 50%,rgba(6,11,20,.65) 100%)
-}
-.bg-menu{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-Ez889A91dg8W5kQDhf2mvwFJdMrg58.webp')}
-.bg-fuel{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/istockphoto-1053505692-612x612-VkvezcjUzqFCZ6bhwOpgU24Wjy3MUj.jpg')}
-.bg-cost{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-sIMtD1RlziEl1Oih0ZfS7f6XoyjBQu.jpg')}
-.bg-flight{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1521722685154115526-2UsZXMr3sFh5xPg1YgmY8DiE4goAm3.jpg')}
-.bg-atmo{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kabina-Airbus-A380-600x320-LPLi9CDKC6lmGaQzhW2kRgyC01Wn7w.jpg')}
-.bg-safety{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Kabina-pilotov-A319-yWCHxgcCU7MgUCdNZFvtjiNdtCHjiZ.jpg')}
-.bg-tools{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2023-11-21_02-13-56-1skru2MqtcsuqEmh5U8tFZiryQWcVO.jpg')}
-.bg-system{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-sIMtD1RlziEl1Oih0ZfS7f6XoyjBQu.jpg')}
+    :root{
+      --bg-dark:#07101f;
+      --card:#f6f8fb;
+      --card-2:#fbfcfe;
+      --text:#121826;
+      --muted:#6b7280;
+      --muted-2:#8792a2;
+      --line:#e7ebf1;
+      --section:rgba(255,255,255,.78);
 
-.app{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:16px 16px 100px
-}
-.phone{
-  width:100%;
-  max-width:var(--content-max);
-  min-height:calc(100vh - 32px);
-  border-radius:32px;
-  overflow:hidden;
-  box-shadow:0 24px 70px rgba(0,0,0,.34);
-  background:rgba(7,16,31,.18);
-  border:1px solid rgba(255,255,255,.07);
-  position:relative;
-  backdrop-filter:blur(10px)
-}
-.topbar{
-  height:var(--header-h);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:sticky;top:0;z-index:20;
-  background:linear-gradient(180deg,rgba(9,16,30,.94),rgba(10,18,34,.88));
-  backdrop-filter:blur(18px);
-  border-bottom:1px solid rgba(255,255,255,.08);
-  box-shadow:0 6px 18px rgba(0,0,0,.12)
-}
-.topbar .back,.topbar .right{
-  position:absolute;top:0;height:100%;
-  display:flex;align-items:center;
-  color:#dbe4f0;font-size:15px;font-weight:600;letter-spacing:.1px
-}
-.topbar .back{left:16px;gap:6px;cursor:pointer}
-.topbar .right{right:16px}
-.chev{
-  width:10px;height:10px;
-  border-left:2px solid currentColor;
-  border-bottom:2px solid currentColor;
-  transform:rotate(45deg);margin-left:2px
-}
-.title{font-size:18px;font-weight:800;color:#fff;letter-spacing:.2px}
-.screen{display:none;padding:16px 14px 24px}
-.screen.active{display:block}
-.hero{margin:6px 4px 14px;color:#fff}
-.hero h1{font-size:32px;line-height:1.02;font-weight:900;letter-spacing:-.8px;margin-bottom:6px}
-.hero p{font-size:14px;color:rgba(255,255,255,.84);max-width:540px;line-height:1.45}
-.group{margin-bottom:18px}
-.group-label{
-  font-size:12px;font-weight:800;color:var(--section);
-  letter-spacing:1.7px;padding:0 12px 9px;text-transform:uppercase
-}
-.list{
-  background:linear-gradient(180deg, #ffffff, #f3f6fb);
-  border-radius:24px;overflow:hidden;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 20px 50px rgba(0,0,0,.25);
-  border:1px solid rgba(255,255,255,.55)
-}
-.item{
-  width:100%;border:none;background:transparent;
-  display:flex;align-items:center;gap:14px;
-  text-align:left;padding:18px;color:var(--text);
-  cursor:pointer;position:relative;transition:background .16s ease
-}
-.item+.item{border-top:1px solid var(--line)}
-.item:hover{background:rgba(59,130,246,.035)}
-.icon-wrap{
-  width:48px;height:48px;border-radius:16px;
-  display:flex;align-items:center;justify-content:center;
-  flex:0 0 auto;border:1px solid rgba(0,0,0,.05);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.65)
-}
-.icon-wrap svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.icon-fuel{background:linear-gradient(180deg,#fff3e8,#f8e2cb);color:#d66a11;border-color:rgba(214,106,17,.10)}
-.icon-cost{background:linear-gradient(180deg,#edf9ef,#dff2e4);color:#2ea44f;border-color:rgba(46,164,79,.10)}
-.icon-flight{background:linear-gradient(180deg,#e8f4ff,#d0e8fc);color:#2563eb;border-color:rgba(37,99,235,.10)}
-.icon-atmo{background:linear-gradient(180deg,#f3efff,#e7defc);color:#7b4dde;border-color:rgba(123,77,222,.10)}
-.icon-safety{background:linear-gradient(180deg,#fff0f0,#fce0e0);color:#dc2626;border-color:rgba(220,38,38,.10)}
-.icon-tools{background:linear-gradient(180deg,#fff7ea,#f8ead0);color:#d48806;border-color:rgba(212,136,6,.10)}
-.icon-system{background:linear-gradient(180deg,#edf9f7,#dbf1ec);color:#15946d;border-color:rgba(21,148,109,.10)}
-.item-text{min-width:0;flex:1}
-.item-title{font-size:17px;font-weight:800;color:var(--text);line-height:1.12;margin-bottom:4px;letter-spacing:-.2px}
-.item-sub{font-size:13px;color:var(--muted);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.item-arrow{width:10px;height:10px;border-right:2px solid #a0a9b7;border-top:2px solid #a0a9b7;transform:rotate(45deg);flex:0 0 auto;margin-right:4px}
+      --green:#3fbf62;
+      --green-2:#2fa24e;
+      --blue:#3b82f6;
+      --blue-2:#2563eb;
+      --orange:#d97706;
 
-.calc-shell{
-  background:linear-gradient(180deg, #ffffff, #f3f6fb);
-  border-radius:24px;padding:16px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 20px 50px rgba(0,0,0,.25);
-  border:1px solid rgba(255,255,255,.50)
-}
-.section-title{font-size:12px;font-weight:800;letter-spacing:1px;color:#7b8597;margin:2px 2px 10px;text-transform:uppercase}
-.field-list{background:var(--card-2);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:16px}
-.field-row{min-height:58px;display:grid;grid-template-columns:1.1fr 1fr auto;align-items:center;gap:12px;padding:0 16px}
-.field-row+.field-row{border-top:1px solid var(--line)}
-.field-label{font-size:16px;font-weight:700;color:#1f2937}
-.field-value{
-  justify-self:end;width:100%;max-width:160px;text-align:right;
-  border:none;background:transparent;font-size:20px;font-weight:800;
-  color:#d97706;outline:none;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif
-}
-.field-value:focus{color:#2563eb}
-.field-unit{font-size:15px;color:var(--muted);font-weight:700;min-width:38px;text-align:right}
-.field-select{
-  justify-self:end;width:100%;max-width:180px;text-align:right;
-  border:none;background:transparent;font-size:18px;font-weight:800;
-  color:#d97706;outline:none;cursor:pointer;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif
-}
+      --header-h:64px;
+      --tabbar-h:82px;
+      --content-max:760px;
 
-.answer{
-  background:linear-gradient(180deg,#49ce6a,#38bb57);
-  border-radius:20px;color:#fff;padding:16px 18px;
-  box-shadow:0 14px 24px rgba(56,187,87,.24)
-}
-.answer-label{font-size:12px;font-weight:800;letter-spacing:.95px;text-transform:uppercase;opacity:.88;margin-bottom:8px}
-.answer-value{font-size:28px;line-height:1.08;font-weight:900;letter-spacing:-.5px}
-.answer-sub{font-size:14px;opacity:.94;margin-top:7px}
-.answer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.2)}
-.answer-item{text-align:center}
-.answer-item-label{font-size:10px;opacity:.8;text-transform:uppercase;letter-spacing:.5px}
-.answer-item-value{font-size:18px;font-weight:800;margin-top:2px}
+      --shadow-card:0 12px 30px rgba(0,0,0,.18);
+      --shadow-soft:0 8px 20px rgba(0,0,0,.12);
+      --glass:rgba(255,255,255,.08);
 
-.tabs-row{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
-.tab-btn{
-  padding:10px 16px;background:rgba(0,0,0,.05);border:none;
-  border-radius:12px;font-size:13px;font-weight:700;color:var(--muted);
-  cursor:pointer;white-space:nowrap;transition:all .2s
-}
-.tab-btn.active{background:var(--blue);color:#fff}
-.tab-content{display:none}
-.tab-content.active{display:block}
+      --noise:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'>\
+<filter id='n'>\
+<feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/>\
+<feColorMatrix type='saturate' values='0'/>\
+<feComponentTransfer><feFuncA type='table' tableValues='0 0 .03 .05'/></feComponentTransfer>\
+</filter>\
+<rect width='120' height='120' filter='url(%23n)' opacity='0.20'/>\
+</svg>");
+    }
 
-.wind-compass{
-  width:180px;height:180px;margin:20px auto;position:relative;
-  border:2px solid var(--line);border-radius:50%;
-  background:radial-gradient(circle,rgba(59,130,246,.05) 0%,transparent 70%)
-}
-.compass-center{
-  position:absolute;top:50%;left:50%;width:10px;height:10px;
-  background:var(--blue);border-radius:50%;transform:translate(-50%,-50%);
-  box-shadow:0 0 10px var(--blue)
-}
-.compass-runway{
-  position:absolute;top:50%;left:50%;width:4px;height:60px;
-  background:linear-gradient(180deg,var(--green),rgba(67,196,99,.3));
-  transform-origin:center bottom;transform:translate(-50%,-100%);
-  border-radius:2px;box-shadow:0 0 8px var(--green)
-}
-.compass-wind{
-  position:absolute;top:50%;left:50%;width:3px;height:55px;
-  background:linear-gradient(180deg,#ef4444,rgba(239,68,68,.3));
-  transform-origin:center bottom;transform:translate(-50%,-100%) rotate(45deg);
-  border-radius:2px;box-shadow:0 0 8px #ef4444
-}
-.compass-labels{position:absolute;inset:0;font-size:11px;font-weight:700;color:var(--muted)}
-.compass-labels span{position:absolute}
-.compass-labels .n{top:6px;left:50%;transform:translateX(-50%);color:var(--blue)}
-.compass-labels .s{bottom:6px;left:50%;transform:translateX(-50%)}
-.compass-labels .e{right:6px;top:50%;transform:translateY(-50%)}
-.compass-labels .w{left:6px;top:50%;transform:translateY(-50%)}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:var(--bg-dark);
+      color:#fff;
+      min-height:100vh;
+      overflow-x:hidden;
+    }
 
-.timer-display{
-  font-size:56px;font-weight:900;text-align:center;
-  color:var(--text);padding:24px;letter-spacing:-2px;
-  font-family:"SF Mono",Menlo,Monaco,monospace
-}
-.timer-btns{display:flex;gap:12px;justify-content:center}
-.timer-btn{
-  padding:14px 28px;border:none;border-radius:14px;
-  font-size:16px;font-weight:800;cursor:pointer;transition:all .2s
-}
-.timer-btn.start{background:var(--green);color:#fff}
-.timer-btn.stop{background:#ef4444;color:#fff}
-.timer-btn.reset{background:var(--line);color:var(--text)}
+    .mono,
+    .field-value,
+    .field-select,
+    .answer-value,
+    .answer-item-value,
+    .timer-display,
+    .tool-value,
+    .wb-moment,
+    .wb-arm,
+    .wb-weight{
+      font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+      font-variant-numeric:tabular-nums;
+    }
 
-.notes-box{
-  width:100%;min-height:200px;border:1px solid var(--line);
-  border-radius:14px;padding:14px;font-size:15px;
-  font-family:"SF Mono",Menlo,Monaco,monospace;resize:vertical;outline:none
-}
-.notes-box:focus{border-color:var(--blue)}
-.notes-actions{display:flex;gap:10px;margin-top:12px}
-.notes-btn{
-  padding:10px 18px;border:1px solid var(--line);border-radius:10px;
-  background:#fff;font-size:13px;font-weight:700;color:var(--text);cursor:pointer
-}
-.notes-btn:hover{border-color:var(--blue)}
-.notes-btn.danger:hover{border-color:#ef4444;color:#ef4444}
+    .bg{
+      position:fixed; inset:0; z-index:-3;
+      background-size:cover;
+      background-position:center;
+      transition:background-image .45s ease;
+    }
+    .bg::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        linear-gradient(180deg,rgba(6,11,20,.18) 0%,rgba(6,11,20,.38) 48%,rgba(6,11,20,.70) 100%);
+    }
 
-.tabbar{
-  position:sticky;bottom:0;z-index:22;
-  height:var(--tabbar-h);
-  background:linear-gradient(180deg,rgba(9,16,30,.96),rgba(7,14,28,.94));
-  backdrop-filter:blur(20px);
-  border-top:1px solid rgba(255,255,255,.08);
-  display:flex;align-items:flex-start;justify-content:space-around;
-  padding-top:10px;box-shadow:0 -8px 20px rgba(0,0,0,.12)
-}
-.tab{
-  border:none;background:transparent;color:rgba(255,255,255,.72);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:6px;min-width:50px;cursor:pointer;padding:2px 6px;
-  position:relative;transition:transform .15s ease
-}
-.tab:active{transform:scale(0.95)}
-.tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.tab span{font-size:10px;font-weight:700;letter-spacing:.2px}
-.tab.active{color:#fff;text-shadow:0 0 8px rgba(67,196,99,.6)}
-.tab.active::after{
-  content:"";position:absolute;bottom:0;width:30px;height:3px;
-  background:var(--green);border-radius:2px
-}
-.tab.active .dot{width:5px;height:5px;border-radius:50%;background:var(--green);margin-top:-1px;box-shadow:0 0 8px rgba(67,196,99,.38)}
-.tab .dot{visibility:hidden}
-.tab.active .dot{visibility:visible}
+    .bg-menu{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-Ez889A91dg8W5kQDhf2mvwFJdMrg58.webp')}
+    .bg-fuel{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/istockphoto-1053505692-612x612-VkvezcjUzqFCZ6bhwOpgU24Wjy3MUj.jpg')}
+    .bg-cost{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-sIMtD1RlziEl1Oih0ZfS7f6XoyjBQu.jpg')}
+    .bg-flight{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1521722685154115526-2UsZXMr3sFh5xPg1YgmY8DiE4goAm3.jpg')}
+    .bg-atmo{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kabina-Airbus-A380-600x320-LPLi9CDKC6lmGaQzhW2kRgyC01Wn7w.jpg')}
+    .bg-safety{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Kabina-pilotov-A319-yWCHxgcCU7MgUCdNZFvtjiNdtCHjiZ.jpg')}
+    .bg-tools{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2023-11-21_02-13-56-1skru2MqtcsuqEmh5U8tFZiryQWcVO.jpg')}
+    .bg-system{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-sIMtD1RlziEl1Oih0ZfS7f6XoyjBQu.jpg')}
 
-@media(max-width:700px){
-  .phone{border-radius:0;min-height:100vh}
-  .app{padding:0 0 92px}
-  .hero h1{font-size:28px}
-  .field-row{grid-template-columns:1fr .82fr auto}
-  .field-value{font-size:18px}
-  .answer-grid{grid-template-columns:repeat(2,1fr)}
-}
+    .app{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:16px 16px 100px;
+    }
+
+    .phone{
+      width:100%;
+      max-width:var(--content-max);
+      min-height:calc(100vh - 32px);
+      border-radius:32px;
+      overflow:hidden;
+      box-shadow:0 24px 70px rgba(0,0,0,.34);
+      background:rgba(7,16,31,.20);
+      border:1px solid rgba(255,255,255,.07);
+      position:relative;
+      backdrop-filter:blur(10px);
+    }
+
+    .topbar{
+      height:var(--header-h);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:linear-gradient(180deg,rgba(9,16,30,.92),rgba(10,18,34,.84));
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 6px 18px rgba(0,0,0,.10);
+    }
+
+    .topbar .back,
+    .topbar .right{
+      position:absolute;
+      top:0;
+      height:100%;
+      display:flex;
+      align-items:center;
+      color:#dbe4f0;
+      font-size:14px;
+      font-weight:600;
+      letter-spacing:.08px;
+    }
+
+    .topbar .back{left:16px;gap:6px;cursor:pointer}
+    .topbar .right{right:16px}
+
+    .chev{
+      width:10px;height:10px;
+      border-left:1.8px solid currentColor;
+      border-bottom:1.8px solid currentColor;
+      transform:rotate(45deg);
+      margin-left:2px;
+    }
+
+    .title{
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:-.2px;
+      color:#fff;
+    }
+
+    .screen{display:none;padding:16px 14px 24px}
+    .screen.active{display:block}
+
+    .hero{
+      margin:6px 4px 14px;
+      color:#fff;
+    }
+    .hero h1{
+      font-size:32px;
+      line-height:1.02;
+      font-weight:800;
+      letter-spacing:-.6px;
+      margin-bottom:6px;
+    }
+    .hero p{
+      font-size:14px;
+      color:rgba(255,255,255,.84);
+      max-width:540px;
+      line-height:1.45;
+      font-weight:500;
+    }
+
+    .group{margin-bottom:18px}
+    .group-label{
+      font-size:12px;
+      font-weight:700;
+      color:var(--section);
+      letter-spacing:1.6px;
+      padding:0 12px 9px;
+      text-transform:uppercase;
+    }
+
+    .list,
+    .calc-shell{
+      position:relative;
+      background:
+        linear-gradient(180deg,var(--card),#f2f5fa),
+        var(--noise);
+      background-blend-mode:normal,overlay;
+      border:1px solid rgba(255,255,255,.42);
+      box-shadow:var(--shadow-card);
+    }
+
+    .list{
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    .item{
+      width:100%;
+      border:none;
+      background:transparent;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      text-align:left;
+      padding:18px;
+      color:var(--text);
+      cursor:pointer;
+      position:relative;
+      transition:background .16s ease, transform .12s ease;
+    }
+    .item + .item{border-top:1px solid var(--line)}
+    .item:hover{background:rgba(59,130,246,.03)}
+    .item:active{transform:scale(.997)}
+
+    .icon-wrap{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      border:1px solid rgba(255,255,255,.44);
+      background:rgba(255,255,255,.68);
+      backdrop-filter:blur(8px);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
+    }
+
+    .icon-wrap svg,
+    .tab svg{
+      width:21px;
+      height:21px;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      opacity:.90;
+    }
+
+    .icon-fuel{color:#c46a18}
+    .icon-cost{color:#2e9e4b}
+    .icon-flight{color:#2d6ce8}
+    .icon-atmo{color:#7450d6}
+    .icon-safety{color:#d33636}
+    .icon-tools{color:#c48211}
+    .icon-system{color:#168b69}
+
+    .item-text{min-width:0;flex:1}
+    .item-title{
+      font-size:17px;
+      font-weight:800;
+      color:var(--text);
+      line-height:1.12;
+      margin-bottom:4px;
+      letter-spacing:-.18px;
+    }
+    .item-sub{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.35;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:100%;
+      font-weight:500;
+    }
+
+    .item-arrow{
+      width:10px;
+      height:10px;
+      border-right:1.8px solid #a0a9b7;
+      border-top:1.8px solid #a0a9b7;
+      transform:rotate(45deg);
+      flex:0 0 auto;
+      margin-right:4px;
+      opacity:.9;
+    }
+
+    .calc-shell{
+      border-radius:24px;
+      padding:16px;
+    }
+
+    .section-title{
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:1px;
+      color:#7b8597;
+      margin:2px 2px 10px;
+      text-transform:uppercase;
+    }
+
+    .field-list{
+      background:rgba(255,255,255,.82);
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      margin-bottom:16px;
+      backdrop-filter:blur(6px);
+    }
+
+    .field-row{
+      min-height:58px;
+      display:grid;
+      grid-template-columns:1.12fr 1fr auto;
+      align-items:center;
+      gap:12px;
+      padding:0 16px;
+    }
+    .field-row + .field-row{border-top:1px solid var(--line)}
+
+    .field-label{
+      font-size:16px;
+      font-weight:700;
+      color:#1f2937;
+      letter-spacing:-.15px;
+    }
+
+    .field-value,
+    .field-select{
+      justify-self:end;
+      width:100%;
+      text-align:right;
+      border:none;
+      background:transparent;
+      outline:none;
+      color:var(--orange);
+      font-weight:600;
+    }
+
+    .field-value{
+      max-width:160px;
+      font-size:19px;
+    }
+
+    .field-select{
+      max-width:220px;
+      font-size:17px;
+      cursor:pointer;
+    }
+
+    .field-value:focus,
+    .field-select:focus{color:var(--blue-2)}
+
+    .field-unit{
+      font-size:14px;
+      color:var(--muted);
+      font-weight:700;
+      min-width:42px;
+      text-align:right;
+    }
+
+    .answer{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg,rgba(63,191,98,.90),rgba(47,162,78,.92)),
+        var(--noise);
+      background-blend-mode:normal,overlay;
+      border-radius:20px;
+      color:#fff;
+      padding:16px 18px;
+      box-shadow:0 12px 22px rgba(47,162,78,.22);
+      border:1px solid rgba(255,255,255,.14);
+      backdrop-filter:blur(10px);
+    }
+
+    .answer-label{
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.95px;
+      text-transform:uppercase;
+      opacity:.88;
+      margin-bottom:8px;
+    }
+    .answer-value{
+      font-size:27px;
+      line-height:1.08;
+      font-weight:700;
+      letter-spacing:-.4px;
+    }
+    .answer-sub{
+      font-size:14px;
+      opacity:.94;
+      margin-top:7px;
+      font-weight:500;
+    }
+
+    .answer-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid rgba(255,255,255,.20);
+    }
+
+    .answer-item{text-align:center}
+    .answer-item-label{
+      font-size:10px;
+      opacity:.8;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      font-weight:600;
+    }
+    .answer-item-value{
+      font-size:17px;
+      font-weight:700;
+      margin-top:3px;
+    }
+
+    .tabs-row{
+      display:flex;
+      gap:8px;
+      margin-bottom:16px;
+      overflow-x:auto;
+      padding-bottom:4px;
+      scrollbar-width:none;
+    }
+    .tabs-row::-webkit-scrollbar{display:none}
+
+    .tab-btn{
+      padding:10px 16px;
+      background:rgba(0,0,0,.045);
+      border:none;
+      border-radius:12px;
+      font-size:13px;
+      font-weight:700;
+      color:var(--muted);
+      cursor:pointer;
+      white-space:nowrap;
+      transition:all .2s;
+    }
+    .tab-btn.active{
+      background:var(--blue);
+      color:#fff;
+      box-shadow:0 8px 16px rgba(59,130,246,.18);
+    }
+
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+
+    .stack{display:grid;gap:16px}
+
+    .tool-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .tool-card{
+      background:rgba(255,255,255,.82);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+    }
+    .tool-label{
+      font-size:11px;
+      text-transform:uppercase;
+      color:var(--muted-2);
+      letter-spacing:.6px;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    .tool-value{
+      font-size:20px;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .wind-compass{
+      width:180px;
+      height:180px;
+      margin:20px auto;
+      position:relative;
+      border:2px solid var(--line);
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 70%);
+    }
+
+    .compass-center{
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:10px;
+      height:10px;
+      background:var(--blue);
+      border-radius:50%;
+      transform:translate(-50%,-50%);
+      box-shadow:0 0 10px rgba(59,130,246,.28);
+    }
+
+    .compass-runway{
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:4px;
+      height:60px;
+      background:linear-gradient(180deg,var(--green),rgba(63,191,98,.28));
+      transform-origin:center bottom;
+      transform:translate(-50%,-100%);
+      border-radius:2px;
+    }
+
+    .compass-wind{
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:3px;
+      height:55px;
+      background:linear-gradient(180deg,#ef4444,rgba(239,68,68,.30));
+      transform-origin:center bottom;
+      transform:translate(-50%,-100%) rotate(45deg);
+      border-radius:2px;
+    }
+
+    .compass-labels{
+      position:absolute;
+      inset:0;
+      font-size:11px;
+      font-weight:700;
+      color:var(--muted);
+    }
+    .compass-labels span{position:absolute}
+    .compass-labels .n{top:6px;left:50%;transform:translateX(-50%);color:var(--blue)}
+    .compass-labels .s{bottom:6px;left:50%;transform:translateX(-50%)}
+    .compass-labels .e{right:6px;top:50%;transform:translateY(-50%)}
+    .compass-labels .w{left:6px;top:50%;transform:translateY(-50%)}
+
+    .wb-table{
+      background:rgba(255,255,255,.82);
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      margin-bottom:16px;
+    }
+    .wb-head,.wb-row{
+      display:grid;
+      grid-template-columns:1.3fr .8fr .8fr .9fr;
+      gap:10px;
+      padding:12px 14px;
+      align-items:center;
+    }
+    .wb-head{
+      background:rgba(0,0,0,.03);
+      color:var(--muted-2);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.6px;
+      font-weight:700;
+    }
+    .wb-row + .wb-row{border-top:1px solid var(--line)}
+    .wb-row input{
+      width:100%;
+      border:none;
+      background:transparent;
+      outline:none;
+      font:inherit;
+      color:var(--text);
+    }
+    .wb-row .wb-arm,
+    .wb-row .wb-weight,
+    .wb-row .wb-moment{
+      text-align:right;
+      font-weight:600;
+      font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+    }
+
+    .timer-display{
+      font-size:54px;
+      font-weight:700;
+      text-align:center;
+      color:var(--text);
+      padding:24px;
+      letter-spacing:-2px;
+    }
+
+    .timer-btns{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .timer-btn{
+      padding:14px 24px;
+      border:none;
+      border-radius:14px;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      transition:all .2s;
+    }
+    .timer-btn.start{background:var(--green);color:#fff}
+    .timer-btn.stop{background:#ef4444;color:#fff}
+    .timer-btn.reset{background:#e9eef5;color:var(--text)}
+
+    .notes-box{
+      width:100%;
+      min-height:220px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+      font-size:15px;
+      resize:vertical;
+      outline:none;
+      background:rgba(255,255,255,.86);
+      color:var(--text);
+      font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+    }
+    .notes-box:focus{border-color:var(--blue)}
+
+    .notes-actions{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+
+    .notes-btn{
+      padding:10px 18px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff;
+      font-size:13px;
+      font-weight:700;
+      color:var(--text);
+      cursor:pointer;
+    }
+    .notes-btn:hover{border-color:var(--blue)}
+    .notes-btn.danger:hover{border-color:#ef4444;color:#ef4444}
+
+    .tabbar{
+      position:sticky;
+      bottom:0;
+      z-index:22;
+      height:var(--tabbar-h);
+      background:linear-gradient(180deg,rgba(9,16,30,.92),rgba(7,14,28,.90));
+      backdrop-filter:blur(18px);
+      border-top:1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-around;
+      padding-top:10px;
+      box-shadow:0 -6px 16px rgba(0,0,0,.10);
+    }
+
+    .tab{
+      border:none;
+      background:transparent;
+      color:rgba(255,255,255,.72);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-width:50px;
+      cursor:pointer;
+      padding:2px 6px;
+      position:relative;
+      transition:transform .15s ease,color .15s ease;
+    }
+    .tab:active{transform:scale(.95)}
+    .tab span{
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .tab.active{
+      color:#fff;
+      text-shadow:none;
+    }
+    .tab.active::after{
+      content:"";
+      position:absolute;
+      bottom:0;
+      width:28px;
+      height:3px;
+      background:var(--green);
+      border-radius:2px;
+    }
+    .tab .dot{visibility:hidden}
+    .tab.active .dot{
+      visibility:visible;
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:var(--green);
+      margin-top:-1px;
+      box-shadow:0 0 6px rgba(63,191,98,.26);
+    }
+
+    .helper{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:-6px;
+      margin-bottom:12px;
+      font-weight:500;
+    }
+
+    @media(max-width:700px){
+      .phone{border-radius:0;min-height:100vh}
+      .app{padding:0 0 92px}
+      .hero h1{font-size:28px}
+      .field-row{grid-template-columns:1fr .82fr auto}
+      .field-value{font-size:18px}
+      .answer-grid{grid-template-columns:repeat(2,1fr)}
+      .tool-grid{grid-template-columns:1fr}
+      .wb-head,.wb-row{grid-template-columns:1.2fr .8fr .8fr .9fr;font-size:13px}
+    }
   </style>
 </head>
 <body>
   <div class="bg bg-menu" id="bgLayer"></div>
+
   <div class="app">
     <div class="phone">
       <header class="topbar">
-        <div class="back" id="backBtn" style="visibility:hidden"><span class="chev"></span><span>Back</span></div>
+        <div class="back" id="backBtn" style="visibility:hidden">
+          <span class="chev"></span>
+          <span>Back</span>
+        </div>
         <div class="title" id="topTitle">Aviation Pro</div>
-        <div class="right" id="clockDisplay">00:00Z</div>
+        <div class="right mono" id="clockDisplay">00:00Z</div>
       </header>
 
       <section class="screen active" id="screen-menu">
@@ -292,42 +737,84 @@ body{
           <h1>Aviation Pro</h1>
           <p>Advanced aviation tools for real flight operations</p>
         </div>
+
         <div class="group">
           <div class="group-label">Calculators</div>
           <div class="list">
             <button class="item" data-screen="fuel">
-              <div class="icon-wrap icon-fuel"><svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg></div>
-              <div class="item-text"><div class="item-title">Fuel Calculator</div><div class="item-sub">Mass, volume, temperature correction</div></div>
+              <div class="icon-wrap icon-fuel">
+                <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Fuel Calculator</div>
+                <div class="item-sub">Mass, volume, temperature correction</div>
+              </div>
               <div class="item-arrow"></div>
             </button>
+
             <button class="item" data-screen="cost">
-              <div class="icon-wrap icon-cost"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9h6M9 15h6"/></svg></div>
-              <div class="item-text"><div class="item-title">Cost Calculator</div><div class="item-sub">Per hour, per NM, per 100 NM</div></div>
+              <div class="icon-wrap icon-cost">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9h6M9 15h6"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Cost Calculator</div>
+                <div class="item-sub">Per hour, per NM, per 100 NM</div>
+              </div>
               <div class="item-arrow"></div>
             </button>
+
             <button class="item" data-screen="flight">
-              <div class="icon-wrap icon-flight"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></div>
-              <div class="item-text"><div class="item-title">Flight Planning</div><div class="item-sub">GS, ETE, wind correction, fuel required</div></div>
+              <div class="icon-wrap icon-flight">
+                <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Flight Planning</div>
+                <div class="item-sub">GS, ETE, wind correction, fuel required</div>
+              </div>
               <div class="item-arrow"></div>
             </button>
+
             <button class="item" data-screen="atmo">
-              <div class="icon-wrap icon-atmo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v6M12 17v6"/></svg></div>
-              <div class="item-text"><div class="item-title">Atmosphere</div><div class="item-sub">Density altitude, QNH, TAS</div></div>
+              <div class="icon-wrap icon-atmo">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v6M12 17v6"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Atmosphere</div>
+                <div class="item-sub">Density altitude, QNH, TAS</div>
+              </div>
               <div class="item-arrow"></div>
             </button>
+
             <button class="item" data-screen="safety">
-              <div class="icon-wrap icon-safety"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-              <div class="item-text"><div class="item-title">Safety</div><div class="item-sub">Wind, W&B, TOD, PNR</div></div>
+              <div class="icon-wrap icon-safety">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Safety</div>
+                <div class="item-sub">Wind, W&amp;B, TOD, PNR</div>
+              </div>
               <div class="item-arrow"></div>
             </button>
+
             <button class="item" data-screen="tools">
-              <div class="icon-wrap icon-tools"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/><path d="M9 5l-2 2 2 2M15 19l2-2-2-2"/></svg></div>
-              <div class="item-text"><div class="item-title">Converters</div><div class="item-sub">Speed, distance, volume, mass, temp</div></div>
+              <div class="icon-wrap icon-tools">
+                <svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/><path d="M9 5l-2 2 2 2M15 19l2-2-2-2"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">Converters</div>
+                <div class="item-sub">Speed, distance, volume, mass, temp</div>
+              </div>
               <div class="item-arrow"></div>
             </button>
+
             <button class="item" data-screen="system">
-              <div class="icon-wrap icon-system"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M1 12h6M17 12h6"/></svg></div>
-              <div class="item-text"><div class="item-title">System</div><div class="item-sub">Timer, notes</div></div>
+              <div class="icon-wrap icon-system">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M1 12h6M17 12h6"/></svg>
+              </div>
+              <div class="item-text">
+                <div class="item-title">System</div>
+                <div class="item-sub">Timer, notes</div>
+              </div>
               <div class="item-arrow"></div>
             </button>
           </div>
@@ -345,21 +832,24 @@ body{
                 <option value="jeta">Jet A (0.804)</option>
                 <option value="avgas">Avgas 100LL (0.721)</option>
               </select>
+              <div class="field-unit"></div>
             </div>
           </div>
+
           <div class="section-title">Input</div>
           <div class="field-list">
             <div class="field-row">
               <div class="field-label">Volume</div>
-              <input class="field-value" id="fuelVol" type="number" placeholder="0">
+              <input class="field-value" id="fuelVol" type="number" placeholder="0" />
               <div class="field-unit">L</div>
             </div>
             <div class="field-row">
               <div class="field-label">Temperature</div>
-              <input class="field-value" id="fuelTemp" type="number" value="15">
-              <div class="field-unit">C</div>
+              <input class="field-value" id="fuelTemp" type="number" value="15" />
+              <div class="field-unit">°C</div>
             </div>
           </div>
+
           <div class="section-title">Result</div>
           <div class="answer">
             <div class="answer-label">Fuel Mass</div>
@@ -379,20 +869,21 @@ body{
           <div class="field-list">
             <div class="field-row">
               <div class="field-label">Fuel Flow</div>
-              <input class="field-value" id="costFlow" type="number" placeholder="0">
+              <input class="field-value" id="costFlow" type="number" placeholder="0" />
               <div class="field-unit">L/H</div>
             </div>
             <div class="field-row">
               <div class="field-label">Price/Liter</div>
-              <input class="field-value" id="costPrice" type="number" placeholder="0.00" step="0.01">
+              <input class="field-value" id="costPrice" type="number" placeholder="0.00" step="0.01" />
               <div class="field-unit">$</div>
             </div>
             <div class="field-row">
               <div class="field-label">Ground Speed</div>
-              <input class="field-value" id="costGs" type="number" placeholder="0">
+              <input class="field-value" id="costGs" type="number" placeholder="0" />
               <div class="field-unit">KT</div>
             </div>
           </div>
+
           <div class="section-title">Result</div>
           <div class="answer">
             <div class="answer-label">Cost per Hour</div>
@@ -413,15 +904,17 @@ body{
             <button class="tab-btn" data-tab="fuelreq">Fuel Req</button>
             <button class="tab-btn" data-tab="endur">Endurance</button>
           </div>
+
           <div class="tab-content active" id="tab-basic">
             <div class="section-title">Input</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">TAS</div><input class="field-value" id="flightTas" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label">Distance</div><input class="field-value" id="flightDist" type="number" placeholder="0"><div class="field-unit">NM</div></div>
-              <div class="field-row"><div class="field-label">Course</div><input class="field-value" id="flightCrs" type="number" placeholder="0"><div class="field-unit">DEG</div></div>
-              <div class="field-row"><div class="field-label">Wind From</div><input class="field-value" id="flightWdir" type="number" placeholder="0"><div class="field-unit">DEG</div></div>
-              <div class="field-row"><div class="field-label">Wind Speed</div><input class="field-value" id="flightWspd" type="number" placeholder="0"><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">TAS</div><input class="field-value" id="flightTas" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">Distance</div><input class="field-value" id="flightDist" type="number" placeholder="0" /><div class="field-unit">NM</div></div>
+              <div class="field-row"><div class="field-label">Course</div><input class="field-value" id="flightCrs" type="number" placeholder="0" /><div class="field-unit">°</div></div>
+              <div class="field-row"><div class="field-label">Wind From</div><input class="field-value" id="flightWdir" type="number" placeholder="0" /><div class="field-unit">°</div></div>
+              <div class="field-row"><div class="field-label">Wind Speed</div><input class="field-value" id="flightWspd" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
             </div>
+
             <div class="section-title">Result</div>
             <div class="answer">
               <div class="answer-label">Ground Speed</div>
@@ -433,14 +926,16 @@ body{
               </div>
             </div>
           </div>
+
           <div class="tab-content" id="tab-fuelreq">
             <div class="section-title">Input</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">Ground Speed</div><input class="field-value" id="freqGs" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label">Distance</div><input class="field-value" id="freqDist" type="number" placeholder="0"><div class="field-unit">NM</div></div>
-              <div class="field-row"><div class="field-label">Fuel Flow</div><input class="field-value" id="freqFlow" type="number" placeholder="0"><div class="field-unit">L/H</div></div>
-              <div class="field-row"><div class="field-label">Reserve</div><input class="field-value" id="freqRes" type="number" placeholder="0"><div class="field-unit">L</div></div>
+              <div class="field-row"><div class="field-label">Ground Speed</div><input class="field-value" id="freqGs" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">Distance</div><input class="field-value" id="freqDist" type="number" placeholder="0" /><div class="field-unit">NM</div></div>
+              <div class="field-row"><div class="field-label">Fuel Flow</div><input class="field-value" id="freqFlow" type="number" placeholder="0" /><div class="field-unit">L/H</div></div>
+              <div class="field-row"><div class="field-label">Reserve</div><input class="field-value" id="freqRes" type="number" placeholder="0" /><div class="field-unit">L</div></div>
             </div>
+
             <div class="section-title">Result</div>
             <div class="answer">
               <div class="answer-label">Trip Fuel</div>
@@ -452,12 +947,14 @@ body{
               </div>
             </div>
           </div>
+
           <div class="tab-content" id="tab-endur">
             <div class="section-title">Input</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">Fuel Available</div><input class="field-value" id="endFuel" type="number" placeholder="0"><div class="field-unit">L</div></div>
-              <div class="field-row"><div class="field-label">Fuel Flow</div><input class="field-value" id="endFlow" type="number" placeholder="0"><div class="field-unit">L/H</div></div>
+              <div class="field-row"><div class="field-label">Fuel Available</div><input class="field-value" id="endFuel" type="number" placeholder="0" /><div class="field-unit">L</div></div>
+              <div class="field-row"><div class="field-label">Fuel Flow</div><input class="field-value" id="endFlow" type="number" placeholder="0" /><div class="field-unit">L/H</div></div>
             </div>
+
             <div class="section-title">Result</div>
             <div class="answer">
               <div class="answer-label">Endurance</div>
@@ -475,13 +972,15 @@ body{
             <button class="tab-btn" data-tab="qnh">QNH</button>
             <button class="tab-btn" data-tab="tas">TAS</button>
           </div>
+
           <div class="tab-content active" id="tab-da">
             <div class="section-title">Input</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">Elevation</div><input class="field-value" id="atmoElev" type="number" placeholder="0"><div class="field-unit">FT</div></div>
-              <div class="field-row"><div class="field-label">OAT</div><input class="field-value" id="atmoOat" type="number" value="15"><div class="field-unit">C</div></div>
-              <div class="field-row"><div class="field-label">QNH</div><input class="field-value" id="atmoQnh" type="number" value="1013.25" step="0.01"><div class="field-unit">hPa</div></div>
+              <div class="field-row"><div class="field-label">Elevation</div><input class="field-value" id="atmoElev" type="number" placeholder="0" /><div class="field-unit">FT</div></div>
+              <div class="field-row"><div class="field-label">OAT</div><input class="field-value" id="atmoOat" type="number" value="15" /><div class="field-unit">°C</div></div>
+              <div class="field-row"><div class="field-label">QNH</div><input class="field-value" id="atmoQnh" type="number" value="1013.25" step="0.01" /><div class="field-unit">hPa</div></div>
             </div>
+
             <div class="section-title">Result</div>
             <div class="answer">
               <div class="answer-label">Density Altitude</div>
@@ -493,25 +992,35 @@ body{
               </div>
             </div>
           </div>
+
           <div class="tab-content" id="tab-qnh">
             <div class="section-title">QNH Converter</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">hPa</div><input class="field-value" id="qnhHpa" type="number" placeholder="1013.25" step="0.01"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">inHg</div><input class="field-value" id="qnhInhg" type="number" placeholder="29.92" step="0.01"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">mmHg</div><input class="field-value" id="qnhMmhg" type="number" placeholder="760" step="0.1"><div class="field-unit"></div></div>
+              <div class="field-row"><div class="field-label">hPa</div><input class="field-value" id="qnhHpa" type="number" placeholder="1013.25" step="0.01" /><div class="field-unit"></div></div>
+              <div class="field-row"><div class="field-label">inHg</div><input class="field-value" id="qnhInhg" type="number" placeholder="29.92" step="0.02" /><div class="field-unit"></div></div>
+              <div class="field-row"><div class="field-label">mmHg</div><input class="field-value" id="qnhMmhg" type="number" placeholder="760" step="0.1" /><div class="field-unit"></div></div>
+            </div>
+
+            <div class="section-title">Result</div>
+            <div class="tool-grid">
+              <div class="tool-card"><div class="tool-label">Standard</div><div class="tool-value">1013.25 hPa</div></div>
+              <div class="tool-card"><div class="tool-label">Equivalent</div><div class="tool-value">29.92 inHg</div></div>
             </div>
           </div>
+
           <div class="tab-content" id="tab-tas">
-            <div class="section-title">Input</div>
+            <div class="section-title">TAS Approximation</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">IAS/CAS</div><input class="field-value" id="tasIas" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label">Press Alt</div><input class="field-value" id="tasAlt" type="number" placeholder="0"><div class="field-unit">FT</div></div>
-              <div class="field-row"><div class="field-label">OAT</div><input class="field-value" id="tasOat" type="number" placeholder="0"><div class="field-unit">C</div></div>
+              <div class="field-row"><div class="field-label">IAS / CAS</div><input class="field-value" id="tasIas" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">Altitude</div><input class="field-value" id="tasAlt" type="number" placeholder="0" /><div class="field-unit">FT</div></div>
+              <div class="field-row"><div class="field-label">OAT</div><input class="field-value" id="tasOat" type="number" value="15" /><div class="field-unit">°C</div></div>
             </div>
+
             <div class="section-title">Result</div>
             <div class="answer">
-              <div class="answer-label">True Airspeed</div>
-              <div class="answer-value"><span id="tasVal">-</span> KT</div>
+              <div class="answer-label">Estimated TAS</div>
+              <div class="answer-value"><span id="tasOut">-</span> KT</div>
+              <div class="answer-sub" id="tasNote">Approximation for quick flight planning</div>
             </div>
           </div>
         </div>
@@ -521,77 +1030,99 @@ body{
         <div class="calc-shell">
           <div class="tabs-row">
             <button class="tab-btn active" data-tab="wind">Wind</button>
-            <button class="tab-btn" data-tab="wb">W&B</button>
-            <button class="tab-btn" data-tab="tod">TOD</button>
-            <button class="tab-btn" data-tab="pnr">PNR</button>
+            <button class="tab-btn" data-tab="wb">W&amp;B</button>
+            <button class="tab-btn" data-tab="pnr">PNR / TOD</button>
           </div>
+
           <div class="tab-content active" id="tab-wind">
-            <div class="section-title">Input</div>
+            <div class="section-title">Crosswind / Headwind</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">Runway Hdg</div><input class="field-value" id="windRwy" type="number" placeholder="360"><div class="field-unit">DEG</div></div>
-              <div class="field-row"><div class="field-label">Wind From</div><input class="field-value" id="windDir" type="number" placeholder="0"><div class="field-unit">DEG</div></div>
-              <div class="field-row"><div class="field-label">Wind Speed</div><input class="field-value" id="windSpd" type="number" placeholder="0"><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">Runway Heading</div><input class="field-value" id="windRwy" type="number" placeholder="0" /><div class="field-unit">°</div></div>
+              <div class="field-row"><div class="field-label">Wind From</div><input class="field-value" id="windDir" type="number" placeholder="0" /><div class="field-unit">°</div></div>
+              <div class="field-row"><div class="field-label">Wind Speed</div><input class="field-value" id="windSpd" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
             </div>
+
             <div class="wind-compass">
-              <div class="compass-runway" id="compassRwy"></div>
-              <div class="compass-wind" id="compassWind"></div>
               <div class="compass-center"></div>
-              <div class="compass-labels"><span class="n">N</span><span class="s">S</span><span class="e">E</span><span class="w">W</span></div>
+              <div class="compass-runway" id="compassRunway"></div>
+              <div class="compass-wind" id="compassWind"></div>
+              <div class="compass-labels">
+                <span class="n">N</span><span class="e">E</span><span class="s">S</span><span class="w">W</span>
+              </div>
             </div>
-            <div class="section-title">Result</div>
+
             <div class="answer">
-              <div class="answer-label" id="windLabel">Headwind</div>
-              <div class="answer-value"><span id="windHead">-</span> KT</div>
-              <div class="answer-sub">Crosswind: <span id="windCross">-</span> KT</div>
+              <div class="answer-label">Wind Components</div>
+              <div class="answer-grid" style="margin-top:0;padding-top:0;border-top:none">
+                <div class="answer-item"><div class="answer-item-label">Crosswind</div><div class="answer-item-value" id="windCross">-</div></div>
+                <div class="answer-item"><div class="answer-item-label">Headwind</div><div class="answer-item-value" id="windHead">-</div></div>
+                <div class="answer-item"><div class="answer-item-label">Tailwind</div><div class="answer-item-value" id="windTail">-</div></div>
+              </div>
             </div>
           </div>
+
           <div class="tab-content" id="tab-wb">
-            <div class="section-title">Weight & Balance</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">Empty Wt</div><input class="field-value" id="wbEmpty" type="number" placeholder="0"><div class="field-unit">KG</div></div>
-              <div class="field-row"><div class="field-label">Empty Arm</div><input class="field-value" id="wbEmptyArm" type="number" placeholder="0"><div class="field-unit">mm</div></div>
-              <div class="field-row"><div class="field-label">Pax+Crew</div><input class="field-value" id="wbPax" type="number" placeholder="0"><div class="field-unit">KG</div></div>
-              <div class="field-row"><div class="field-label">Pax Arm</div><input class="field-value" id="wbPaxArm" type="number" placeholder="0"><div class="field-unit">mm</div></div>
-              <div class="field-row"><div class="field-label">Fuel</div><input class="field-value" id="wbFuel" type="number" placeholder="0"><div class="field-unit">KG</div></div>
-              <div class="field-row"><div class="field-label">Fuel Arm</div><input class="field-value" id="wbFuelArm" type="number" placeholder="0"><div class="field-unit">mm</div></div>
+            <div class="section-title">Weight &amp; Balance</div>
+
+            <div class="wb-table">
+              <div class="wb-head">
+                <div>Station</div><div>Weight</div><div>Arm</div><div>Moment</div>
+              </div>
+
+              <div class="wb-row">
+                <input value="Basic Empty" />
+                <input class="wb-weight" data-wb="weight" value="1500" />
+                <input class="wb-arm" data-wb="arm" value="120" />
+                <div class="wb-moment" data-wb="moment">180000</div>
+              </div>
+              <div class="wb-row">
+                <input value="Pilot + Pax" />
+                <input class="wb-weight" data-wb="weight" value="170" />
+                <input class="wb-arm" data-wb="arm" value="95" />
+                <div class="wb-moment" data-wb="moment">16150</div>
+              </div>
+              <div class="wb-row">
+                <input value="Baggage" />
+                <input class="wb-weight" data-wb="weight" value="20" />
+                <input class="wb-arm" data-wb="arm" value="180" />
+                <div class="wb-moment" data-wb="moment">3600</div>
+              </div>
+              <div class="wb-row">
+                <input value="Fuel" />
+                <input class="wb-weight" data-wb="weight" value="120" />
+                <input class="wb-arm" data-wb="arm" value="110" />
+                <div class="wb-moment" data-wb="moment">13200</div>
+              </div>
             </div>
-            <div class="section-title">Result</div>
+
             <div class="answer">
-              <div class="answer-label">Total Weight</div>
-              <div class="answer-value"><span id="wbTotal">-</span> KG</div>
-              <div class="answer-sub">CG: <span id="wbCg">-</span> mm</div>
+              <div class="answer-label">Totals</div>
+              <div class="answer-grid" style="margin-top:0;padding-top:0;border-top:none">
+                <div class="answer-item"><div class="answer-item-label">Weight</div><div class="answer-item-value" id="wbTotalWeight">-</div></div>
+                <div class="answer-item"><div class="answer-item-label">Moment</div><div class="answer-item-value" id="wbTotalMoment">-</div></div>
+                <div class="answer-item"><div class="answer-item-label">CG</div><div class="answer-item-value" id="wbCg">-</div></div>
+              </div>
             </div>
           </div>
-          <div class="tab-content" id="tab-tod">
-            <div class="section-title">Top of Descent</div>
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">Cruise Alt</div><input class="field-value" id="todCruise" type="number" placeholder="35000"><div class="field-unit">FT</div></div>
-              <div class="field-row"><div class="field-label">Target Alt</div><input class="field-value" id="todTarget" type="number" placeholder="3000"><div class="field-unit">FT</div></div>
-              <div class="field-row"><div class="field-label">Ground Spd</div><input class="field-value" id="todGs" type="number" placeholder="450"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label">Angle</div><input class="field-value" id="todAngle" type="number" value="3" step="0.1"><div class="field-unit">DEG</div></div>
-            </div>
-            <div class="section-title">Result</div>
-            <div class="answer">
-              <div class="answer-label">Distance to TOD</div>
-              <div class="answer-value"><span id="todDist">-</span> NM</div>
-              <div class="answer-sub">V/S: <span id="todVs">-</span> fpm</div>
-            </div>
-          </div>
+
           <div class="tab-content" id="tab-pnr">
-            <div class="section-title">Point of No Return</div>
+            <div class="section-title">Point of No Return / Time of Descent</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">Total Fuel</div><input class="field-value" id="pnrFuel" type="number" placeholder="0"><div class="field-unit">L</div></div>
-              <div class="field-row"><div class="field-label">Reserve</div><input class="field-value" id="pnrRes" type="number" placeholder="0"><div class="field-unit">L</div></div>
-              <div class="field-row"><div class="field-label">Flow Out</div><input class="field-value" id="pnrFlowOut" type="number" placeholder="0"><div class="field-unit">L/H</div></div>
-              <div class="field-row"><div class="field-label">Flow Back</div><input class="field-value" id="pnrFlowBack" type="number" placeholder="0"><div class="field-unit">L/H</div></div>
-              <div class="field-row"><div class="field-label">GS Out</div><input class="field-value" id="pnrGsOut" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label">GS Back</div><input class="field-value" id="pnrGsBack" type="number" placeholder="0"><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">Outbound GS</div><input class="field-value" id="pnrOutGs" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">Return GS</div><input class="field-value" id="pnrRetGs" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">Usable Endurance</div><input class="field-value" id="pnrEnd" type="number" placeholder="0" /><div class="field-unit">H</div></div>
+              <div class="field-row"><div class="field-label">Cruise Altitude</div><input class="field-value" id="todAlt" type="number" placeholder="0" /><div class="field-unit">FT</div></div>
+              <div class="field-row"><div class="field-label">VS Descent</div><input class="field-value" id="todVs" type="number" placeholder="500" /><div class="field-unit">FPM</div></div>
+              <div class="field-row"><div class="field-label">GS for TOD</div><input class="field-value" id="todGs" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
             </div>
-            <div class="section-title">Result</div>
+
             <div class="answer">
-              <div class="answer-label">PNR Distance</div>
-              <div class="answer-value"><span id="pnrDist">-</span> NM</div>
-              <div class="answer-sub">Time to PNR: <span id="pnrTime">-</span></div>
+              <div class="answer-label">Planning</div>
+              <div class="answer-grid" style="margin-top:0;padding-top:0;border-top:none">
+                <div class="answer-item"><div class="answer-item-label">PNR Time</div><div class="answer-item-value" id="pnrTime">-</div></div>
+                <div class="answer-item"><div class="answer-item-label">PNR Dist</div><div class="answer-item-value" id="pnrDist">-</div></div>
+                <div class="answer-item"><div class="answer-item-label">TOD Dist</div><div class="answer-item-value" id="todDist">-</div></div>
+              </div>
             </div>
           </div>
         </div>
@@ -601,67 +1132,70 @@ body{
         <div class="calc-shell">
           <div class="tabs-row">
             <button class="tab-btn active" data-tab="speed">Speed</button>
-            <button class="tab-btn" data-tab="dist">Distance</button>
-            <button class="tab-btn" data-tab="vol">Volume</button>
+            <button class="tab-btn" data-tab="distance">Distance</button>
             <button class="tab-btn" data-tab="mass">Mass</button>
             <button class="tab-btn" data-tab="temp">Temp</button>
           </div>
+
           <div class="tab-content active" id="tab-speed">
+            <div class="section-title">Speed Converter</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">Knots</div><input class="field-value" id="convKt" type="number" placeholder="0"><div class="field-unit">KT</div></div>
-              <div class="field-row"><div class="field-label">KM/H</div><input class="field-value" id="convKmh" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">MPH</div><input class="field-value" id="convMph" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">M/S</div><input class="field-value" id="convMs" type="number" placeholder="0"><div class="field-unit"></div></div>
+              <div class="field-row"><div class="field-label">Knots</div><input class="field-value" id="spdKt" type="number" placeholder="0" /><div class="field-unit">KT</div></div>
+              <div class="field-row"><div class="field-label">km/h</div><input class="field-value" id="spdKmh" type="number" placeholder="0" /><div class="field-unit">KMH</div></div>
+              <div class="field-row"><div class="field-label">mph</div><input class="field-value" id="spdMph" type="number" placeholder="0" /><div class="field-unit">MPH</div></div>
             </div>
           </div>
-          <div class="tab-content" id="tab-dist">
+
+          <div class="tab-content" id="tab-distance">
+            <div class="section-title">Distance Converter</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">NM</div><input class="field-value" id="convNm" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">KM</div><input class="field-value" id="convKm" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Miles</div><input class="field-value" id="convMi" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Feet</div><input class="field-value" id="convFt" type="number" placeholder="0"><div class="field-unit"></div></div>
+              <div class="field-row"><div class="field-label">NM</div><input class="field-value" id="dstNm" type="number" placeholder="0" /><div class="field-unit">NM</div></div>
+              <div class="field-row"><div class="field-label">KM</div><input class="field-value" id="dstKm" type="number" placeholder="0" /><div class="field-unit">KM</div></div>
+              <div class="field-row"><div class="field-label">SM</div><input class="field-value" id="dstSm" type="number" placeholder="0" /><div class="field-unit">MI</div></div>
             </div>
           </div>
-          <div class="tab-content" id="tab-vol">
-            <div class="field-list">
-              <div class="field-row"><div class="field-label">Liters</div><input class="field-value" id="convL" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">US Gallons</div><input class="field-value" id="convUsg" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Imp Gallons</div><input class="field-value" id="convImpg" type="number" placeholder="0"><div class="field-unit"></div></div>
-            </div>
-          </div>
+
           <div class="tab-content" id="tab-mass">
+            <div class="section-title">Mass &amp; Volume</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">Kilograms</div><input class="field-value" id="convKg" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Pounds</div><input class="field-value" id="convLbs" type="number" placeholder="0"><div class="field-unit"></div></div>
+              <div class="field-row"><div class="field-label">KG</div><input class="field-value" id="massKg" type="number" placeholder="0" /><div class="field-unit">KG</div></div>
+              <div class="field-row"><div class="field-label">LBS</div><input class="field-value" id="massLbs" type="number" placeholder="0" /><div class="field-unit">LBS</div></div>
+              <div class="field-row"><div class="field-label">Liters</div><input class="field-value" id="volL" type="number" placeholder="0" /><div class="field-unit">L</div></div>
+              <div class="field-row"><div class="field-label">US Gallons</div><input class="field-value" id="volUs" type="number" placeholder="0" /><div class="field-unit">GAL</div></div>
             </div>
           </div>
+
           <div class="tab-content" id="tab-temp">
+            <div class="section-title">Temperature Converter</div>
             <div class="field-list">
-              <div class="field-row"><div class="field-label">Celsius</div><input class="field-value" id="convC" type="number" placeholder="0"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Fahrenheit</div><input class="field-value" id="convF" type="number" placeholder="32"><div class="field-unit"></div></div>
-              <div class="field-row"><div class="field-label">Kelvin</div><input class="field-value" id="convK" type="number" placeholder="273.15"><div class="field-unit"></div></div>
+              <div class="field-row"><div class="field-label">Celsius</div><input class="field-value" id="tmpC" type="number" placeholder="0" /><div class="field-unit">°C</div></div>
+              <div class="field-row"><div class="field-label">Fahrenheit</div><input class="field-value" id="tmpF" type="number" placeholder="0" /><div class="field-unit">°F</div></div>
+              <div class="field-row"><div class="field-label">Kelvin</div><input class="field-value" id="tmpK" type="number" placeholder="0" /><div class="field-unit">K</div></div>
             </div>
           </div>
         </div>
       </section>
 
       <section class="screen" id="screen-system">
-        <div class="calc-shell">
-          <div class="tabs-row">
-            <button class="tab-btn active" data-tab="timer">Timer</button>
-            <button class="tab-btn" data-tab="notes">Notes</button>
-          </div>
-          <div class="tab-content active" id="tab-timer">
-            <div class="timer-display" id="timerDisplay">00:00:00</div>
-            <div class="timer-btns">
-              <button class="timer-btn start" id="timerToggle">START</button>
-              <button class="timer-btn reset" id="timerReset">RESET</button>
+        <div class="calc-shell stack">
+          <div>
+            <div class="section-title">UTC Timer</div>
+            <div class="field-list" style="padding:10px">
+              <div class="timer-display" id="timerDisplay">00:00:00</div>
+              <div class="timer-btns">
+                <button class="timer-btn start" id="timerStart">Start</button>
+                <button class="timer-btn stop" id="timerStop">Stop</button>
+                <button class="timer-btn reset" id="timerReset">Reset</button>
+              </div>
             </div>
           </div>
-          <div class="tab-content" id="tab-notes">
-            <textarea class="notes-box" id="notesArea" placeholder="Flight notes..."></textarea>
+
+          <div>
+            <div class="section-title">Notes</div>
+            <textarea class="notes-box" id="notesBox" placeholder="Operational notes, fuel values, route data..."></textarea>
             <div class="notes-actions">
-              <button class="notes-btn" id="notesExport">Export</button>
+              <button class="notes-btn" id="notesSave">Save</button>
+              <button class="notes-btn" id="notesCopy">Copy</button>
               <button class="notes-btn danger" id="notesClear">Clear</button>
             </div>
           </div>
@@ -669,254 +1203,594 @@ body{
       </section>
 
       <nav class="tabbar">
-        <button class="tab active" data-screen="menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span><div class="dot"></div></button>
-        <button class="tab" data-screen="fuel"><svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg><span>Fuel</span><div class="dot"></div></button>
-        <button class="tab" data-screen="flight"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg><span>Flight</span><div class="dot"></div></button>
-        <button class="tab" data-screen="safety"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Safety</span><div class="dot"></div></button>
-        <button class="tab" data-screen="tools"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/></svg><span>Tools</span><div class="dot"></div></button>
+        <button class="tab active" data-screen="menu">
+          <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+          <span>Home</span>
+          <div class="dot"></div>
+        </button>
+        <button class="tab" data-screen="fuel">
+          <svg viewBox="0 0 24 24"><path d="M7 4h7v16H7z"/><path d="M14 7h2l2 2v7a2 2 0 0 1-2 2"/></svg>
+          <span>Fuel</span>
+          <div class="dot"></div>
+        </button>
+        <button class="tab" data-screen="cost">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9h6M9 15h6"/></svg>
+          <span>Cost</span>
+          <div class="dot"></div>
+        </button>
+        <button class="tab" data-screen="flight">
+          <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+          <span>Flight</span>
+          <div class="dot"></div>
+        </button>
+        <button class="tab" data-screen="safety">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Safety</span>
+          <div class="dot"></div>
+        </button>
+        <button class="tab" data-screen="tools">
+          <svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/></svg>
+          <span>Tools</span>
+          <div class="dot"></div>
+        </button>
+        <button class="tab" data-screen="system">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M1 12h6M17 12h6"/></svg>
+          <span>System</span>
+          <div class="dot"></div>
+        </button>
       </nav>
     </div>
   </div>
 
-<script>
-(function(){
-var $=function(s){return document.querySelector(s)};
-var $$=function(s){return[].slice.call(document.querySelectorAll(s))};
-var num=function(v){var n=parseFloat(v);return isFinite(n)?n:null};
-var fmtTime=function(h){if(h===null||h<0)return'-';var hr=Math.floor(h),mn=Math.round((h-hr)*60);if(mn===60){hr++;mn=0}return String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0')};
-var degRad=function(d){return d*Math.PI/180};
+  <script>
+    (function(){
+      var $ = function(s){ return document.querySelector(s); };
+      var $$ = function(s){ return [].slice.call(document.querySelectorAll(s)); };
+      var num = function(v){ var n = parseFloat(v); return isFinite(n) ? n : null; };
+      var clampHeading = function(v){ v = ((v % 360) + 360) % 360; return v; };
+      var degRad = function(d){ return d * Math.PI / 180; };
+      var radDeg = function(r){ return r * 180 / Math.PI; };
+      var fmtTime = function(h){
+        if(h === null || !isFinite(h) || h < 0) return '-';
+        var hr = Math.floor(h);
+        var mn = Math.round((h - hr) * 60);
+        if(mn === 60){ hr++; mn = 0; }
+        return String(hr).padStart(2,'0') + ':' + String(mn).padStart(2,'0');
+      };
+      var setText = function(id, val){ var el = $(id); if(el) el.textContent = val; };
 
-var bgClasses={menu:'bg-menu',fuel:'bg-fuel',cost:'bg-cost',flight:'bg-flight',atmo:'bg-atmo',safety:'bg-safety',tools:'bg-tools',system:'bg-system'};
+      var bgClasses = {
+        menu:'bg-menu',
+        fuel:'bg-fuel',
+        cost:'bg-cost',
+        flight:'bg-flight',
+        atmo:'bg-atmo',
+        safety:'bg-safety',
+        tools:'bg-tools',
+        system:'bg-system'
+      };
 
-function showScreen(id){
-  $$('.screen').forEach(function(s){s.classList.remove('active')});
-  $$('.tabbar .tab').forEach(function(t){t.classList.remove('active')});
-  var scr=$('#screen-'+id);if(scr)scr.classList.add('active');
-  var tab=$('.tabbar .tab[data-screen="'+id+'"]');if(tab)tab.classList.add('active');
-  $('#topTitle').textContent=id==='menu'?'Aviation Pro':id.charAt(0).toUpperCase()+id.slice(1);
-  $('#backBtn').style.visibility=id==='menu'?'hidden':'visible';
-  var bg=$('#bgLayer');
-  Object.values(bgClasses).forEach(function(c){if(c)bg.classList.remove(c)});
-  if(bgClasses[id])bg.classList.add(bgClasses[id]);
-}
+      function showScreen(id){
+        $$('.screen').forEach(function(s){ s.classList.remove('active'); });
+        $$('.tabbar .tab').forEach(function(t){ t.classList.remove('active'); });
 
-function setupTabs(container){
-  container.addEventListener('click',function(e){
-    var btn=e.target.closest('.tab-btn');if(!btn)return;
-    container.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
-    btn.classList.add('active');
-    var shell=container.closest('.calc-shell');
-    shell.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
-    var tab=$('#tab-'+btn.dataset.tab);if(tab)tab.classList.add('active');
-  });
-}
+        var scr = $('#screen-' + id);
+        if(scr) scr.classList.add('active');
 
-function updateClock(){
-  var n=new Date();
-  $('#clockDisplay').textContent=String(n.getUTCHours()).padStart(2,'0')+':'+String(n.getUTCMinutes()).padStart(2,'0')+'Z';
-}
+        var tab = $('.tabbar .tab[data-screen="' + id + '"]');
+        if(tab) tab.classList.add('active');
 
-var FUEL={jeta1:0.800,jeta:0.804,avgas:0.721};
-function calcFuel(){
-  var t=$('#fuelType').value,v=num($('#fuelVol').value),temp=num($('#fuelTemp').value);
-  if(v===null||v<=0){$('#fuelMass').textContent='-';$('#fuelLbs').textContent='-';$('#fuelUsg').textContent='-';$('#fuelImp').textContent='-';return}
-  var d=FUEL[t]*(1-0.00099*((temp||15)-15)),kg=v*d;
-  $('#fuelMass').textContent=Math.round(kg);
-  $('#fuelLbs').textContent=Math.round(kg*2.20462);
-  $('#fuelUsg').textContent=(v*0.264172).toFixed(1);
-  $('#fuelImp').textContent=(v*0.219969).toFixed(1);
-}
+        $('#topTitle').textContent = id === 'menu' ? 'Aviation Pro' : id.charAt(0).toUpperCase() + id.slice(1);
+        $('#backBtn').style.visibility = id === 'menu' ? 'hidden' : 'visible';
 
-function calcCost(){
-  var f=num($('#costFlow').value),p=num($('#costPrice').value),g=num($('#costGs').value);
-  if(!f||!p){$('#costHour').textContent='-';$('#costMin').textContent='-';$('#costNm').textContent='-';$('#cost100').textContent='-';return}
-  var cph=f*p;
-  $('#costHour').textContent=cph.toFixed(2);
-  $('#costMin').textContent=(cph/60).toFixed(2);
-  if(g&&g>0){$('#costNm').textContent='$'+(cph/g).toFixed(3);$('#cost100').textContent='$'+(cph/g*100).toFixed(2)}
-  else{$('#costNm').textContent='-';$('#cost100').textContent='-'}
-}
+        var bg = $('#bgLayer');
+        Object.keys(bgClasses).forEach(function(k){ bg.classList.remove(bgClasses[k]); });
+        if(bgClasses[id]) bg.classList.add(bgClasses[id]);
+      }
 
-function calcFlightBasic(){
-  var tas=num($('#flightTas').value),dist=num($('#flightDist').value),crs=num($('#flightCrs').value),wd=num($('#flightWdir').value),ws=num($('#flightWspd').value);
-  if(!tas||tas<=0){$('#flightGs').textContent='-';$('#flightEte').textContent='-';$('#flightWca').textContent='-';$('#flightHdg').textContent='-';return}
-  var gs=tas,wca=0,hdg=crs||0;
-  if(ws&&ws>0&&crs!==null&&wd!==null){
-    var wa=degRad(wd-crs),xw=ws*Math.sin(wa),hw=ws*Math.cos(wa);
-    if(Math.abs(xw)<tas){wca=Math.asin(xw/tas)*180/Math.PI;gs=Math.sqrt(tas*tas-xw*xw)-hw;hdg=crs+wca;if(hdg<0)hdg+=360;if(hdg>=360)hdg-=360}
-  }
-  if(gs<=0){$('#flightGs').textContent='0';$('#flightEte').textContent='-';return}
-  $('#flightGs').textContent=Math.round(gs);
-  $('#flightEte').textContent=dist&&dist>0?fmtTime(dist/gs):'-';
-  $('#flightWca').textContent=(wca>=0?'+':'')+wca.toFixed(1)+'°';
-  $('#flightHdg').textContent=Math.round(hdg)+'°';
-}
+      function setupTabs(container){
+        container.addEventListener('click', function(e){
+          var btn = e.target.closest('.tab-btn');
+          if(!btn) return;
 
-function calcFuelReq(){
-  var gs=num($('#freqGs').value),d=num($('#freqDist').value),f=num($('#freqFlow').value),r=num($('#freqRes').value)||0;
-  if(!gs||!d||!f){$('#freqTrip').textContent='-';$('#freqResOut').textContent='-';$('#freqTotal').textContent='-';$('#freqTime').textContent='-';return}
-  var t=d/gs,trip=t*f;
-  $('#freqTrip').textContent=Math.round(trip);
-  $('#freqResOut').textContent=Math.round(r)+' L';
-  $('#freqTotal').textContent=Math.round(trip+r)+' L';
-  $('#freqTime').textContent=fmtTime(t);
-}
+          container.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+          btn.classList.add('active');
 
-function calcEndur(){
-  var f=num($('#endFuel').value),fl=num($('#endFlow').value);
-  if(!f||!fl){$('#endTime').textContent='-';$('#endDecimal').textContent='-';return}
-  var h=f/fl;
-  $('#endTime').textContent=fmtTime(h);
-  $('#endDecimal').textContent=h.toFixed(2)+' hours';
-}
+          var shell = container.closest('.calc-shell');
+          shell.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
 
-function calcDa(){
-  var el=num($('#atmoElev').value),oat=num($('#atmoOat').value),qnh=num($('#atmoQnh').value);
-  if(el===null||oat===null||qnh===null){$('#atmoDa').textContent='-';$('#atmoPa').textContent='-';$('#atmoIsa').textContent='-';$('#atmoDev').textContent='-';return}
-  var pa=el+(1013.25-qnh)*30,isa=15-2*(pa/1000),dev=oat-isa,da=pa+120*dev;
-  $('#atmoDa').textContent=Math.round(da);
-  $('#atmoPa').textContent=Math.round(pa)+' ft';
-  $('#atmoIsa').textContent=isa.toFixed(1)+'°C';
-  $('#atmoDev').textContent=(dev>=0?'+':'')+dev.toFixed(1)+'°C';
-}
+          var tab = $('#tab-' + btn.dataset.tab);
+          if(tab) tab.classList.add('active');
+        });
+      }
 
-function convQnh(src){
-  var v=num($('#qnh'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  var hpa;if(src==='hpa')hpa=v;else if(src==='inhg')hpa=v/0.02953;else hpa=v/0.75006;
-  if(src!=='hpa')$('#qnhHpa').value=hpa.toFixed(2);
-  if(src!=='inhg')$('#qnhInhg').value=(hpa*0.02953).toFixed(2);
-  if(src!=='mmhg')$('#qnhMmhg').value=(hpa*0.75006).toFixed(1);
-}
+      function updateClock(){
+        var n = new Date();
+        $('#clockDisplay').textContent =
+          String(n.getUTCHours()).padStart(2,'0') + ':' +
+          String(n.getUTCMinutes()).padStart(2,'0') + 'Z';
+      }
 
-function calcTas(){
-  var ias=num($('#tasIas').value),alt=num($('#tasAlt').value),oat=num($('#tasOat').value);
-  if(!ias||alt===null||oat===null){$('#tasVal').textContent='-';return}
-  var isa=15-2*(alt/1000),tr=(273.15+oat)/(273.15+isa),pr=Math.pow(1-alt/145442,5.255876),dr=pr/tr;
-  $('#tasVal').textContent=Math.round(ias/Math.sqrt(dr));
-}
+      var FUEL = { jeta1:0.800, jeta:0.804, avgas:0.721 };
 
-function calcWind(){
-  var rwy=num($('#windRwy').value),dir=num($('#windDir').value),spd=num($('#windSpd').value);
-  if(rwy)$('#compassRwy').style.transform='translate(-50%,-100%) rotate('+rwy+'deg)';
-  if(dir)$('#compassWind').style.transform='translate(-50%,-100%) rotate('+dir+'deg)';
-  if(rwy===null||dir===null||!spd){$('#windHead').textContent='-';$('#windCross').textContent='-';return}
-  var a=degRad(dir-rwy),hw=spd*Math.cos(a),xw=spd*Math.sin(a);
-  $('#windLabel').textContent=hw>=0?'Headwind':'Tailwind';
-  $('#windHead').textContent=Math.round(Math.abs(hw));
-  $('#windCross').textContent=Math.round(Math.abs(xw))+' '+(xw>0?'R':'L');
-}
+      function calcFuel(){
+        var t = $('#fuelType').value;
+        var v = num($('#fuelVol').value);
+        var temp = num($('#fuelTemp').value);
+        if(v === null || v <= 0){
+          setText('#fuelMass','-');
+          setText('#fuelLbs','-');
+          setText('#fuelUsg','-');
+          setText('#fuelImp','-');
+          return;
+        }
+        var density = FUEL[t] * (1 - 0.00099 * (((temp === null ? 15 : temp) - 15)));
+        var kg = v * density;
+        setText('#fuelMass', Math.round(kg));
+        setText('#fuelLbs', Math.round(kg * 2.20462));
+        setText('#fuelUsg', (v * 0.264172).toFixed(1));
+        setText('#fuelImp', (v * 0.219969).toFixed(1));
+      }
 
-function calcWB(){
-  var ew=num($('#wbEmpty').value)||0,ea=num($('#wbEmptyArm').value)||0;
-  var pw=num($('#wbPax').value)||0,pa=num($('#wbPaxArm').value)||0;
-  var fw=num($('#wbFuel').value)||0,fa=num($('#wbFuelArm').value)||0;
-  var tw=ew+pw+fw,tm=ew*ea+pw*pa+fw*fa;
-  if(tw===0){$('#wbTotal').textContent='-';$('#wbCg').textContent='-';return}
-  $('#wbTotal').textContent=Math.round(tw);
-  $('#wbCg').textContent=(tm/tw).toFixed(1);
-}
+      function calcCost(){
+        var f = num($('#costFlow').value);
+        var p = num($('#costPrice').value);
+        var g = num($('#costGs').value);
 
-function calcTod(){
-  var cr=num($('#todCruise').value),tg=num($('#todTarget').value),gs=num($('#todGs').value),an=num($('#todAngle').value);
-  if(!cr||tg===null||!gs||!an||cr<=tg){$('#todDist').textContent='-';$('#todVs').textContent='-';return}
-  var diff=cr-tg,tod=diff/(Math.tan(degRad(an))*6076.12),vs=gs*Math.tan(degRad(an))*101.269;
-  $('#todDist').textContent=tod.toFixed(1);
-  $('#todVs').textContent=Math.round(vs);
-}
+        if(!f || !p){
+          setText('#costHour','-');
+          setText('#costMin','-');
+          setText('#costNm','-');
+          setText('#cost100','-');
+          return;
+        }
 
-function calcPnr(){
-  var f=num($('#pnrFuel').value),r=num($('#pnrRes').value)||0,fo=num($('#pnrFlowOut').value),fb=num($('#pnrFlowBack').value),go=num($('#pnrGsOut').value),gb=num($('#pnrGsBack').value);
-  if(!f||!fo||!fb||!go||!gb||f<=r){$('#pnrDist').textContent='-';$('#pnrTime').textContent='-';return}
-  var us=f-r,t=us/(fo+fb*(go/gb));
-  $('#pnrDist').textContent=Math.round(t*go);
-  $('#pnrTime').textContent=fmtTime(t);
-}
+        var cph = f * p;
+        setText('#costHour', cph.toFixed(2));
+        setText('#costMin', (cph / 60).toFixed(2));
 
-function convSpeed(src){
-  var v=num($('#conv'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  var kt;if(src==='kt')kt=v;else if(src==='kmh')kt=v/1.852;else if(src==='mph')kt=v/1.15078;else kt=v/0.514444;
-  if(src!=='kt')$('#convKt').value=kt.toFixed(2);
-  if(src!=='kmh')$('#convKmh').value=(kt*1.852).toFixed(2);
-  if(src!=='mph')$('#convMph').value=(kt*1.15078).toFixed(2);
-  if(src!=='ms')$('#convMs').value=(kt*0.514444).toFixed(3);
-}
+        if(g && g > 0){
+          setText('#costNm', '$' + (cph / g).toFixed(3));
+          setText('#cost100', '$' + ((cph / g) * 100).toFixed(2));
+        }else{
+          setText('#costNm', '-');
+          setText('#cost100', '-');
+        }
+      }
 
-function convDist(src){
-  var v=num($('#conv'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  var nm;if(src==='nm')nm=v;else if(src==='km')nm=v/1.852;else if(src==='mi')nm=v/1.15078;else nm=v/6076.12;
-  if(src!=='nm')$('#convNm').value=nm.toFixed(3);
-  if(src!=='km')$('#convKm').value=(nm*1.852).toFixed(3);
-  if(src!=='mi')$('#convMi').value=(nm*1.15078).toFixed(3);
-  if(src!=='ft')$('#convFt').value=Math.round(nm*6076.12);
-}
+      function calcFlightBasic(){
+        var tas = num($('#flightTas').value);
+        var dist = num($('#flightDist').value);
+        var crs = num($('#flightCrs').value);
+        var wdir = num($('#flightWdir').value);
+        var wspd = num($('#flightWspd').value);
 
-function convVol(src){
-  var v=num($('#conv'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  var l;if(src==='l')l=v;else if(src==='usg')l=v/0.264172;else l=v/0.219969;
-  if(src!=='l')$('#convL').value=l.toFixed(2);
-  if(src!=='usg')$('#convUsg').value=(l*0.264172).toFixed(2);
-  if(src!=='impg')$('#convImpg').value=(l*0.219969).toFixed(2);
-}
+        if(!tas || !dist || crs === null){
+          setText('#flightGs','-');
+          setText('#flightEte','-');
+          setText('#flightWca','-');
+          setText('#flightHdg','-');
+          return;
+        }
 
-function convMass(src){
-  var v=num($('#conv'+src.charAt(0).toUpperCase()+src.slice(1)).value);if(v===null)return;
-  if(src==='kg')$('#convLbs').value=(v*2.20462).toFixed(2);
-  else $('#convKg').value=(v/2.20462).toFixed(2);
-}
+        if(!wspd || wdir === null){
+          setText('#flightGs', tas.toFixed(0));
+          setText('#flightEte', fmtTime(dist / tas));
+          setText('#flightWca', '0°');
+          setText('#flightHdg', Math.round(clampHeading(crs)) + '°');
+          return;
+        }
 
-function convTemp(src){
-  var v=num($('#conv'+src.toUpperCase()).value);if(v===null)return;
-  var c;if(src==='c')c=v;else if(src==='f')c=(v-32)*5/9;else c=v-273.15;
-  if(src!=='c')$('#convC').value=c.toFixed(2);
-  if(src!=='f')$('#convF').value=(c*9/5+32).toFixed(2);
-  if(src!=='k')$('#convK').value=(c+273.15).toFixed(2);
-}
+        var rel = degRad(wdir - crs);
+        var cross = wspd * Math.sin(rel);
+        var head = wspd * Math.cos(rel);
+        var ratio = Math.max(-1, Math.min(1, cross / tas));
+        var wca = radDeg(Math.asin(ratio));
+        var gs = tas * Math.cos(degRad(wca)) - head;
+        if(gs <= 0){
+          setText('#flightGs','-');
+          setText('#flightEte','-');
+          setText('#flightWca', wca.toFixed(1) + '°');
+          setText('#flightHdg', Math.round(clampHeading(crs + wca)) + '°');
+          return;
+        }
 
-var timerInt=null,timerSec=0,timerRun=false;
-function updateTimerDisplay(){
-  var h=Math.floor(timerSec/3600),m=Math.floor((timerSec%3600)/60),s=timerSec%60;
-  $('#timerDisplay').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-}
-function toggleTimer(){
-  var btn=$('#timerToggle');
-  if(timerRun){clearInterval(timerInt);timerRun=false;btn.textContent='START';btn.classList.remove('stop');btn.classList.add('start')}
-  else{timerInt=setInterval(function(){timerSec++;updateTimerDisplay()},1000);timerRun=true;btn.textContent='STOP';btn.classList.remove('start');btn.classList.add('stop')}
-}
-function resetTimer(){
-  clearInterval(timerInt);timerRun=false;timerSec=0;updateTimerDisplay();
-  var btn=$('#timerToggle');btn.textContent='START';btn.classList.remove('stop');btn.classList.add('start');
-}
+        setText('#flightGs', gs.toFixed(0));
+        setText('#flightEte', fmtTime(dist / gs));
+        setText('#flightWca', (wca >= 0 ? '+' : '') + wca.toFixed(1) + '°');
+        setText('#flightHdg', Math.round(clampHeading(crs + wca)) + '°');
+      }
 
-function init(){
-  $$('.item[data-screen]').forEach(function(i){i.addEventListener('click',function(){showScreen(i.dataset.screen)})});
-  $$('.tabbar .tab').forEach(function(t){t.addEventListener('click',function(){showScreen(t.dataset.screen)})});
-  $('#backBtn').addEventListener('click',function(){showScreen('menu')});
-  $$('.tabs-row').forEach(setupTabs);
-  updateClock();setInterval(updateClock,1000);
+      function calcFuelReq(){
+        var gs = num($('#freqGs').value);
+        var dist = num($('#freqDist').value);
+        var flow = num($('#freqFlow').value);
+        var reserve = num($('#freqRes').value) || 0;
 
-  $('#fuelType').addEventListener('change',calcFuel);$('#fuelVol').addEventListener('input',calcFuel);$('#fuelTemp').addEventListener('input',calcFuel);
-  $('#costFlow').addEventListener('input',calcCost);$('#costPrice').addEventListener('input',calcCost);$('#costGs').addEventListener('input',calcCost);
-  ['flightTas','flightDist','flightCrs','flightWdir','flightWspd'].forEach(function(id){$('#'+id).addEventListener('input',calcFlightBasic)});
-  ['freqGs','freqDist','freqFlow','freqRes'].forEach(function(id){$('#'+id).addEventListener('input',calcFuelReq)});
-  $('#endFuel').addEventListener('input',calcEndur);$('#endFlow').addEventListener('input',calcEndur);
-  ['atmoElev','atmoOat','atmoQnh'].forEach(function(id){$('#'+id).addEventListener('input',calcDa)});
-  $('#qnhHpa').addEventListener('input',function(){convQnh('hpa')});$('#qnhInhg').addEventListener('input',function(){convQnh('inhg')});$('#qnhMmhg').addEventListener('input',function(){convQnh('mmhg')});
-  ['tasIas','tasAlt','tasOat'].forEach(function(id){$('#'+id).addEventListener('input',calcTas)});
-  ['windRwy','windDir','windSpd'].forEach(function(id){$('#'+id).addEventListener('input',calcWind)});
-  ['wbEmpty','wbEmptyArm','wbPax','wbPaxArm','wbFuel','wbFuelArm'].forEach(function(id){$('#'+id).addEventListener('input',calcWB)});
-  ['todCruise','todTarget','todGs','todAngle'].forEach(function(id){$('#'+id).addEventListener('input',calcTod)});
-  ['pnrFuel','pnrRes','pnrFlowOut','pnrFlowBack','pnrGsOut','pnrGsBack'].forEach(function(id){$('#'+id).addEventListener('input',calcPnr)});
-  $('#convKt').addEventListener('input',function(){convSpeed('kt')});$('#convKmh').addEventListener('input',function(){convSpeed('kmh')});$('#convMph').addEventListener('input',function(){convSpeed('mph')});$('#convMs').addEventListener('input',function(){convSpeed('ms')});
-  $('#convNm').addEventListener('input',function(){convDist('nm')});$('#convKm').addEventListener('input',function(){convDist('km')});$('#convMi').addEventListener('input',function(){convDist('mi')});$('#convFt').addEventListener('input',function(){convDist('ft')});
-  $('#convL').addEventListener('input',function(){convVol('l')});$('#convUsg').addEventListener('input',function(){convVol('usg')});$('#convImpg').addEventListener('input',function(){convVol('impg')});
-  $('#convKg').addEventListener('input',function(){convMass('kg')});$('#convLbs').addEventListener('input',function(){convMass('lbs')});
-  $('#convC').addEventListener('input',function(){convTemp('c')});$('#convF').addEventListener('input',function(){convTemp('f')});$('#convK').addEventListener('input',function(){convTemp('k')});
-  $('#timerToggle').addEventListener('click',toggleTimer);$('#timerReset').addEventListener('click',resetTimer);
-  $('#notesExport').addEventListener('click',function(){var txt=$('#notesArea').value;if(!txt)return;var b=new Blob([txt],{type:'text/plain'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='notes.txt';a.click()});
-  $('#notesClear').addEventListener('click',function(){$('#notesArea').value=''});
-}
-document.addEventListener('DOMContentLoaded',init);
-})();
-</script>
+        if(!gs || !dist || !flow){
+          setText('#freqTrip','-');
+          setText('#freqResOut','-');
+          setText('#freqTotal','-');
+          setText('#freqTime','-');
+          return;
+        }
+
+        var time = dist / gs;
+        var trip = time * flow;
+        var total = trip + reserve;
+
+        setText('#freqTrip', trip.toFixed(1));
+        setText('#freqResOut', reserve.toFixed(1));
+        setText('#freqTotal', total.toFixed(1));
+        setText('#freqTime', fmtTime(time));
+      }
+
+      function calcEndurance(){
+        var fuel = num($('#endFuel').value);
+        var flow = num($('#endFlow').value);
+
+        if(!fuel || !flow){
+          setText('#endTime','-');
+          setText('#endDecimal','-');
+          return;
+        }
+
+        var end = fuel / flow;
+        setText('#endTime', fmtTime(end));
+        setText('#endDecimal', end.toFixed(2) + ' h');
+      }
+
+      function calcDensityAltitude(){
+        var elev = num($('#atmoElev').value);
+        var oat = num($('#atmoOat').value);
+        var qnh = num($('#atmoQnh').value);
+
+        if(elev === null || oat === null || qnh === null){
+          setText('#atmoDa','-');
+          setText('#atmoPa','-');
+          setText('#atmoIsa','-');
+          setText('#atmoDev','-');
+          return;
+        }
+
+        var pa = elev + (1013.25 - qnh) * 27;
+        var isa = 15 - (2 * pa / 1000);
+        var dev = oat - isa;
+        var da = pa + 120 * dev;
+
+        setText('#atmoPa', pa.toFixed(0));
+        setText('#atmoIsa', isa.toFixed(1) + '°C');
+        setText('#atmoDev', (dev >= 0 ? '+' : '') + dev.toFixed(1) + '°C');
+        setText('#atmoDa', da.toFixed(0));
+      }
+
+      function syncQnh(source){
+        var hpa = num($('#qnhHpa').value);
+        var inhg = num($('#qnhInhg').value);
+        var mmhg = num($('#qnhMmhg').value);
+
+        if(source === 'hpa' && hpa !== null){
+          $('#qnhInhg').value = (hpa * 0.0295299831).toFixed(2);
+          $('#qnhMmhg').value = (hpa * 0.750061683).toFixed(1);
+        }
+        if(source === 'inhg' && inhg !== null){
+          var H = inhg / 0.0295299831;
+          $('#qnhHpa').value = H.toFixed(2);
+          $('#qnhMmhg').value = (H * 0.750061683).toFixed(1);
+        }
+        if(source === 'mmhg' && mmhg !== null){
+          var H2 = mmhg / 0.750061683;
+          $('#qnhHpa').value = H2.toFixed(2);
+          $('#qnhInhg').value = (H2 * 0.0295299831).toFixed(2);
+        }
+      }
+
+      function calcTasApprox(){
+        var ias = num($('#tasIas').value);
+        var alt = num($('#tasAlt').value);
+        var oat = num($('#tasOat').value);
+
+        if(!ias || alt === null || oat === null){
+          setText('#tasOut','-');
+          setText('#tasNote','Approximation for quick flight planning');
+          return;
+        }
+
+        var isa = 15 - (2 * alt / 1000);
+        var tempFactor = 1 + ((oat - isa) * 0.001);
+        var altFactor = 1 + ((alt / 1000) * 0.02);
+        var tas = ias * altFactor * tempFactor;
+
+        setText('#tasOut', tas.toFixed(0));
+        setText('#tasNote', 'ISA dev ' + ((oat - isa) >= 0 ? '+' : '') + (oat - isa).toFixed(1) + '°C');
+      }
+
+      function calcWind(){
+        var rwy = num($('#windRwy').value);
+        var dir = num($('#windDir').value);
+        var spd = num($('#windSpd').value);
+
+        if(rwy === null || dir === null || !spd){
+          setText('#windCross','-');
+          setText('#windHead','-');
+          setText('#windTail','-');
+          return;
+        }
+
+        var angle = degRad(dir - rwy);
+        var cross = Math.abs(spd * Math.sin(angle));
+        var hw = spd * Math.cos(angle);
+        var head = hw > 0 ? hw : 0;
+        var tail = hw < 0 ? Math.abs(hw) : 0;
+
+        setText('#windCross', cross.toFixed(1) + ' KT');
+        setText('#windHead', head.toFixed(1) + ' KT');
+        setText('#windTail', tail.toFixed(1) + ' KT');
+
+        $('#compassRunway').style.transform = 'translate(-50%,-100%) rotate(' + clampHeading(rwy) + 'deg)';
+        $('#compassWind').style.transform = 'translate(-50%,-100%) rotate(' + clampHeading(dir) + 'deg)';
+      }
+
+      function calcWB(){
+        var rows = $$('.wb-row');
+        var totalW = 0;
+        var totalM = 0;
+
+        rows.forEach(function(row){
+          var w = num(row.querySelector('[data-wb="weight"]').value) || 0;
+          var a = num(row.querySelector('[data-wb="arm"]').value) || 0;
+          var m = w * a;
+          row.querySelector('[data-wb="moment"]').textContent = m.toFixed(0);
+          totalW += w;
+          totalM += m;
+        });
+
+        setText('#wbTotalWeight', totalW.toFixed(1));
+        setText('#wbTotalMoment', totalM.toFixed(0));
+        setText('#wbCg', totalW > 0 ? (totalM / totalW).toFixed(2) : '-');
+      }
+
+      function calcPNR(){
+        var outGs = num($('#pnrOutGs').value);
+        var retGs = num($('#pnrRetGs').value);
+        var end = num($('#pnrEnd').value);
+        var alt = num($('#todAlt').value);
+        var vs = num($('#todVs').value);
+        var gs = num($('#todGs').value);
+
+        if(outGs && retGs && end){
+          var pnrTime = (end * retGs) / (outGs + retGs);
+          var pnrDist = pnrTime * outGs;
+          setText('#pnrTime', fmtTime(pnrTime));
+          setText('#pnrDist', pnrDist.toFixed(1) + ' NM');
+        }else{
+          setText('#pnrTime','-');
+          setText('#pnrDist','-');
+        }
+
+        if(alt && vs && gs){
+          var timeMin = alt / vs;
+          var nmPerMin = gs / 60;
+          var dist = timeMin * nmPerMin;
+          setText('#todDist', dist.toFixed(1) + ' NM');
+        }else{
+          setText('#todDist','-');
+        }
+      }
+
+      function setSpeedFrom(source){
+        var kt = num($('#spdKt').value);
+        var kmh = num($('#spdKmh').value);
+        var mph = num($('#spdMph').value);
+
+        if(source === 'kt' && kt !== null){
+          $('#spdKmh').value = (kt * 1.852).toFixed(2);
+          $('#spdMph').value = (kt * 1.15078).toFixed(2);
+        }
+        if(source === 'kmh' && kmh !== null){
+          var k = kmh / 1.852;
+          $('#spdKt').value = k.toFixed(2);
+          $('#spdMph').value = (k * 1.15078).toFixed(2);
+        }
+        if(source === 'mph' && mph !== null){
+          var k2 = mph / 1.15078;
+          $('#spdKt').value = k2.toFixed(2);
+          $('#spdKmh').value = (k2 * 1.852).toFixed(2);
+        }
+      }
+
+      function setDistanceFrom(source){
+        var nm = num($('#dstNm').value);
+        var km = num($('#dstKm').value);
+        var sm = num($('#dstSm').value);
+
+        if(source === 'nm' && nm !== null){
+          $('#dstKm').value = (nm * 1.852).toFixed(2);
+          $('#dstSm').value = (nm * 1.15078).toFixed(2);
+        }
+        if(source === 'km' && km !== null){
+          var n = km / 1.852;
+          $('#dstNm').value = n.toFixed(2);
+          $('#dstSm').value = (n * 1.15078).toFixed(2);
+        }
+        if(source === 'sm' && sm !== null){
+          var n2 = sm / 1.15078;
+          $('#dstNm').value = n2.toFixed(2);
+          $('#dstKm').value = (n2 * 1.852).toFixed(2);
+        }
+      }
+
+      function setMassFrom(source){
+        var kg = num($('#massKg').value);
+        var lbs = num($('#massLbs').value);
+        var l = num($('#volL').value);
+        var us = num($('#volUs').value);
+
+        if(source === 'kg' && kg !== null){
+          $('#massLbs').value = (kg * 2.20462).toFixed(2);
+        }
+        if(source === 'lbs' && lbs !== null){
+          $('#massKg').value = (lbs / 2.20462).toFixed(2);
+        }
+        if(source === 'l' && l !== null){
+          $('#volUs').value = (l * 0.264172).toFixed(2);
+        }
+        if(source === 'us' && us !== null){
+          $('#volL').value = (us / 0.264172).toFixed(2);
+        }
+      }
+
+      function setTempFrom(source){
+        var c = num($('#tmpC').value);
+        var f = num($('#tmpF').value);
+        var k = num($('#tmpK').value);
+
+        if(source === 'c' && c !== null){
+          $('#tmpF').value = ((c * 9/5) + 32).toFixed(2);
+          $('#tmpK').value = (c + 273.15).toFixed(2);
+        }
+        if(source === 'f' && f !== null){
+          var C = (f - 32) * 5/9;
+          $('#tmpC').value = C.toFixed(2);
+          $('#tmpK').value = (C + 273.15).toFixed(2);
+        }
+        if(source === 'k' && k !== null){
+          var C2 = k - 273.15;
+          $('#tmpC').value = C2.toFixed(2);
+          $('#tmpF').value = ((C2 * 9/5) + 32).toFixed(2);
+        }
+      }
+
+      var timerState = { start:0, elapsed:0, running:false, iv:null };
+
+      function renderTimer(){
+        var total = timerState.elapsed;
+        if(timerState.running){
+          total += Date.now() - timerState.start;
+        }
+        var s = Math.floor(total / 1000);
+        var hh = String(Math.floor(s / 3600)).padStart(2,'0');
+        var mm = String(Math.floor((s % 3600) / 60)).padStart(2,'0');
+        var ss = String(s % 60).padStart(2,'0');
+        $('#timerDisplay').textContent = hh + ':' + mm + ':' + ss;
+      }
+
+      function timerStart(){
+        if(timerState.running) return;
+        timerState.running = true;
+        timerState.start = Date.now();
+        timerState.iv = setInterval(renderTimer, 200);
+      }
+
+      function timerStop(){
+        if(!timerState.running) return;
+        timerState.elapsed += Date.now() - timerState.start;
+        timerState.running = false;
+        clearInterval(timerState.iv);
+        renderTimer();
+      }
+
+      function timerReset(){
+        timerState.elapsed = 0;
+        timerState.start = Date.now();
+        renderTimer();
+      }
+
+      function initNotes(){
+        var box = $('#notesBox');
+        box.value = localStorage.getItem('aviation_pro_notes') || '';
+
+        $('#notesSave').addEventListener('click', function(){
+          localStorage.setItem('aviation_pro_notes', box.value);
+        });
+
+        $('#notesCopy').addEventListener('click', function(){
+          box.select();
+          document.execCommand('copy');
+        });
+
+        $('#notesClear').addEventListener('click', function(){
+          box.value = '';
+          localStorage.removeItem('aviation_pro_notes');
+        });
+      }
+
+      function bindInputs(ids, fn){
+        ids.forEach(function(id){
+          var el = $(id);
+          if(el){
+            el.addEventListener('input', fn);
+            el.addEventListener('change', fn);
+          }
+        });
+      }
+
+      $$('.item[data-screen]').forEach(function(btn){
+        btn.addEventListener('click', function(){ showScreen(btn.dataset.screen); });
+      });
+
+      $$('.tabbar .tab').forEach(function(tab){
+        tab.addEventListener('click', function(){ showScreen(tab.dataset.screen); });
+      });
+
+      $('#backBtn').addEventListener('click', function(){ showScreen('menu'); });
+
+      $$('.tabs-row').forEach(setupTabs);
+
+      bindInputs(['#fuelType','#fuelVol','#fuelTemp'], calcFuel);
+      bindInputs(['#costFlow','#costPrice','#costGs'], calcCost);
+      bindInputs(['#flightTas','#flightDist','#flightCrs','#flightWdir','#flightWspd'], calcFlightBasic);
+      bindInputs(['#freqGs','#freqDist','#freqFlow','#freqRes'], calcFuelReq);
+      bindInputs(['#endFuel','#endFlow'], calcEndurance);
+      bindInputs(['#atmoElev','#atmoOat','#atmoQnh'], calcDensityAltitude);
+      bindInputs(['#tasIas','#tasAlt','#tasOat'], calcTasApprox);
+      bindInputs(['#windRwy','#windDir','#windSpd'], calcWind);
+      bindInputs(['#pnrOutGs','#pnrRetGs','#pnrEnd','#todAlt','#todVs','#todGs'], calcPNR);
+
+      $$('.wb-row input').forEach(function(i){ i.addEventListener('input', calcWB); });
+
+      $('#qnhHpa').addEventListener('input', function(){ syncQnh('hpa'); });
+      $('#qnhInhg').addEventListener('input', function(){ syncQnh('inhg'); });
+      $('#qnhMmhg').addEventListener('input', function(){ syncQnh('mmhg'); });
+
+      $('#spdKt').addEventListener('input', function(){ setSpeedFrom('kt'); });
+      $('#spdKmh').addEventListener('input', function(){ setSpeedFrom('kmh'); });
+      $('#spdMph').addEventListener('input', function(){ setSpeedFrom('mph'); });
+
+      $('#dstNm').addEventListener('input', function(){ setDistanceFrom('nm'); });
+      $('#dstKm').addEventListener('input', function(){ setDistanceFrom('km'); });
+      $('#dstSm').addEventListener('input', function(){ setDistanceFrom('sm'); });
+
+      $('#massKg').addEventListener('input', function(){ setMassFrom('kg'); });
+      $('#massLbs').addEventListener('input', function(){ setMassFrom('lbs'); });
+      $('#volL').addEventListener('input', function(){ setMassFrom('l'); });
+      $('#volUs').addEventListener('input', function(){ setMassFrom('us'); });
+
+      $('#tmpC').addEventListener('input', function(){ setTempFrom('c'); });
+      $('#tmpF').addEventListener('input', function(){ setTempFrom('f'); });
+      $('#tmpK').addEventListener('input', function(){ setTempFrom('k'); });
+
+      $('#timerStart').addEventListener('click', timerStart);
+      $('#timerStop').addEventListener('click', timerStop);
+      $('#timerReset').addEventListener('click', timerReset);
+
+      initNotes();
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      calcFuel();
+      calcCost();
+      calcFlightBasic();
+      calcFuelReq();
+      calcEndurance();
+      calcDensityAltitude();
+      calcTasApprox();
+      calcWind();
+      calcWB();
+      calcPNR();
+      renderTimer();
+      showScreen('menu');
+    })();
+  </script>
 </body>
 </html>
