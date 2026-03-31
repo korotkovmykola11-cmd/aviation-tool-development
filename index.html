@@ -3,166 +3,164 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aviation Pro Logic Fixed</title>
+  <title>Aviation Pro — Logic Audit Fixed</title>
   <style>
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:#0b1220;
-      color:#e8eefc;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0b1220;
+      color: #e8eefc;
     }
-    .app{
-      max-width:1100px;
-      margin:0 auto;
-      padding:20px;
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px;
     }
-    h1,h2{
-      margin:0 0 12px;
+    h1, h2, h3 { margin: 0 0 12px; }
+    .muted { color: #9fb0d3; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
     }
-    .muted{
-      color:#9fb0d3;
+    .card {
+      background: #121b2e;
+      border: 1px solid #24314f;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
     }
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-      gap:16px;
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 14px;
     }
-    .card{
-      background:#121b2e;
-      border:1px solid #24314f;
-      border-radius:14px;
-      padding:16px;
-      box-shadow:0 8px 24px rgba(0,0,0,.25);
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 140px 80px;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
     }
-    .card h2{
-      font-size:18px;
-      margin-bottom:14px;
+    .row label {
+      font-size: 14px;
+      color: #dbe6ff;
     }
-    .row{
-      display:grid;
-      grid-template-columns:1fr 130px 70px;
-      gap:10px;
-      align-items:center;
-      margin-bottom:10px;
+    .subhead {
+      margin: 14px 0 10px;
+      color: #bfd0f5;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .2px;
     }
-    .row label{
-      font-size:14px;
-      color:#dbe6ff;
+    input, select, textarea, button {
+      font: inherit;
     }
-    input, select, textarea, button{
-      font:inherit;
+    input, select, textarea {
+      width: 100%;
+      background: #0d1526;
+      color: #f3f7ff;
+      border: 1px solid #314364;
+      border-radius: 10px;
+      padding: 10px 12px;
+      outline: none;
     }
-    input, select, textarea{
-      width:100%;
-      background:#0d1526;
-      color:#f3f7ff;
-      border:1px solid #314364;
-      border-radius:10px;
-      padding:10px 12px;
-      outline:none;
+    input:focus, select:focus, textarea:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96,165,250,.15);
     }
-    input:focus, select:focus, textarea:focus{
-      border-color:#60a5fa;
-      box-shadow:0 0 0 3px rgba(96,165,250,.15);
+    .unit {
+      color: #93a7d1;
+      font-size: 13px;
+      text-align: right;
     }
-    .unit{
-      color:#93a7d1;
-      font-size:13px;
-      text-align:right;
+    .results {
+      margin-top: 12px;
+      padding: 12px;
+      background: #0d1526;
+      border: 1px solid #2b3b5f;
+      border-radius: 12px;
     }
-    .results{
-      margin-top:12px;
-      padding:12px;
-      background:#0d1526;
-      border:1px solid #2b3b5f;
-      border-radius:12px;
+    .res {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .res{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      padding:6px 0;
-      border-bottom:1px solid rgba(255,255,255,.06);
+    .res:last-child { border-bottom: none; }
+    .res b { color: #fff; }
+    .status {
+      min-height: 20px;
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.35;
     }
-    .res:last-child{
-      border-bottom:none;
+    .ok { color: #86efac; }
+    .warn { color: #fbbf24; }
+    .bad { color: #fca5a5; }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
     }
-    .res b{
-      color:#fff;
+    button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
     }
-    .ok{ color:#86efac; }
-    .warn{ color:#fbbf24; }
-    .bad{ color:#fca5a5; }
-    .status{
-      min-height:20px;
-      margin-top:8px;
-      font-size:13px;
+    button:hover { background: #1d4ed8; }
+    button.secondary { background: #334155; }
+    button.secondary:hover { background: #475569; }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
     }
-    .toolbar{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
+    .converter-grid {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 10px;
     }
-    button{
-      background:#2563eb;
-      color:#fff;
-      border:none;
-      border-radius:10px;
-      padding:10px 14px;
-      cursor:pointer;
+    .converter-grid .row {
+      grid-template-columns: 1fr;
+      margin-bottom: 0;
     }
-    button:hover{
-      background:#1d4ed8;
+    .timer-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
     }
-    button.secondary{
-      background:#334155;
+    .timer-display {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
-    button.secondary:hover{
-      background:#475569;
+    .small-note {
+      margin-top: 8px;
+      color: #91a8d8;
+      font-size: 12px;
+      line-height: 1.35;
     }
-    textarea{
-      min-height:160px;
-      resize:vertical;
-    }
-    .converter-grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:10px;
-    }
-    .converter-grid .row{
-      grid-template-columns:1fr;
-      margin-bottom:0;
-    }
-    .timer-box{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      align-items:flex-start;
-    }
-    .timer-display{
-      font-size:36px;
-      font-weight:700;
-      letter-spacing:1px;
-    }
-    @media (max-width:700px){
-      .row{
-        grid-template-columns:1fr;
-      }
-      .unit{
-        text-align:left;
-      }
-      .converter-grid{
-        grid-template-columns:1fr;
-      }
+    @media (max-width: 700px) {
+      .row { grid-template-columns: 1fr; }
+      .unit { text-align: left; }
+      .converter-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 <div class="app">
-  <h1>Aviation Pro — Logic Fixed</h1>
-  <p class="muted">Single-file HTML+CSS+JS version with corrected validation, safer calculations, manual notes control, and centralized logic handling.</p>
+  <h1>Aviation Pro — Logic Audit Fixed</h1>
+  <p class="muted">
+    Single-file HTML+CSS+JS version. Fixed heading normalization, wind logic, W&amp;B limits, TOD guardrails, PNR note logic,
+    and clearer approximation handling for density altitude / TAS / fuel density.
+  </p>
 
   <div class="grid">
 
@@ -188,12 +186,14 @@
         <div class="unit">°C</div>
       </div>
       <div class="results">
+        <div class="res"><span>Density</span><b id="fuelDensity">-</b></div>
         <div class="res"><span>Mass</span><b id="fuelMass">-</b></div>
         <div class="res"><span>Mass</span><b id="fuelLbs">-</b></div>
         <div class="res"><span>US Gallons</span><b id="fuelUsg">-</b></div>
         <div class="res"><span>Imp Gallons</span><b id="fuelImp">-</b></div>
       </div>
       <div class="status" id="fuelStatus"></div>
+      <div class="small-note">Fuel density is an operational approximation, not a certified refuel-table replacement.</div>
     </section>
 
     <section class="card">
@@ -235,12 +235,12 @@
         <div class="unit">NM</div>
       </div>
       <div class="row">
-        <label for="flightCrs">Course</label>
+        <label for="flightCrs">Course / Track</label>
         <input id="flightCrs" type="number" step="any" />
         <div class="unit">°</div>
       </div>
       <div class="row">
-        <label for="flightWdir">Wind Direction</label>
+        <label for="flightWdir">Wind Direction (FROM)</label>
         <input id="flightWdir" type="number" step="any" />
         <div class="unit">°</div>
       </div>
@@ -256,6 +256,7 @@
         <div class="res"><span>Heading</span><b id="flightHdg">-</b></div>
       </div>
       <div class="status" id="flightStatus"></div>
+      <div class="small-note">Wind direction is treated as the standard aviation “FROM” direction.</div>
     </section>
 
     <section class="card">
@@ -332,6 +333,7 @@
         <div class="res"><span>Density Altitude</span><b id="atmoDa">-</b></div>
       </div>
       <div class="status" id="atmoStatus"></div>
+      <div class="small-note">Density altitude uses a standard operational approximation.</div>
     </section>
 
     <section class="card">
@@ -373,9 +375,11 @@
       </div>
       <div class="results">
         <div class="res"><span>TAS Approx</span><b id="tasOut">-</b></div>
-        <div class="res"><span>Note</span><b id="tasNote">-</b></div>
+        <div class="res"><span>Density Ratio</span><b id="tasSigma">-</b></div>
+        <div class="res"><span>Method</span><b id="tasNote">-</b></div>
       </div>
       <div class="status" id="tasStatus"></div>
+      <div class="small-note">Approximation only. IAS is treated as CAS/EAS for planning use.</div>
     </section>
 
     <section class="card">
@@ -386,7 +390,7 @@
         <div class="unit">°</div>
       </div>
       <div class="row">
-        <label for="windDir">Wind Direction</label>
+        <label for="windDir">Wind Direction (FROM)</label>
         <input id="windDir" type="number" step="any" />
         <div class="unit">°</div>
       </div>
@@ -404,7 +408,9 @@
     </section>
 
     <section class="card">
-      <h2>Weight & Balance</h2>
+      <h2>Weight &amp; Balance</h2>
+
+      <div class="subhead">Loads</div>
       <div class="row"><label for="wbEmptyWt">Empty Weight</label><input id="wbEmptyWt" type="number" step="any"><div class="unit">kg</div></div>
       <div class="row"><label for="wbEmptyArm">Empty Arm</label><input id="wbEmptyArm" type="number" step="any"><div class="unit">mm</div></div>
 
@@ -420,10 +426,16 @@
       <div class="row"><label for="wbCargoWt">Cargo Weight</label><input id="wbCargoWt" type="number" step="any"><div class="unit">kg</div></div>
       <div class="row"><label for="wbCargoArm">Cargo Arm</label><input id="wbCargoArm" type="number" step="any"><div class="unit">mm</div></div>
 
+      <div class="subhead">Envelope Limits</div>
+      <div class="row"><label for="wbMaxWt">Max Weight</label><input id="wbMaxWt" type="number" step="any"><div class="unit">kg</div></div>
+      <div class="row"><label for="wbMinCg">Forward CG Limit</label><input id="wbMinCg" type="number" step="any"><div class="unit">mm</div></div>
+      <div class="row"><label for="wbMaxCg">Aft CG Limit</label><input id="wbMaxCg" type="number" step="any"><div class="unit">mm</div></div>
+
       <div class="results">
         <div class="res"><span>Total Weight</span><b id="wbTotal">-</b></div>
         <div class="res"><span>Total Moment</span><b id="wbTotalMom">-</b></div>
         <div class="res"><span>CG</span><b id="wbCg">-</b></div>
+        <div class="res"><span>Envelope</span><b id="wbEnvelope">-</b></div>
       </div>
       <div class="status" id="wbStatus"></div>
     </section>
@@ -450,9 +462,17 @@
         <input id="todAngle" type="number" step="any" />
         <div class="unit">°</div>
       </div>
+      <div class="row">
+        <label for="todBuffer">Level-off / Buffer</label>
+        <input id="todBuffer" type="number" step="any" />
+        <div class="unit">NM</div>
+      </div>
       <div class="results">
-        <div class="res"><span>Distance to TOD</span><b id="todDist">-</b></div>
+        <div class="res"><span>Geometric TOD</span><b id="todGeom">-</b></div>
+        <div class="res"><span>Buffer</span><b id="todBufferOut">-</b></div>
+        <div class="res"><span>Start Descent At</span><b id="todDist">-</b></div>
         <div class="res"><span>Required VS</span><b id="todVs">-</b></div>
+        <div class="res"><span>Planning Note</span><b id="todNote">-</b></div>
       </div>
       <div class="status" id="todStatus"></div>
     </section>
@@ -492,8 +512,10 @@
       <div class="results">
         <div class="res"><span>Distance to PNR</span><b id="pnrDist">-</b></div>
         <div class="res"><span>Time to PNR</span><b id="pnrTime">-</b></div>
+        <div class="res"><span>Method</span><b id="pnrNote">-</b></div>
       </div>
       <div class="status" id="pnrStatus"></div>
+      <div class="small-note">PNR is not the same as ETP / PET.</div>
     </section>
 
     <section class="card">
@@ -560,21 +582,25 @@
 </div>
 
 <script>
-(function(){
+(function () {
   'use strict';
 
   const $ = (s) => document.querySelector(s);
-  const $$ = (s) => Array.from(document.querySelectorAll(s));
 
-  const FUEL = {
-    jeta1: 0.800,
-    jeta: 0.804,
-    avgas: 0.721
+  const NOTES_KEY = 'aviation_pro_notes_logic_audit_fixed_v1';
+
+  const FUEL_TYPES = {
+    jeta1: { name: 'Jet A-1', density15: 0.800, alpha: 0.00099 },
+    jeta:  { name: 'Jet A',   density15: 0.804, alpha: 0.00098 },
+    avgas: { name: 'Avgas',   density15: 0.721, alpha: 0.00125 }
   };
 
-  const NOTES_KEY = 'aviation_pro_notes_logic_fixed';
+  let qnhSyncLock = false;
+  let timerSec = 0;
+  let timerRun = false;
+  let timerInt = null;
 
-  function num(v){
+  function num(v) {
     if (v === null || v === undefined) return null;
     const s = String(v).trim().replace(',', '.');
     if (s === '') return null;
@@ -582,97 +608,126 @@
     return Number.isFinite(n) ? n : null;
   }
 
-  function getNum(sel){
+  function getNum(sel) {
     const el = $(sel);
     return el ? num(el.value) : null;
   }
 
-  function setText(sel, value){
+  function setText(sel, value) {
     const el = $(sel);
     if (el) el.textContent = value;
   }
 
-  function setStatus(sel, text, cls=''){
+  function setStatus(sel, text, cls = '') {
     const el = $(sel);
     if (!el) return;
     el.className = 'status ' + cls;
     el.textContent = text || '';
   }
 
-  function fmtTime(hours){
+  function clearMany(arr) {
+    arr.forEach(id => setText(id, '-'));
+  }
+
+  function fmt(value, digits = 1) {
+    return Number.isFinite(value) ? value.toFixed(digits) : '-';
+  }
+
+  function fmtSigned(value, digits = 1, suffix = '') {
+    if (!Number.isFinite(value)) return '-';
+    return (value >= 0 ? '+' : '') + value.toFixed(digits) + suffix;
+  }
+
+  function fmtTime(hours) {
     if (!Number.isFinite(hours) || hours < 0) return '-';
     const totalMinutes = Math.round(hours * 60);
     const h = Math.floor(totalMinutes / 60);
     const m = totalMinutes % 60;
-    return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
   }
 
-  function degRad(d){ return d * Math.PI / 180; }
-  function radDeg(r){ return r * 180 / Math.PI; }
+  function fmtClock(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return String(h).padStart(2, '0') + ':' +
+           String(m).padStart(2, '0') + ':' +
+           String(s).padStart(2, '0');
+  }
 
-  function normHeading(h){
-    if (!Number.isFinite(h)) return null;
-    let x = h % 360;
+  function degRad(d) { return d * Math.PI / 180; }
+  function radDeg(r) { return r * 180 / Math.PI; }
+
+  function norm360(v) {
+    if (!Number.isFinite(v)) return null;
+    let x = v % 360;
     if (x < 0) x += 360;
     return x;
   }
 
-  function clearMany(selectors){
-    selectors.forEach(s => setText(s, '-'));
+  function norm180(v) {
+    const x = norm360(v);
+    if (x === null) return null;
+    return x > 180 ? x - 360 : x;
   }
 
-  function validatePositive(value){
-    return value !== null && value > 0;
+  function validPositive(v) { return v !== null && v > 0; }
+  function validNonNegative(v) { return v !== null && v >= 0; }
+  function validHeadingInput(v) { return v !== null && v >= 0 && v <= 360; }
+
+  function fieldAngle(sel) {
+    const raw = getNum(sel);
+    if (!validHeadingInput(raw)) return null;
+    return norm360(raw);
   }
 
-  function validateNonNegative(value){
-    return value !== null && value >= 0;
-  }
-
-  function validateHeading(value){
-    return value !== null && value >= 0 && value <= 360;
-  }
-
-  function calcFuel(){
-    const type = $('#fuelType').value;
+  function calcFuel() {
+    const typeKey = $('#fuelType').value;
+    const fuel = FUEL_TYPES[typeKey];
     const vol = getNum('#fuelVol');
     const temp = getNum('#fuelTemp');
 
-    if (!validatePositive(vol)){
-      clearMany(['#fuelMass','#fuelLbs','#fuelUsg','#fuelImp']);
+    if (!validPositive(vol)) {
+      clearMany(['#fuelDensity', '#fuelMass', '#fuelLbs', '#fuelUsg', '#fuelImp']);
       setStatus('#fuelStatus', 'Enter valid fuel volume greater than zero.', 'warn');
       return;
     }
 
-    if (temp !== null && (temp < -80 || temp > 80)){
-      clearMany(['#fuelMass','#fuelLbs','#fuelUsg','#fuelImp']);
-      setStatus('#fuelStatus', 'Fuel temperature is outside a reasonable range.', 'bad');
+    if (temp !== null && (temp < -60 || temp > 60)) {
+      clearMany(['#fuelDensity', '#fuelMass', '#fuelLbs', '#fuelUsg', '#fuelImp']);
+      setStatus('#fuelStatus', 'Fuel temperature is outside a practical operational range.', 'bad');
       return;
     }
 
-    const refTemp = temp === null ? 15 : temp;
-    const density = FUEL[type] * (1 - 0.00099 * (refTemp - 15));
-    if (!Number.isFinite(density) || density <= 0){
-      clearMany(['#fuelMass','#fuelLbs','#fuelUsg','#fuelImp']);
+    const t = temp === null ? 15 : temp;
+    const density = fuel.density15 / (1 + fuel.alpha * (t - 15));
+
+    if (!Number.isFinite(density) || density <= 0) {
+      clearMany(['#fuelDensity', '#fuelMass', '#fuelLbs', '#fuelUsg', '#fuelImp']);
       setStatus('#fuelStatus', 'Calculated density is invalid.', 'bad');
       return;
     }
 
     const kg = vol * density;
-    setText('#fuelMass', Math.round(kg) + ' kg');
-    setText('#fuelLbs', Math.round(kg * 2.20462) + ' lb');
+    setText('#fuelDensity', density.toFixed(3) + ' kg/L');
+    setText('#fuelMass', kg.toFixed(1) + ' kg');
+    setText('#fuelLbs', (kg * 2.20462).toFixed(1) + ' lb');
     setText('#fuelUsg', (vol * 0.264172).toFixed(1));
     setText('#fuelImp', (vol * 0.219969).toFixed(1));
-    setStatus('#fuelStatus', temp === null ? 'Temperature not entered. 15°C used as reference.' : 'OK', 'ok');
+
+    const msg = temp === null
+      ? 'Temperature not entered. 15°C reference used. Approximation only.'
+      : 'OK. Operational approximation only.';
+    setStatus('#fuelStatus', msg, temp === null ? 'warn' : 'ok');
   }
 
-  function calcCost(){
+  function calcCost() {
     const flow = getNum('#costFlow');
     const price = getNum('#costPrice');
     const gs = getNum('#costGs');
 
-    if (!validatePositive(flow) || !validatePositive(price)){
-      clearMany(['#costHour','#costMin','#costNm','#cost100']);
+    if (!validPositive(flow) || !validPositive(price)) {
+      clearMany(['#costHour', '#costMin', '#costNm', '#cost100']);
       setStatus('#costStatus', 'Enter valid flow and price greater than zero.', 'warn');
       return;
     }
@@ -681,14 +736,14 @@
     setText('#costHour', cph.toFixed(2));
     setText('#costMin', (cph / 60).toFixed(2));
 
-    if (gs === null){
+    if (gs === null) {
       setText('#costNm', '-');
       setText('#cost100', '-');
       setStatus('#costStatus', 'Per-NM values require GS.', 'warn');
       return;
     }
 
-    if (gs <= 0){
+    if (!validPositive(gs)) {
       setText('#costNm', '-');
       setText('#cost100', '-');
       setStatus('#costStatus', 'GS must be greater than zero.', 'bad');
@@ -700,225 +755,214 @@
     setStatus('#costStatus', 'OK', 'ok');
   }
 
-  function calcFlightBasic(){
+  function calcFlightBasic() {
     const tas = getNum('#flightTas');
     const dist = getNum('#flightDist');
-    const crs = getNum('#flightCrs');
-    const wdir = getNum('#flightWdir');
+    const course = fieldAngle('#flightCrs');
+    const wdir = fieldAngle('#flightWdir');
     const wspd = getNum('#flightWspd');
 
-    if (!validatePositive(tas) || !validatePositive(dist) || !validateHeading(crs)){
-      clearMany(['#flightGs','#flightEte','#flightWca','#flightHdg']);
-      setStatus('#flightStatus', 'Enter valid TAS, distance, and course 0..360.', 'warn');
+    if (!validPositive(tas) || !validPositive(dist) || course === null) {
+      clearMany(['#flightGs', '#flightEte', '#flightWca', '#flightHdg']);
+      setStatus('#flightStatus', 'Enter valid TAS, distance, and course (0..360; 360 is normalized to 0).', 'warn');
       return;
     }
 
-    const course = normHeading(crs);
-
-    if (wdir === null && wspd === null){
+    if (wdir === null && wspd === null) {
       setText('#flightGs', tas.toFixed(0) + ' kt');
       setText('#flightEte', fmtTime(dist / tas));
       setText('#flightWca', '0.0°');
-      setText('#flightHdg', Math.round(course) + '°');
+      setText('#flightHdg', course.toFixed(0) + '°');
       setStatus('#flightStatus', 'No wind entered. TAS used as GS.', 'warn');
       return;
     }
 
-    if (!validateHeading(wdir) || !validateNonNegative(wspd)){
-      clearMany(['#flightGs','#flightEte','#flightWca','#flightHdg']);
+    if (wdir === null || !validNonNegative(wspd)) {
+      clearMany(['#flightGs', '#flightEte', '#flightWca', '#flightHdg']);
       setStatus('#flightStatus', 'Wind direction must be 0..360 and wind speed must be >= 0.', 'bad');
       return;
     }
 
-    const rel = degRad(wdir - course);
-    const cross = wspd * Math.sin(rel);
-    const head = wspd * Math.cos(rel);
+    const beta = degRad(norm180(wdir - course));
+    const xwind = wspd * Math.sin(beta);
+    const headwind = wspd * Math.cos(beta);
 
-    if (Math.abs(cross) > tas){
-      clearMany(['#flightGs','#flightEte','#flightWca','#flightHdg']);
+    if (Math.abs(xwind) > tas) {
+      clearMany(['#flightGs', '#flightEte', '#flightWca', '#flightHdg']);
       setStatus('#flightStatus', 'Crosswind component exceeds TAS. Heading solution is impossible.', 'bad');
       return;
     }
 
-    const wca = radDeg(Math.asin(cross / tas));
-    const hdg = normHeading(course + wca);
-    const gs = tas * Math.cos(degRad(wca)) - head;
+    const wca = radDeg(Math.asin(xwind / tas));
+    const heading = norm360(course + wca);
+    const gs = tas * Math.cos(degRad(wca)) - headwind;
 
-    if (!Number.isFinite(gs) || gs <= 0){
-      setText('#flightGs', '0 kt');
-      setText('#flightEte', '-');
-      setText('#flightWca', (wca >= 0 ? '+' : '') + wca.toFixed(1) + '°');
-      setText('#flightHdg', Math.round(hdg) + '°');
+    if (!Number.isFinite(gs) || gs <= 0) {
+      clearMany(['#flightGs', '#flightEte', '#flightWca', '#flightHdg']);
       setStatus('#flightStatus', 'Computed GS is zero or negative.', 'bad');
       return;
     }
 
-    setText('#flightGs', gs.toFixed(0) + ' kt');
+    setText('#flightGs', gs.toFixed(1) + ' kt');
     setText('#flightEte', fmtTime(dist / gs));
-    setText('#flightWca', (wca >= 0 ? '+' : '') + wca.toFixed(1) + '°');
-    setText('#flightHdg', Math.round(hdg) + '°');
-    setStatus('#flightStatus', 'OK', 'ok');
+    setText('#flightWca', fmtSigned(wca, 1, '°'));
+    setText('#flightHdg', heading.toFixed(1) + '°');
+    setStatus('#flightStatus', 'OK. Wind handled as aviation direction FROM.', 'ok');
   }
 
-  function calcFuelReq(){
+  function calcFuelReq() {
     const gs = getNum('#freqGs');
     const dist = getNum('#freqDist');
     const flow = getNum('#freqFlow');
     const reserve = getNum('#freqRes');
 
-    if (!validatePositive(gs) || !validatePositive(dist) || !validatePositive(flow)){
-      clearMany(['#freqTrip','#freqResOut','#freqTotal','#freqTime']);
+    if (!validPositive(gs) || !validPositive(dist) || !validPositive(flow)) {
+      clearMany(['#freqTrip', '#freqResOut', '#freqTotal', '#freqTime']);
       setStatus('#freqStatus', 'Enter valid GS, distance, and flow greater than zero.', 'warn');
       return;
     }
 
-    if (reserve !== null && reserve < 0){
-      clearMany(['#freqTrip','#freqResOut','#freqTotal','#freqTime']);
-      setStatus('#freqStatus', 'Reserve cannot be negative.', 'bad');
+    if (!validNonNegative(reserve)) {
+      clearMany(['#freqTrip', '#freqResOut', '#freqTotal', '#freqTime']);
+      setStatus('#freqStatus', 'Reserve is required and cannot be negative.', 'bad');
       return;
     }
 
-    const res = reserve === null ? 0 : reserve;
     const time = dist / gs;
     const trip = time * flow;
-    const total = trip + res;
+    const total = trip + reserve;
 
     setText('#freqTrip', trip.toFixed(1) + ' L');
-    setText('#freqResOut', res.toFixed(1) + ' L');
+    setText('#freqResOut', reserve.toFixed(1) + ' L');
     setText('#freqTotal', total.toFixed(1) + ' L');
     setText('#freqTime', fmtTime(time));
-    setStatus('#freqStatus', reserve === null ? 'Reserve not entered. 0 used.' : 'OK', reserve === null ? 'warn' : 'ok');
+    setStatus('#freqStatus', 'OK', 'ok');
   }
 
-  function calcEndurance(){
+  function calcEndurance() {
     const fuel = getNum('#endFuel');
     const flow = getNum('#endFlow');
 
-    if (!validatePositive(fuel) || !validatePositive(flow)){
-      clearMany(['#endTime','#endDecimal']);
-      setStatus('#endStatus', 'Enter valid fuel and flow greater than zero.', 'warn');
+    if (!validPositive(fuel) || !validPositive(flow)) {
+      clearMany(['#endTime', '#endDecimal']);
+      setStatus('#endStatus', 'Enter usable fuel and fuel flow greater than zero.', 'warn');
       return;
     }
 
-    const end = fuel / flow;
-    setText('#endTime', fmtTime(end));
-    setText('#endDecimal', end.toFixed(2) + ' h');
+    const hours = fuel / flow;
+    setText('#endTime', fmtTime(hours));
+    setText('#endDecimal', hours.toFixed(2) + ' h');
     setStatus('#endStatus', 'OK', 'ok');
   }
 
-  function calcDensityAltitude(){
+  function calcDensityAltitude() {
     const elev = getNum('#atmoElev');
     const oat = getNum('#atmoOat');
     const qnh = getNum('#atmoQnh');
 
-    if (elev === null || oat === null || qnh === null){
-      clearMany(['#atmoDa','#atmoPa','#atmoIsa','#atmoDev']);
+    if (elev === null || oat === null || qnh === null) {
+      clearMany(['#atmoPa', '#atmoIsa', '#atmoDev', '#atmoDa']);
       setStatus('#atmoStatus', 'Enter elevation, OAT, and QNH.', 'warn');
       return;
     }
 
-    if (qnh < 850 || qnh > 1100){
-      clearMany(['#atmoDa','#atmoPa','#atmoIsa','#atmoDev']);
-      setStatus('#atmoStatus', 'QNH is outside a reasonable operational range.', 'bad');
+    if (qnh < 850 || qnh > 1100) {
+      clearMany(['#atmoPa', '#atmoIsa', '#atmoDev', '#atmoDa']);
+      setStatus('#atmoStatus', 'QNH is outside a practical range.', 'bad');
       return;
     }
 
-    if (oat < -80 || oat > 60){
-      clearMany(['#atmoDa','#atmoPa','#atmoIsa','#atmoDev']);
-      setStatus('#atmoStatus', 'OAT is outside a reasonable operational range.', 'bad');
-      return;
-    }
-
-    const pa = elev + (1013.25 - qnh) * 27;
+    const pa = elev + (1013.25 - qnh) * 27.0;
     const isa = 15 - (2 * pa / 1000);
     const dev = oat - isa;
     const da = pa + 120 * dev;
 
     setText('#atmoPa', pa.toFixed(0) + ' ft');
-    setText('#atmoIsa', isa.toFixed(1) + '°C');
-    setText('#atmoDev', (dev >= 0 ? '+' : '') + dev.toFixed(1) + '°C');
+    setText('#atmoIsa', isa.toFixed(1) + ' °C');
+    setText('#atmoDev', fmtSigned(dev, 1, ' °C'));
     setText('#atmoDa', da.toFixed(0) + ' ft');
-    setStatus('#atmoStatus', 'Approximation only. Not for certified performance use.', 'warn');
+    setStatus('#atmoStatus', 'OK. Standard approximation method.', 'ok');
   }
 
-  function syncQnh(source){
+  function syncQnh(source) {
+    if (qnhSyncLock) return;
+
     const hpa = getNum('#qnhHpa');
     const inhg = getNum('#qnhInhg');
     const mmhg = getNum('#qnhMmhg');
+    let baseHpa = null;
 
-    try{
-      if (source === 'hpa'){
-        if (hpa === null || hpa <= 0) return;
-        $('#qnhInhg').value = (hpa * 0.0295299831).toFixed(2);
-        $('#qnhMmhg').value = (hpa * 0.750061683).toFixed(1);
-      } else if (source === 'inhg'){
-        if (inhg === null || inhg <= 0) return;
-        const H = inhg / 0.0295299831;
-        $('#qnhHpa').value = H.toFixed(2);
-        $('#qnhMmhg').value = (H * 0.750061683).toFixed(1);
-      } else if (source === 'mmhg'){
-        if (mmhg === null || mmhg <= 0) return;
-        const H2 = mmhg / 0.750061683;
-        $('#qnhHpa').value = H2.toFixed(2);
-        $('#qnhInhg').value = (H2 * 0.0295299831).toFixed(2);
-      }
-      setStatus('#qnhStatus', 'OK', 'ok');
-    } catch(err){
-      setStatus('#qnhStatus', 'QNH conversion error.', 'bad');
+    if (source === 'hpa') baseHpa = hpa;
+    if (source === 'inhg') baseHpa = inhg !== null ? inhg * 33.8638866667 : null;
+    if (source === 'mmhg') baseHpa = mmhg !== null ? mmhg * 1.3332239 : null;
+
+    if (baseHpa === null) {
+      setStatus('#qnhStatus', '', '');
+      return;
     }
+
+    if (baseHpa < 850 || baseHpa > 1100) {
+      setStatus('#qnhStatus', 'Converted QNH is outside a practical range.', 'bad');
+      return;
+    }
+
+    qnhSyncLock = true;
+    $('#qnhHpa').value = baseHpa.toFixed(2);
+    $('#qnhInhg').value = (baseHpa / 33.8638866667).toFixed(2);
+    $('#qnhMmhg').value = (baseHpa / 1.3332239).toFixed(1);
+    qnhSyncLock = false;
+    setStatus('#qnhStatus', 'OK', 'ok');
   }
 
-  function calcTasApprox(){
+  function calcTasApprox() {
     const ias = getNum('#tasIas');
     const alt = getNum('#tasAlt');
     const oat = getNum('#tasOat');
 
-    if (!validatePositive(ias) || alt === null || oat === null){
-      setText('#tasOut', '-');
-      setText('#tasNote', '-');
+    if (!validPositive(ias) || alt === null || oat === null) {
+      clearMany(['#tasOut', '#tasSigma', '#tasNote']);
       setStatus('#tasStatus', 'Enter IAS, altitude, and OAT.', 'warn');
       return;
     }
 
-    if (alt < -1000 || alt > 45000){
-      setText('#tasOut', '-');
-      setText('#tasNote', '-');
-      setStatus('#tasStatus', 'Altitude is outside a reasonable range for this approximation.', 'bad');
+    if (alt < 0 || alt > 45000) {
+      clearMany(['#tasOut', '#tasSigma', '#tasNote']);
+      setStatus('#tasStatus', 'Altitude is outside the supported range.', 'bad');
       return;
     }
 
-    const isa = 15 - (2 * alt / 1000);
-    const tempDev = oat - isa;
-    const tempFactor = 1 + (tempDev * 0.001);
-    const altFactor = 1 + ((alt / 1000) * 0.02);
-    const tas = ias * altFactor * tempFactor;
+    const theta = (oat + 273.15) / 288.15;
+    const delta = Math.pow(1 - 6.8755856e-6 * alt, 5.2558797);
+    const sigma = delta / theta;
 
-    if (!Number.isFinite(tas) || tas <= 0){
-      setText('#tasOut', '-');
-      setText('#tasNote', '-');
-      setStatus('#tasStatus', 'Approximation produced invalid result.', 'bad');
+    if (!Number.isFinite(sigma) || sigma <= 0) {
+      clearMany(['#tasOut', '#tasSigma', '#tasNote']);
+      setStatus('#tasStatus', 'Invalid density ratio.', 'bad');
       return;
     }
 
-    setText('#tasOut', tas.toFixed(0) + ' kt');
-    setText('#tasNote', 'ISA dev ' + (tempDev >= 0 ? '+' : '') + tempDev.toFixed(1) + '°C');
-    setStatus('#tasStatus', 'Approximation only.', 'warn');
+    const tas = ias / Math.sqrt(sigma);
+
+    setText('#tasOut', tas.toFixed(1) + ' kt');
+    setText('#tasSigma', sigma.toFixed(3));
+    setText('#tasNote', 'IAS≈CAS/EAS');
+    setStatus('#tasStatus', 'OK. Planning approximation only.', 'ok');
   }
 
-  function calcWind(){
-    const rwy = getNum('#windRwy');
-    const dir = getNum('#windDir');
+  function calcWind() {
+    const rwy = fieldAngle('#windRwy');
+    const dir = fieldAngle('#windDir');
     const spd = getNum('#windSpd');
 
-    if (!validateHeading(rwy) || !validateHeading(dir) || !validateNonNegative(spd)){
-      clearMany(['#windCross','#windHead','#windTail']);
-      setStatus('#windStatus', 'Enter runway and wind direction 0..360, wind speed >= 0.', 'warn');
+    if (rwy === null || dir === null || !validNonNegative(spd)) {
+      clearMany(['#windCross', '#windHead', '#windTail']);
+      setStatus('#windStatus', 'Enter runway heading, wind direction, and wind speed.', 'warn');
       return;
     }
 
-    const angle = degRad(dir - rwy);
-    const cross = Math.abs(spd * Math.sin(angle));
-    const hw = spd * Math.cos(angle);
+    const beta = degRad(norm180(dir - rwy));
+    const cross = Math.abs(spd * Math.sin(beta));
+    const hw = spd * Math.cos(beta);
     const head = hw > 0 ? hw : 0;
     const tail = hw < 0 ? Math.abs(hw) : 0;
 
@@ -928,242 +972,307 @@
     setStatus('#windStatus', 'OK', 'ok');
   }
 
-  function calcWB(){
+  function calcWB() {
     const rows = [
-      {w:'#wbEmptyWt', a:'#wbEmptyArm'},
-      {w:'#wbCrewWt',  a:'#wbCrewArm'},
-      {w:'#wbPaxWt',   a:'#wbPaxArm'},
-      {w:'#wbFuelWt',  a:'#wbFuelArm'},
-      {w:'#wbCargoWt', a:'#wbCargoArm'}
+      { w: '#wbEmptyWt', a: '#wbEmptyArm', name: 'Empty' },
+      { w: '#wbCrewWt',  a: '#wbCrewArm',  name: 'Crew'  },
+      { w: '#wbPaxWt',   a: '#wbPaxArm',   name: 'Pax'   },
+      { w: '#wbFuelWt',  a: '#wbFuelArm',  name: 'Fuel'  },
+      { w: '#wbCargoWt', a: '#wbCargoArm', name: 'Cargo' }
     ];
 
-    let tw = 0;
-    let tm = 0;
+    let totalWeight = 0;
+    let totalMoment = 0;
     let any = false;
 
-    for (const r of rows){
-      const w = getNum(r.w);
-      const a = getNum(r.a);
+    for (const row of rows) {
+      const w = getNum(row.w);
+      const a = getNum(row.a);
 
       if (w === null && a === null) continue;
       any = true;
 
-      if (!validateNonNegative(w) || a === null){
-        setText('#wbTotal', '-');
-        setText('#wbTotalMom', '-');
-        setText('#wbCg', '-');
-        setStatus('#wbStatus', 'Each entered row requires weight >= 0 and valid arm.', 'bad');
+      if (!validNonNegative(w) || a === null) {
+        clearMany(['#wbTotal', '#wbTotalMom', '#wbCg', '#wbEnvelope']);
+        setStatus('#wbStatus', `Each entered ${row.name} row requires weight >= 0 and a valid arm.`, 'bad');
         return;
       }
 
-      const m = w * a;
-      tw += w;
-      tm += m;
+      totalWeight += w;
+      totalMoment += w * a;
     }
 
-    if (!any || tw <= 0){
-      setText('#wbTotal', '-');
-      setText('#wbTotalMom', '-');
-      setText('#wbCg', '-');
+    if (!any || totalWeight <= 0) {
+      clearMany(['#wbTotal', '#wbTotalMom', '#wbCg', '#wbEnvelope']);
       setStatus('#wbStatus', 'Enter at least one complete row with positive total weight.', 'warn');
       return;
     }
 
-    setText('#wbTotal', tw.toFixed(1) + ' kg');
-    setText('#wbTotalMom', tm.toFixed(1));
-    setText('#wbCg', (tm / tw).toFixed(1) + ' mm');
-    setStatus('#wbStatus', 'CG limits are not checked in this generic version.', 'warn');
+    const cg = totalMoment / totalWeight;
+    const maxWt = getNum('#wbMaxWt');
+    const minCg = getNum('#wbMinCg');
+    const maxCg = getNum('#wbMaxCg');
+
+    setText('#wbTotal', totalWeight.toFixed(1) + ' kg');
+    setText('#wbTotalMom', totalMoment.toFixed(1));
+    setText('#wbCg', cg.toFixed(1) + ' mm');
+
+    let problems = [];
+
+    if (maxWt !== null && maxWt <= 0) problems.push('Max Weight must be > 0.');
+    if (minCg !== null && maxCg !== null && minCg > maxCg) problems.push('Forward CG Limit cannot exceed Aft CG Limit.');
+
+    if (problems.length) {
+      setText('#wbEnvelope', 'INVALID LIMITS');
+      setStatus('#wbStatus', problems.join(' '), 'bad');
+      return;
+    }
+
+    let envelope = 'NO LIMITS ENTERED';
+    let statusCls = 'warn';
+    let statusTxt = 'Calculation OK, but no envelope limits entered.';
+
+    if (maxWt !== null || minCg !== null || maxCg !== null) {
+      if (maxWt === null || minCg === null || maxCg === null) {
+        envelope = 'PARTIAL LIMITS';
+        statusTxt = 'Enter all three limits: Max Weight, Forward CG Limit, Aft CG Limit.';
+        statusCls = 'warn';
+      } else {
+        const overweight = totalWeight > maxWt;
+        const cgForward = cg < minCg;
+        const cgAft = cg > maxCg;
+
+        if (!overweight && !cgForward && !cgAft) {
+          envelope = 'IN LIMITS';
+          statusTxt = 'OK';
+          statusCls = 'ok';
+        } else {
+          envelope = 'OUT OF LIMITS';
+          const details = [];
+          if (overweight) details.push('weight exceeds max');
+          if (cgForward) details.push('CG is forward of limit');
+          if (cgAft) details.push('CG is aft of limit');
+          statusTxt = details.join('; ') + '.';
+          statusCls = 'bad';
+        }
+      }
+    }
+
+    setText('#wbEnvelope', envelope);
+    setStatus('#wbStatus', statusTxt, statusCls);
   }
 
-  function calcTOD(){
-    const cr = getNum('#todCruise');
-    const tg = getNum('#todTarget');
+  function calcTOD() {
+    const cruise = getNum('#todCruise');
+    const target = getNum('#todTarget');
     const gs = getNum('#todGs');
-    const an = getNum('#todAngle');
+    const angle = getNum('#todAngle');
+    const buffer = getNum('#todBuffer');
 
-    if (cr === null || tg === null || !validatePositive(gs) || an === null){
-      clearMany(['#todDist','#todVs']);
+    if (cruise === null || target === null || !validPositive(gs) || angle === null) {
+      clearMany(['#todGeom', '#todBufferOut', '#todDist', '#todVs', '#todNote']);
       setStatus('#todStatus', 'Enter cruise altitude, target altitude, GS, and descent angle.', 'warn');
       return;
     }
 
-    if (cr <= tg){
-      clearMany(['#todDist','#todVs']);
+    if (cruise <= target) {
+      clearMany(['#todGeom', '#todBufferOut', '#todDist', '#todVs', '#todNote']);
       setStatus('#todStatus', 'Cruise altitude must be greater than target altitude.', 'bad');
       return;
     }
 
-    if (an <= 0 || an >= 10){
-      clearMany(['#todDist','#todVs']);
-      setStatus('#todStatus', 'Descent angle must be > 0 and < 10 degrees.', 'bad');
+    if (angle <= 0 || angle >= 9) {
+      clearMany(['#todGeom', '#todBufferOut', '#todDist', '#todVs', '#todNote']);
+      setStatus('#todStatus', 'Descent angle must be > 0 and < 9 degrees.', 'bad');
       return;
     }
 
-    const diff = cr - tg;
-    const angleRad = degRad(an);
-    const tan = Math.tan(angleRad);
+    if (buffer !== null && buffer < 0) {
+      clearMany(['#todGeom', '#todBufferOut', '#todDist', '#todVs', '#todNote']);
+      setStatus('#todStatus', 'Buffer cannot be negative.', 'bad');
+      return;
+    }
 
-    if (!Number.isFinite(tan) || tan <= 0){
-      clearMany(['#todDist','#todVs']);
+    const diff = cruise - target;
+    const angleRad = degRad(angle);
+    const tangent = Math.tan(angleRad);
+
+    if (!Number.isFinite(tangent) || tangent <= 0) {
+      clearMany(['#todGeom', '#todBufferOut', '#todDist', '#todVs', '#todNote']);
       setStatus('#todStatus', 'Invalid descent angle.', 'bad');
       return;
     }
 
-    const todNm = diff / (tan * 6076.12);
-    const vs = gs * tan * 101.269;
+    const geomTodNm = diff / (tangent * 6076.12);
+    const extra = buffer === null ? 0 : buffer;
+    const startNm = geomTodNm + extra;
+    const vs = gs * tangent * 101.269;
 
-    setText('#todDist', todNm.toFixed(1) + ' NM');
+    let note = 'Standard geometric TOD';
+    let cls = 'ok';
+    let status = 'OK';
+
+    if (angle < 2 || angle > 4) {
+      note = 'Non-standard angle — verify descent planning';
+      cls = 'warn';
+      status = 'Calculated, but angle is outside the usual 2°..4° planning band.';
+    }
+
+    setText('#todGeom', geomTodNm.toFixed(1) + ' NM');
+    setText('#todBufferOut', extra.toFixed(1) + ' NM');
+    setText('#todDist', startNm.toFixed(1) + ' NM');
     setText('#todVs', Math.round(vs) + ' fpm');
-    setStatus('#todStatus', 'OK', 'ok');
+    setText('#todNote', note);
+    setStatus('#todStatus', status, cls);
   }
 
-  function calcPNR(){
-    const f = getNum('#pnrFuel');
-    const r = getNum('#pnrRes');
-    const fo = getNum('#pnrFlowOut');
-    const fb = getNum('#pnrFlowBack');
-    const go = getNum('#pnrGsOut');
-    const gb = getNum('#pnrGsBack');
+  function calcPNR() {
+    const fuel = getNum('#pnrFuel');
+    const reserve = getNum('#pnrRes');
+    const flowOut = getNum('#pnrFlowOut');
+    const flowBack = getNum('#pnrFlowBack');
+    const gsOut = getNum('#pnrGsOut');
+    const gsBack = getNum('#pnrGsBack');
 
-    if (!validatePositive(f) || !validatePositive(fo) || !validatePositive(fb) || !validatePositive(go) || !validatePositive(gb)){
-      clearMany(['#pnrDist','#pnrTime']);
-      setStatus('#pnrStatus', 'Enter valid total fuel, both flows, and both GS values > 0.', 'warn');
+    if (!validPositive(fuel) || !validNonNegative(reserve) || !validPositive(flowOut) || !validPositive(flowBack) || !validPositive(gsOut) || !validPositive(gsBack)) {
+      clearMany(['#pnrDist', '#pnrTime', '#pnrNote']);
+      setStatus('#pnrStatus', 'Enter valid total fuel, reserve, both flows, and both GS values.', 'warn');
       return;
     }
 
-    const reserve = r === null ? 0 : r;
-    if (reserve < 0){
-      clearMany(['#pnrDist','#pnrTime']);
-      setStatus('#pnrStatus', 'Reserve cannot be negative.', 'bad');
-      return;
-    }
-
-    if (f <= reserve){
-      clearMany(['#pnrDist','#pnrTime']);
+    if (fuel <= reserve) {
+      clearMany(['#pnrDist', '#pnrTime', '#pnrNote']);
       setStatus('#pnrStatus', 'Total fuel must be greater than reserve.', 'bad');
       return;
     }
 
-    const usable = f - reserve;
-    const denom = fo + fb * (go / gb);
+    if (flowOut > 5000 || flowBack > 5000 || gsOut > 1000 || gsBack > 1000) {
+      clearMany(['#pnrDist', '#pnrTime', '#pnrNote']);
+      setStatus('#pnrStatus', 'One or more values are outside the supported sanity range.', 'bad');
+      return;
+    }
 
-    if (!Number.isFinite(denom) || denom <= 0){
-      clearMany(['#pnrDist','#pnrTime']);
+    const usable = fuel - reserve;
+    const denom = flowOut + flowBack * (gsOut / gsBack);
+
+    if (!Number.isFinite(denom) || denom <= 0) {
+      clearMany(['#pnrDist', '#pnrTime', '#pnrNote']);
       setStatus('#pnrStatus', 'Invalid PNR denominator.', 'bad');
       return;
     }
 
-    const t = usable / denom;
-    if (!Number.isFinite(t) || t < 0){
-      clearMany(['#pnrDist','#pnrTime']);
-      setStatus('#pnrStatus', 'Invalid PNR time result.', 'bad');
+    const timeToPnr = usable / denom;
+    const distToPnr = timeToPnr * gsOut;
+
+    if (!Number.isFinite(timeToPnr) || !Number.isFinite(distToPnr) || timeToPnr < 0 || distToPnr < 0) {
+      clearMany(['#pnrDist', '#pnrTime', '#pnrNote']);
+      setStatus('#pnrStatus', 'Calculated PNR is invalid.', 'bad');
       return;
     }
 
-    setText('#pnrDist', (t * go).toFixed(1) + ' NM');
-    setText('#pnrTime', fmtTime(t));
-    setStatus('#pnrStatus', reserve === 0 ? 'Reserve not entered. 0 used.' : 'OK', reserve === 0 ? 'warn' : 'ok');
+    setText('#pnrDist', distToPnr.toFixed(1) + ' NM');
+    setText('#pnrTime', fmtTime(timeToPnr));
+    setText('#pnrNote', 'PNR only / not ETP');
+    setStatus('#pnrStatus', 'OK', 'ok');
   }
 
-  function convSpeed(src){
-    const v = getNum('#conv' + src.charAt(0).toUpperCase() + src.slice(1));
-    if (v === null) return;
-    if (v < 0){ setStatus('#convStatus', 'Speed cannot be negative.', 'bad'); return; }
+  function convSpeed(source) {
+    const ids = { kt: '#convKt', kmh: '#convKmh', mph: '#convMph', ms: '#convMs' };
+    const v = getNum(ids[source]);
+    if (v === null) { setStatus('#convStatus', '', ''); return; }
+    if (v < 0) { setStatus('#convStatus', 'Speed cannot be negative.', 'bad'); return; }
 
-    let kt;
-    if (src === 'kt') kt = v;
-    else if (src === 'kmh') kt = v / 1.852;
-    else if (src === 'mph') kt = v / 1.15078;
-    else kt = v / 0.514444;
+    let kt = null;
+    if (source === 'kt') kt = v;
+    if (source === 'kmh') kt = v / 1.852;
+    if (source === 'mph') kt = v / 1.15077945;
+    if (source === 'ms') kt = v / 0.514444;
 
-    if (src !== 'kt') $('#convKt').value = kt.toFixed(2);
-    if (src !== 'kmh') $('#convKmh').value = (kt * 1.852).toFixed(2);
-    if (src !== 'mph') $('#convMph').value = (kt * 1.15078).toFixed(2);
-    if (src !== 'ms') $('#convMs').value = (kt * 0.514444).toFixed(3);
-
-    setStatus('#convStatus', 'OK', 'ok');
+    $('#convKt').value = kt.toFixed(3);
+    $('#convKmh').value = (kt * 1.852).toFixed(3);
+    $('#convMph').value = (kt * 1.15077945).toFixed(3);
+    $('#convMs').value = (kt * 0.514444).toFixed(3);
+    setStatus('#convStatus', 'Speed conversion OK.', 'ok');
   }
 
-  function convDist(src){
-    const v = getNum('#conv' + src.charAt(0).toUpperCase() + src.slice(1));
-    if (v === null) return;
-    if (v < 0){ setStatus('#convStatus', 'Distance cannot be negative.', 'bad'); return; }
+  function convDist(source) {
+    const ids = { nm: '#convNm', km: '#convKm', mi: '#convMi', ft: '#convFt' };
+    const v = getNum(ids[source]);
+    if (v === null) { setStatus('#convStatus', '', ''); return; }
+    if (v < 0) { setStatus('#convStatus', 'Distance cannot be negative.', 'bad'); return; }
 
-    let nm;
-    if (src === 'nm') nm = v;
-    else if (src === 'km') nm = v / 1.852;
-    else if (src === 'mi') nm = v / 1.15078;
-    else nm = v / 6076.12;
+    let nm = null;
+    if (source === 'nm') nm = v;
+    if (source === 'km') nm = v / 1.852;
+    if (source === 'mi') nm = v / 1.15077945;
+    if (source === 'ft') nm = v / 6076.12;
 
-    if (src !== 'nm') $('#convNm').value = nm.toFixed(3);
-    if (src !== 'km') $('#convKm').value = (nm * 1.852).toFixed(3);
-    if (src !== 'mi') $('#convMi').value = (nm * 1.15078).toFixed(3);
-    if (src !== 'ft') $('#convFt').value = (nm * 6076.12).toFixed(1);
-
-    setStatus('#convStatus', 'OK', 'ok');
+    $('#convNm').value = nm.toFixed(3);
+    $('#convKm').value = (nm * 1.852).toFixed(3);
+    $('#convMi').value = (nm * 1.15077945).toFixed(3);
+    $('#convFt').value = (nm * 6076.12).toFixed(1);
+    setStatus('#convStatus', 'Distance conversion OK.', 'ok');
   }
 
-  function convVol(src){
-    const v = getNum('#conv' + src.charAt(0).toUpperCase() + src.slice(1));
-    if (v === null) return;
-    if (v < 0){ setStatus('#convStatus', 'Volume cannot be negative.', 'bad'); return; }
+  function convVol(source) {
+    const ids = { l: '#convL', usg: '#convUsg', impg: '#convImpg' };
+    const v = getNum(ids[source]);
+    if (v === null) { setStatus('#convStatus', '', ''); return; }
+    if (v < 0) { setStatus('#convStatus', 'Volume cannot be negative.', 'bad'); return; }
 
-    let l;
-    if (src === 'l') l = v;
-    else if (src === 'usg') l = v / 0.264172;
-    else l = v / 0.219969;
+    let l = null;
+    if (source === 'l') l = v;
+    if (source === 'usg') l = v / 0.264172;
+    if (source === 'impg') l = v / 0.219969;
 
-    if (src !== 'l') $('#convL').value = l.toFixed(2);
-    if (src !== 'usg') $('#convUsg').value = (l * 0.264172).toFixed(2);
-    if (src !== 'impg') $('#convImpg').value = (l * 0.219969).toFixed(2);
-
-    setStatus('#convStatus', 'OK', 'ok');
+    $('#convL').value = l.toFixed(3);
+    $('#convUsg').value = (l * 0.264172).toFixed(3);
+    $('#convImpg').value = (l * 0.219969).toFixed(3);
+    setStatus('#convStatus', 'Volume conversion OK.', 'ok');
   }
 
-  function convMass(src){
-    const v = getNum('#conv' + src.charAt(0).toUpperCase() + src.slice(1));
-    if (v === null) return;
-    if (v < 0){ setStatus('#convStatus', 'Mass cannot be negative.', 'bad'); return; }
+  function convMass(source) {
+    const ids = { kg: '#convKg', lbs: '#convLbs' };
+    const v = getNum(ids[source]);
+    if (v === null) { setStatus('#convStatus', '', ''); return; }
+    if (v < 0) { setStatus('#convStatus', 'Mass cannot be negative.', 'bad'); return; }
 
-    if (src === 'kg') $('#convLbs').value = (v * 2.20462).toFixed(2);
-    else $('#convKg').value = (v / 2.20462).toFixed(2);
+    let kg = null;
+    if (source === 'kg') kg = v;
+    if (source === 'lbs') kg = v / 2.20462;
 
-    setStatus('#convStatus', 'OK', 'ok');
+    $('#convKg').value = kg.toFixed(3);
+    $('#convLbs').value = (kg * 2.20462).toFixed(3);
+    setStatus('#convStatus', 'Mass conversion OK.', 'ok');
   }
 
-  function convTemp(src){
-    const v = getNum('#conv' + src.toUpperCase());
-    if (v === null) return;
+  function convTemp(source) {
+    const ids = { c: '#convC', f: '#convF', k: '#convK' };
+    const v = getNum(ids[source]);
+    if (v === null) { setStatus('#convStatus', '', ''); return; }
 
-    let c;
-    if (src === 'c') c = v;
-    else if (src === 'f') c = (v - 32) * 5 / 9;
-    else c = v - 273.15;
+    let c = null;
+    if (source === 'c') c = v;
+    if (source === 'f') c = (v - 32) * 5 / 9;
+    if (source === 'k') c = v - 273.15;
 
-    if (src !== 'c') $('#convC').value = c.toFixed(2);
-    if (src !== 'f') $('#convF').value = (c * 9 / 5 + 32).toFixed(2);
-    if (src !== 'k') $('#convK').value = (c + 273.15).toFixed(2);
+    if (c < -273.15) {
+      setStatus('#convStatus', 'Temperature below absolute zero is invalid.', 'bad');
+      return;
+    }
 
-    setStatus('#convStatus', 'OK', 'ok');
+    $('#convC').value = c.toFixed(3);
+    $('#convF').value = ((c * 9 / 5) + 32).toFixed(3);
+    $('#convK').value = (c + 273.15).toFixed(3);
+    setStatus('#convStatus', 'Temperature conversion OK.', 'ok');
   }
 
-  let timerSec = 0;
-  let timerRun = false;
-  let timerInt = null;
-
-  function renderTimer(){
-    const h = Math.floor(timerSec / 3600);
-    const m = Math.floor((timerSec % 3600) / 60);
-    const s = timerSec % 60;
-    setText('#timerDisplay',
-      String(h).padStart(2,'0') + ':' +
-      String(m).padStart(2,'0') + ':' +
-      String(s).padStart(2,'0')
-    );
+  function renderTimer() {
+    setText('#timerDisplay', fmtClock(timerSec));
   }
 
-  function toggleTimer(){
-    if (timerRun){
+  function toggleTimer() {
+    if (timerRun) {
       clearInterval(timerInt);
       timerRun = false;
       setText('#timerToggle', 'Start');
@@ -1177,7 +1286,7 @@
     }
   }
 
-  function resetTimer(){
+  function resetTimer() {
     clearInterval(timerInt);
     timerRun = false;
     timerSec = 0;
@@ -1185,7 +1294,7 @@
     setText('#timerToggle', 'Start');
   }
 
-  function initNotes(){
+  function initNotes() {
     const saved = localStorage.getItem(NOTES_KEY);
     if (saved !== null) $('#notesBox').value = saved;
 
@@ -1195,10 +1304,10 @@
     });
 
     $('#notesCopy').addEventListener('click', async () => {
-      try{
+      try {
         await navigator.clipboard.writeText($('#notesBox').value || '');
         setStatus('#notesStatus', 'Copied to clipboard.', 'ok');
-      }catch(e){
+      } catch (e) {
         setStatus('#notesStatus', 'Clipboard copy failed.', 'bad');
       }
     });
@@ -1210,7 +1319,7 @@
     });
   }
 
-  function bindInput(selectors, fn){
+  function bindInput(selectors, fn) {
     selectors.forEach(sel => {
       const el = $(sel);
       if (!el) return;
@@ -1219,22 +1328,25 @@
     });
   }
 
-  function init(){
-    bindInput(['#fuelType','#fuelVol','#fuelTemp'], calcFuel);
-    bindInput(['#costFlow','#costPrice','#costGs'], calcCost);
-    bindInput(['#flightTas','#flightDist','#flightCrs','#flightWdir','#flightWspd'], calcFlightBasic);
-    bindInput(['#freqGs','#freqDist','#freqFlow','#freqRes'], calcFuelReq);
-    bindInput(['#endFuel','#endFlow'], calcEndurance);
-    bindInput(['#atmoElev','#atmoOat','#atmoQnh'], calcDensityAltitude);
-    bindInput(['#tasIas','#tasAlt','#tasOat'], calcTasApprox);
-    bindInput(['#windRwy','#windDir','#windSpd'], calcWind);
+  function init() {
+    bindInput(['#fuelType', '#fuelVol', '#fuelTemp'], calcFuel);
+    bindInput(['#costFlow', '#costPrice', '#costGs'], calcCost);
+    bindInput(['#flightTas', '#flightDist', '#flightCrs', '#flightWdir', '#flightWspd'], calcFlightBasic);
+    bindInput(['#freqGs', '#freqDist', '#freqFlow', '#freqRes'], calcFuelReq);
+    bindInput(['#endFuel', '#endFlow'], calcEndurance);
+    bindInput(['#atmoElev', '#atmoOat', '#atmoQnh'], calcDensityAltitude);
+    bindInput(['#tasIas', '#tasAlt', '#tasOat'], calcTasApprox);
+    bindInput(['#windRwy', '#windDir', '#windSpd'], calcWind);
     bindInput([
-      '#wbEmptyWt','#wbEmptyArm','#wbCrewWt','#wbCrewArm',
-      '#wbPaxWt','#wbPaxArm','#wbFuelWt','#wbFuelArm',
-      '#wbCargoWt','#wbCargoArm'
+      '#wbEmptyWt', '#wbEmptyArm',
+      '#wbCrewWt', '#wbCrewArm',
+      '#wbPaxWt', '#wbPaxArm',
+      '#wbFuelWt', '#wbFuelArm',
+      '#wbCargoWt', '#wbCargoArm',
+      '#wbMaxWt', '#wbMinCg', '#wbMaxCg'
     ], calcWB);
-    bindInput(['#todCruise','#todTarget','#todGs','#todAngle'], calcTOD);
-    bindInput(['#pnrFuel','#pnrRes','#pnrFlowOut','#pnrFlowBack','#pnrGsOut','#pnrGsBack'], calcPNR);
+    bindInput(['#todCruise', '#todTarget', '#todGs', '#todAngle', '#todBuffer'], calcTOD);
+    bindInput(['#pnrFuel', '#pnrRes', '#pnrFlowOut', '#pnrFlowBack', '#pnrGsOut', '#pnrGsBack'], calcPNR);
 
     $('#qnhHpa').addEventListener('input', () => syncQnh('hpa'));
     $('#qnhInhg').addEventListener('input', () => syncQnh('inhg'));
