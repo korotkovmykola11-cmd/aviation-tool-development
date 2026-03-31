@@ -30,7 +30,6 @@
       --shadow-card:0 12px 30px rgba(0,0,0,.18);
       --shadow-soft:0 8px 20px rgba(0,0,0,.12);
 
-      /* Typography scale from TZ */
       --fs-hero:30px;
       --fs-title:18px;
       --fs-item-title:16px;
@@ -688,7 +687,7 @@
       bottom:0;
       z-index:25;
       display:grid;
-      grid-template-columns:repeat(7,1fr);
+      grid-template-columns:repeat(8,1fr);
       height:var(--tabbar-h);
       background:linear-gradient(180deg,rgba(10,18,34,.92),rgba(9,16,30,.98));
       backdrop-filter:blur(18px);
@@ -737,6 +736,7 @@
       .answer-grid{grid-template-columns:repeat(2,1fr)}
       .wb-head,.wb-row,.wb-total{grid-template-columns:1fr .82fr .82fr .95fr}
       .timer-display{font-size:36px}
+      .tabbar{grid-template-columns:repeat(8,1fr)}
     }
   </style>
 </head>
@@ -769,7 +769,7 @@
               </div>
               <div class="item-text">
                 <div class="item-title">Fuel</div>
-                <div class="item-sub">Mass, gallons, operating cost, required fuel, endurance</div>
+                <div class="item-sub">Mass, gallons, required fuel, endurance</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -791,7 +791,7 @@
               </div>
               <div class="item-text">
                 <div class="item-title">Flight</div>
-                <div class="item-sub">GS, ETE, WCA, heading, TOD, PNR</div>
+                <div class="item-sub">GS, ETE, WCA, heading, PNR, TOD</div>
               </div>
               <div class="item-arrow"></div>
             </button>
@@ -1079,26 +1079,26 @@
                 <div class="section-title">Point of No Return</div>
                 <div class="field-list">
                   <div class="field-row">
-                    <div class="field-label">Out GS</div>
+                    <div class="field-label">Outbound GS</div>
                     <input class="field-value" id="pnrOutGs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">kt</div>
+                    <div class="field-unit">KT</div>
                   </div>
                   <div class="field-row">
                     <div class="field-label">Return GS</div>
                     <input class="field-value" id="pnrRetGs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">kt</div>
+                    <div class="field-unit">KT</div>
                   </div>
                   <div class="field-row">
-                    <div class="field-label">Endurance</div>
+                    <div class="field-label">Usable Endurance</div>
                     <input class="field-value" id="pnrEnd" type="number" step="any" placeholder="0">
-                    <div class="field-unit">h</div>
+                    <div class="field-unit">H</div>
                   </div>
                 </div>
 
                 <div class="answer">
                   <div class="answer-label">PNR</div>
                   <div class="answer-value"><span id="pnrDist">-</span></div>
-                  <div class="answer-sub">Distance to point of no return</div>
+                  <div class="answer-sub">Real PNR under equal fuel flow assumption using usable endurance and two groundspeeds</div>
                   <div class="answer-grid">
                     <div class="answer-item">
                       <div class="answer-item-label">Time</div>
@@ -1114,17 +1114,17 @@
                   <div class="field-row">
                     <div class="field-label">Altitude to Lose</div>
                     <input class="field-value" id="todAlt" type="number" step="any" placeholder="0">
-                    <div class="field-unit">ft</div>
+                    <div class="field-unit">FT</div>
                   </div>
                   <div class="field-row">
                     <div class="field-label">Vertical Speed</div>
                     <input class="field-value" id="todVs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">fpm</div>
+                    <div class="field-unit">FPM</div>
                   </div>
                   <div class="field-row">
                     <div class="field-label">GS</div>
                     <input class="field-value" id="todGs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">kt</div>
+                    <div class="field-unit">KT</div>
                   </div>
                 </div>
 
@@ -1302,7 +1302,7 @@
 
           <div class="tab-content" id="tab-safe-wb">
             <div class="section-title">Weight &amp; Balance</div>
-            <div class="wb-table">
+            <div class="wb-table" id="wbTable" data-max-weight="" data-min-cg="" data-max-cg="">
               <div class="wb-head">
                 <div>Station</div>
                 <div>Weight</div>
@@ -1314,31 +1314,31 @@
                 <div class="wb-name">Empty</div>
                 <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
                 <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">0</div>
+                <div class="wb-moment" data-wb="moment">-</div>
               </div>
               <div class="wb-row">
                 <div class="wb-name">Crew</div>
                 <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
                 <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">0</div>
+                <div class="wb-moment" data-wb="moment">-</div>
               </div>
               <div class="wb-row">
                 <div class="wb-name">Pax</div>
                 <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
                 <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">0</div>
+                <div class="wb-moment" data-wb="moment">-</div>
               </div>
               <div class="wb-row">
                 <div class="wb-name">Fuel</div>
                 <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
                 <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">0</div>
+                <div class="wb-moment" data-wb="moment">-</div>
               </div>
               <div class="wb-row">
                 <div class="wb-name">Cargo</div>
                 <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
                 <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">0</div>
+                <div class="wb-moment" data-wb="moment">-</div>
               </div>
 
               <div class="wb-total">
@@ -1352,7 +1352,7 @@
             <div class="answer">
               <div class="answer-label">Weight &amp; Balance Summary</div>
               <div class="answer-value"><span id="wbTotalMoment">-</span></div>
-              <div class="answer-sub">Total moment based on entered station weights and arms</div>
+              <div class="answer-sub" id="wbStatus">Total moment based on entered station weights and arms</div>
             </div>
           </div>
         </div>
@@ -1539,7 +1539,7 @@
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="tools">
-          <svg viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M14 7l3-3 3 3-3 3z"/><path d="M3 21l8-8"/><path d="M10 4l10 10"/></svg>
           <span>Tools</span>
           <div class="dot"></div>
         </button>
@@ -1558,37 +1558,50 @@
 
       var $ = function(s){ return document.querySelector(s); };
       var $$ = function(s){ return [].slice.call(document.querySelectorAll(s)); };
-      var num = function(v){
+
+      function num(v){
         if(v === null || v === undefined) return null;
         var s = String(v).trim().replace(',', '.');
         if(s === '') return null;
         var n = Number(s);
         return isFinite(n) ? n : null;
-      };
-      var clampHeading = function(v){
+      }
+
+      function setText(id, val){
+        var el = $(id);
+        if(el) el.textContent = val;
+      }
+
+      function setValue(id, val){
+        var el = $(id);
+        if(el) el.value = val;
+      }
+
+      function clampHeading(v){
         if(v === null || !isFinite(v)) return null;
-        v = ((v % 360) + 360) % 360;
-        return v;
-      };
-      var normalize180 = function(v){
+        return ((v % 360) + 360) % 360;
+      }
+
+      function normalize180(v){
         v = clampHeading(v);
         if(v === null) return null;
         return v > 180 ? v - 360 : v;
-      };
-      var degRad = function(d){ return d * Math.PI / 180; };
-      var radDeg = function(r){ return r * 180 / Math.PI; };
-      var fmtTime = function(h){
+      }
+
+      function degRad(d){ return d * Math.PI / 180; }
+      function radDeg(r){ return r * 180 / Math.PI; }
+
+      function fmtTime(h){
         if(h === null || !isFinite(h) || h < 0) return '-';
         var totalMinutes = Math.round(h * 60);
         var hr = Math.floor(totalMinutes / 60);
         var mn = totalMinutes % 60;
         return String(hr).padStart(2,'0') + ':' + String(mn).padStart(2,'0');
-      };
-      var setText = function(id, val){ var el = $(id); if(el) el.textContent = val; };
-      var setValue = function(id, val){ var el = $(id); if(el) el.value = val; };
-      var validPositive = function(v){ return v !== null && v > 0; };
-      var validNonNegative = function(v){ return v !== null && v >= 0; };
-      var validHeading = function(v){ return v !== null && v >= 0 && v <= 360; };
+      }
+
+      function validPositive(v){ return v !== null && v > 0; }
+      function validNonNegative(v){ return v !== null && v >= 0; }
+      function validHeading(v){ return v !== null && v >= 0 && v <= 360; }
 
       var bgClasses = {
         menu:'bg-menu',
@@ -1611,8 +1624,12 @@
         var tab = $('.tabbar .tab[data-screen="' + id + '"]');
         if(tab) tab.classList.add('active');
 
-        if($('#topTitle')) $('#topTitle').textContent = id === 'menu' ? 'Aviation Pro' : id.charAt(0).toUpperCase() + id.slice(1);
-        if($('#backBtn')) $('#backBtn').style.visibility = id === 'menu' ? 'hidden' : 'visible';
+        if($('#topTitle')){
+          $('#topTitle').textContent = id === 'menu' ? 'Aviation Pro' : id.charAt(0).toUpperCase() + id.slice(1);
+        }
+        if($('#backBtn')){
+          $('#backBtn').style.visibility = id === 'menu' ? 'hidden' : 'visible';
+        }
 
         var bg = $('#bgLayer');
         if(bg){
@@ -1631,6 +1648,7 @@
 
           var shell = container.closest('.calc-shell');
           if(!shell) return;
+
           shell.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
 
           var tab = $('#tab-' + btn.dataset.tab);
@@ -1657,16 +1675,27 @@
         var t = $('#fuelType').value;
         var v = num($('#fuelVol').value);
         var temp = num($('#fuelTemp').value);
-        if(!validPositive(v) || (temp !== null && (temp < -60 || temp > 60))){
+
+        if(!validPositive(v)){
           setText('#fuelMass','-');
           setText('#fuelLbs','-');
           setText('#fuelUsg','-');
           setText('#fuelImp','-');
           return;
         }
+
+        if(temp !== null && (temp < -60 || temp > 60)){
+          setText('#fuelMass','-');
+          setText('#fuelLbs','-');
+          setText('#fuelUsg','-');
+          setText('#fuelImp','-');
+          return;
+        }
+
         var fuel = FUEL[t] || FUEL.jeta1;
         var refTemp = temp === null ? 15 : temp;
         var density = fuel.density15 / (1 + fuel.alpha * (refTemp - 15));
+
         if(!isFinite(density) || density <= 0){
           setText('#fuelMass','-');
           setText('#fuelLbs','-');
@@ -1674,6 +1703,7 @@
           setText('#fuelImp','-');
           return;
         }
+
         var kg = v * density;
         setText('#fuelMass', Math.round(kg));
         setText('#fuelLbs', Math.round(kg * 2.20462));
@@ -1701,7 +1731,7 @@
         if(validPositive(g)){
           setText('#costNm', '$' + (cph / g).toFixed(3));
           setText('#cost100', '$' + ((cph / g) * 100).toFixed(2));
-        }else{
+        } else {
           setText('#costNm', '-');
           setText('#cost100', '-');
         }
@@ -1835,24 +1865,38 @@
         setText('#atmoDa', da.toFixed(0));
       }
 
+      var qnhSyncLock = false;
+
       function syncQnh(source){
+        if(qnhSyncLock) return;
+
         var hpa = num($('#qnhHpa').value);
         var inhg = num($('#qnhInhg').value);
         var mmhg = num($('#qnhMmhg').value);
 
-        if(source === 'hpa' && hpa !== null && hpa > 0){
-          setValue('#qnhInhg', (hpa * 0.0295299831).toFixed(2));
-          setValue('#qnhMmhg', (hpa * 0.750061683).toFixed(1));
-        }
-        if(source === 'inhg' && inhg !== null && inhg > 0){
-          var H = inhg / 0.0295299831;
-          setValue('#qnhHpa', H.toFixed(2));
-          setValue('#qnhMmhg', (H * 0.750061683).toFixed(1));
-        }
-        if(source === 'mmhg' && mmhg !== null && mmhg > 0){
-          var H2 = mmhg / 0.750061683;
-          setValue('#qnhHpa', H2.toFixed(2));
-          setValue('#qnhInhg', (H2 * 0.0295299831).toFixed(2));
+        qnhSyncLock = true;
+        try{
+          if(source === 'hpa'){
+            if(hpa !== null && hpa > 0){
+              setValue('#qnhInhg', (hpa * 0.0295299831).toFixed(2));
+              setValue('#qnhMmhg', (hpa * 0.750061683).toFixed(1));
+            }
+          } else if(source === 'inhg'){
+            if(inhg !== null && inhg > 0){
+              var H = inhg / 0.0295299831;
+              setValue('#qnhHpa', H.toFixed(2));
+              setValue('#qnhMmhg', (H * 0.750061683).toFixed(1));
+            }
+          } else if(source === 'mmhg'){
+            if(mmhg !== null && mmhg > 0){
+              var H2 = mmhg / 0.750061683;
+              setValue('#qnhHpa', H2.toFixed(2));
+              setValue('#qnhInhg', (H2 * 0.0295299831).toFixed(2));
+            }
+          }
+          setText('#qnhHpaMirror', ($('#qnhHpa').value || '') + ' hPa');
+        } finally {
+          qnhSyncLock = false;
         }
       }
 
@@ -1878,6 +1922,7 @@
         }
 
         var tas = ias / Math.sqrt(sigma);
+
         if(!isFinite(tas) || tas <= 0){
           setText('#tasOut','-');
           setText('#tasNote','Approximation for quick flight planning');
@@ -1950,48 +1995,84 @@
         });
 
         if(invalid || !hasAny || totalW <= 0){
-          setText('#wbTotalWeight', '-');
-          setText('#wbTotalMoment', '-');
-          setText('#wbCg', '-');
+          setText('#wbTotalWeight','-');
+          setText('#wbTotalMoment','-');
+          setText('#wbCg','-');
+          setText('#wbStatus','Total moment based on entered station weights and arms');
           return;
         }
 
+        var cg = totalM / totalW;
         setText('#wbTotalWeight', totalW.toFixed(1));
         setText('#wbTotalMoment', totalM.toFixed(0));
-        setText('#wbCg', (totalM / totalW).toFixed(2));
+        setText('#wbCg', cg.toFixed(2));
+
+        var table = $('#wbTable');
+        var maxWeight = num(table && table.dataset.maxWeight);
+        var minCg = num(table && table.dataset.minCg);
+        var maxCg = num(table && table.dataset.maxCg);
+
+        if(maxWeight === null || minCg === null || maxCg === null){
+          setText('#wbStatus','Limits not set. To enable control, fill data-max-weight, data-min-cg, data-max-cg on #wbTable.');
+          return;
+        }
+
+        var problems = [];
+        if(totalW > maxWeight) problems.push('weight over max');
+        if(cg < minCg) problems.push('CG forward of limit');
+        if(cg > maxCg) problems.push('CG aft of limit');
+
+        if(problems.length){
+          setText('#wbStatus', 'OUT OF LIMITS: ' + problems.join(', '));
+        } else {
+          setText('#wbStatus', 'IN LIMITS');
+        }
       }
 
       function calcPNR(){
         var outGs = num($('#pnrOutGs').value);
         var retGs = num($('#pnrRetGs').value);
         var end = num($('#pnrEnd').value);
+
+        if(!validPositive(outGs) || !validPositive(retGs) || !validPositive(end)){
+          setText('#pnrTime','-');
+          setText('#pnrDist','-');
+          return;
+        }
+
+        var pnrTime = (end * retGs) / (outGs + retGs);
+        var pnrDist = pnrTime * outGs;
+
+        if(!isFinite(pnrTime) || pnrTime < 0 || !isFinite(pnrDist) || pnrDist < 0){
+          setText('#pnrTime','-');
+          setText('#pnrDist','-');
+          return;
+        }
+
+        setText('#pnrTime', fmtTime(pnrTime));
+        setText('#pnrDist', pnrDist.toFixed(1) + ' NM');
+      }
+
+      function calcTOD(){
         var alt = num($('#todAlt').value);
         var vs = num($('#todVs').value);
         var gs = num($('#todGs').value);
 
-        if(validPositive(outGs) && validPositive(retGs) && validPositive(end)){
-          var pnrTime = (end * retGs) / (outGs + retGs);
-          var pnrDist = pnrTime * outGs;
-          if(isFinite(pnrTime) && pnrTime >= 0 && isFinite(pnrDist) && pnrDist >= 0){
-            setText('#pnrTime', fmtTime(pnrTime));
-            setText('#pnrDist', pnrDist.toFixed(1) + ' NM');
-          }else{
-            setText('#pnrTime','-');
-            setText('#pnrDist','-');
-          }
-        }else{
-          setText('#pnrTime','-');
-          setText('#pnrDist','-');
+        if(!validPositive(alt) || !validPositive(vs) || !validPositive(gs)){
+          setText('#todDist','-');
+          return;
         }
 
-        if(validPositive(alt) && validPositive(vs) && validPositive(gs)){
-          var timeMin = alt / vs;
-          var nmPerMin = gs / 60;
-          var dist = timeMin * nmPerMin;
-          setText('#todDist', isFinite(dist) && dist >= 0 ? dist.toFixed(1) + ' NM' : '-');
-        }else{
+        var timeMin = alt / vs;
+        var nmPerMin = gs / 60;
+        var dist = timeMin * nmPerMin;
+
+        if(!isFinite(dist) || dist < 0){
           setText('#todDist','-');
+          return;
         }
+
+        setText('#todDist', dist.toFixed(1) + ' NM');
       }
 
       function setSpeedFrom(source){
@@ -2094,9 +2175,7 @@
 
       function renderTimer(){
         var total = timerState.elapsed;
-        if(timerState.running){
-          total += Date.now() - timerState.start;
-        }
+        if(timerState.running) total += Date.now() - timerState.start;
         var s = Math.floor(total / 1000);
         var hh = String(Math.floor(s / 3600)).padStart(2,'0');
         var mm = String(Math.floor((s % 3600) / 60)).padStart(2,'0');
@@ -2128,21 +2207,24 @@
       function initNotes(){
         var box = $('#notesBox');
         if(!box) return;
+
         box.value = localStorage.getItem('aviation_pro_notes') || '';
 
         $('#notesSave').addEventListener('click', function(){
           localStorage.setItem('aviation_pro_notes', box.value);
         });
 
-        $('#notesCopy').addEventListener('click', function(){
+        $('#notesCopy').addEventListener('click', async function(){
           try{
-            if(navigator.clipboard && navigator.clipboard.writeText){
-              navigator.clipboard.writeText(box.value || '');
-            }else{
+            if(navigator.clipboard && window.isSecureContext){
+              await navigator.clipboard.writeText(box.value || '');
+            } else {
+              box.focus();
               box.select();
               document.execCommand('copy');
             }
-          }catch(e){
+          } catch(err){
+            box.focus();
             box.select();
             document.execCommand('copy');
           }
@@ -2184,7 +2266,8 @@
       bindInputs(['#atmoElev','#atmoOat','#atmoQnh'], calcDensityAltitude);
       bindInputs(['#tasIas','#tasAlt','#tasOat'], calcTasApprox);
       bindInputs(['#windRwy','#windDir','#windSpd'], calcWind);
-      bindInputs(['#pnrOutGs','#pnrRetGs','#pnrEnd','#todAlt','#todVs','#todGs'], calcPNR);
+      bindInputs(['#pnrOutGs','#pnrRetGs','#pnrEnd'], calcPNR);
+      bindInputs(['#todAlt','#todVs','#todGs'], calcTOD);
 
       $$('.wb-row input').forEach(function(i){ i.addEventListener('input', calcWB); });
 
@@ -2227,6 +2310,7 @@
       calcWind();
       calcWB();
       calcPNR();
+      calcTOD();
       renderTimer();
       showScreen('menu');
     })();
