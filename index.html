@@ -29,7 +29,18 @@
 
       --shadow-card:0 12px 30px rgba(0,0,0,.18);
       --shadow-soft:0 8px 20px rgba(0,0,0,.12);
-      --glass:rgba(255,255,255,.08);
+
+      /* Typography scale from TZ */
+      --fs-hero:30px;
+      --fs-title:18px;
+      --fs-item-title:16px;
+      --fs-body:14px;
+      --fs-label:13px;
+      --fs-small:11px;
+
+      --fs-value-big:26px;
+      --fs-value:18px;
+      --fs-value-small:15px;
 
       --noise:url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'>\
@@ -59,7 +70,8 @@
     .tool-value,
     .wb-moment,
     .wb-arm,
-    .wb-weight{
+    .wb-weight,
+    #clockDisplay{
       font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
       font-variant-numeric:tabular-nums;
     }
@@ -129,8 +141,8 @@
       display:flex;
       align-items:center;
       color:#dbe4f0;
-      font-size:14px;
-      font-weight:600;
+      font-size:var(--fs-body);
+      font-weight:500;
       letter-spacing:.08px;
     }
 
@@ -146,9 +158,9 @@
     }
 
     .title{
-      font-size:18px;
-      font-weight:800;
-      letter-spacing:-.2px;
+      font-size:var(--fs-title);
+      font-weight:700;
+      letter-spacing:-0.2px;
       color:#fff;
     }
 
@@ -160,14 +172,14 @@
       color:#fff;
     }
     .hero h1{
-      font-size:32px;
+      font-size:var(--fs-hero);
       line-height:1.02;
       font-weight:800;
-      letter-spacing:-.6px;
+      letter-spacing:-0.4px;
       margin-bottom:6px;
     }
     .hero p{
-      font-size:14px;
+      font-size:var(--fs-body);
       color:rgba(255,255,255,.84);
       max-width:540px;
       line-height:1.45;
@@ -254,16 +266,16 @@
 
     .item-text{min-width:0;flex:1}
     .item-title{
-      font-size:17px;
-      font-weight:800;
+      font-size:var(--fs-item-title);
+      font-weight:700;
       color:var(--text);
       line-height:1.12;
       margin-bottom:4px;
-      letter-spacing:-.18px;
+      letter-spacing:-0.2px;
     }
     .item-sub{
-      font-size:13px;
-      color:var(--muted);
+      font-size:var(--fs-body);
+      color:rgba(0,0,0,0.55);
       line-height:1.35;
       white-space:nowrap;
       overflow:hidden;
@@ -289,10 +301,10 @@
     }
 
     .section-title{
-      font-size:12px;
+      font-size:var(--fs-small);
       font-weight:700;
       letter-spacing:1px;
-      color:#7b8597;
+      color:rgba(0,0,0,0.45);
       margin:2px 2px 10px;
       text-transform:uppercase;
     }
@@ -317,10 +329,10 @@
     .field-row + .field-row{border-top:1px solid var(--line)}
 
     .field-label{
-      font-size:16px;
-      font-weight:700;
+      font-size:var(--fs-label);
+      font-weight:600;
       color:#1f2937;
-      letter-spacing:-.15px;
+      letter-spacing:0;
     }
 
     .field-value,
@@ -332,17 +344,20 @@
       background:transparent;
       outline:none;
       color:var(--orange);
-      font-weight:600;
     }
 
     .field-value{
       max-width:160px;
-      font-size:19px;
+      font-size:var(--fs-value);
+      font-weight:600;
+      letter-spacing:-0.2px;
     }
 
     .field-select{
       max-width:220px;
-      font-size:17px;
+      font-size:var(--fs-value);
+      font-weight:600;
+      letter-spacing:-0.2px;
       cursor:pointer;
     }
 
@@ -350,9 +365,10 @@
     .field-select:focus{color:var(--blue-2)}
 
     .field-unit{
-      font-size:14px;
-      color:var(--muted);
-      font-weight:700;
+      font-size:12px;
+      font-weight:600;
+      color:rgba(0,0,0,0.45);
+      letter-spacing:0.3px;
       min-width:42px;
       text-align:right;
     }
@@ -373,21 +389,21 @@
     }
 
     .answer-label{
-      font-size:12px;
+      font-size:11px;
       font-weight:700;
-      letter-spacing:.95px;
+      letter-spacing:0.8px;
       text-transform:uppercase;
-      opacity:.88;
+      opacity:0.8;
       margin-bottom:8px;
     }
     .answer-value{
-      font-size:27px;
+      font-size:var(--fs-value-big);
       line-height:1.08;
       font-weight:700;
-      letter-spacing:-.4px;
+      letter-spacing:-0.3px;
     }
     .answer-sub{
-      font-size:14px;
+      font-size:var(--fs-body);
       opacity:.94;
       margin-top:7px;
       font-weight:500;
@@ -411,8 +427,8 @@
       font-weight:600;
     }
     .answer-item-value{
-      font-size:17px;
-      font-weight:700;
+      font-size:var(--fs-value-small);
+      font-weight:600;
       margin-top:3px;
     }
 
@@ -431,12 +447,13 @@
       background:rgba(0,0,0,.045);
       border:none;
       border-radius:12px;
-      font-size:13px;
-      font-weight:700;
+      font-size:var(--fs-label);
+      font-weight:600;
       color:var(--muted);
       cursor:pointer;
       white-space:nowrap;
       transition:all .2s;
+      letter-spacing:0.1px;
     }
     .tab-btn.active{
       background:var(--blue);
@@ -463,17 +480,18 @@
       padding:14px;
     }
     .tool-label{
-      font-size:11px;
+      font-size:var(--fs-small);
       text-transform:uppercase;
-      color:var(--muted-2);
-      letter-spacing:.6px;
+      color:rgba(0,0,0,0.45);
+      letter-spacing:.8px;
       font-weight:700;
       margin-bottom:6px;
     }
     .tool-value{
-      font-size:20px;
-      font-weight:700;
+      font-size:var(--fs-value);
+      font-weight:600;
       color:var(--text);
+      letter-spacing:-0.2px;
     }
 
     .wind-compass{
@@ -525,8 +543,8 @@
     .compass-labels{
       position:absolute;
       inset:0;
-      font-size:11px;
-      font-weight:700;
+      font-size:var(--fs-small);
+      font-weight:600;
       color:var(--muted);
     }
     .compass-labels span{position:absolute}
@@ -551,11 +569,16 @@
     }
     .wb-head{
       background:rgba(0,0,0,.03);
-      color:var(--muted-2);
-      font-size:11px;
+      color:rgba(0,0,0,0.45);
+      font-size:var(--fs-small);
       text-transform:uppercase;
-      letter-spacing:.6px;
+      letter-spacing:.7px;
       font-weight:700;
+    }
+    .wb-row{
+      font-size:var(--fs-body);
+      color:var(--text);
+      font-weight:500;
     }
     .wb-row + .wb-row{border-top:1px solid var(--line)}
     .wb-row input{
@@ -571,16 +594,16 @@
     .wb-row .wb-moment{
       text-align:right;
       font-weight:600;
-      font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+      letter-spacing:-0.2px;
     }
 
     .timer-display{
-      font-size:54px;
+      font-size:42px;
       font-weight:700;
       text-align:center;
       color:var(--text);
       padding:24px;
-      letter-spacing:-2px;
+      letter-spacing:-1.4px;
     }
 
     .timer-btns{
@@ -594,10 +617,11 @@
       padding:14px 24px;
       border:none;
       border-radius:14px;
-      font-size:15px;
-      font-weight:700;
+      font-size:var(--fs-body);
+      font-weight:600;
       cursor:pointer;
       transition:all .2s;
+      letter-spacing:0.1px;
     }
     .timer-btn.start{background:var(--green);color:#fff}
     .timer-btn.stop{background:#ef4444;color:#fff}
@@ -609,12 +633,15 @@
       border:1px solid var(--line);
       border-radius:14px;
       padding:14px;
-      font-size:15px;
+      font-size:var(--fs-body);
       resize:vertical;
       outline:none;
       background:rgba(255,255,255,.86);
       color:var(--text);
       font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+      font-variant-numeric:tabular-nums;
+      line-height:1.45;
+      font-weight:500;
     }
     .notes-box:focus{border-color:var(--blue)}
 
@@ -630,10 +657,11 @@
       border:1px solid var(--line);
       border-radius:10px;
       background:#fff;
-      font-size:13px;
-      font-weight:700;
+      font-size:var(--fs-label);
+      font-weight:600;
       color:var(--text);
       cursor:pointer;
+      letter-spacing:0.1px;
     }
     .notes-btn:hover{border-color:var(--blue)}
     .notes-btn.danger:hover{border-color:#ef4444;color:#ef4444}
@@ -671,8 +699,8 @@
     .tab:active{transform:scale(.95)}
     .tab span{
       font-size:10px;
-      font-weight:700;
-      letter-spacing:.2px;
+      font-weight:600;
+      letter-spacing:0.2px;
     }
     .tab.active{
       color:#fff;
@@ -699,8 +727,8 @@
     }
 
     .helper{
-      font-size:12px;
-      color:var(--muted);
+      font-size:var(--fs-small);
+      color:rgba(0,0,0,0.45);
       margin-top:-6px;
       margin-bottom:12px;
       font-weight:500;
@@ -711,10 +739,12 @@
       .app{padding:0 0 92px}
       .hero h1{font-size:28px}
       .field-row{grid-template-columns:1fr .82fr auto}
-      .field-value{font-size:18px}
+      .field-value,
+      .field-select{font-size:17px}
       .answer-grid{grid-template-columns:repeat(2,1fr)}
       .tool-grid{grid-template-columns:1fr}
       .wb-head,.wb-row{grid-template-columns:1.2fr .8fr .8fr .9fr;font-size:13px}
+      .timer-display{font-size:36px}
     }
   </style>
 </head>
@@ -729,7 +759,7 @@
           <span>Back</span>
         </div>
         <div class="title" id="topTitle">Aviation Pro</div>
-        <div class="right mono" id="clockDisplay">00:00Z</div>
+        <div class="right" id="clockDisplay">00:00Z</div>
       </header>
 
       <section class="screen active" id="screen-menu">
