@@ -990,7 +990,7 @@
           <div class="answer">
             <div class="answer-label">Cost Summary</div>
             <div class="answer-value"><span id="costHour">-</span> / h</div>
-            <div class="answer-sub">Fuel-only operating estimate</div>
+            <div class="answer-sub" id="costStatus">Fuel-only operating estimate</div>
             <div class="answer-grid">
               <div class="answer-item">
                 <div class="answer-item-label">Per Minute</div>
@@ -1052,7 +1052,7 @@
             <div class="answer">
               <div class="answer-label">Flight Solution</div>
               <div class="answer-value"><span id="flightGs">-</span> kt</div>
-              <div class="answer-sub">Groundspeed adjusted for wind</div>
+              <div class="answer-sub" id="flightStatus">Groundspeed adjusted for wind</div>
               <div class="answer-grid">
                 <div class="answer-item">
                   <div class="answer-item-label">ETE</div>
@@ -1093,7 +1093,7 @@
             <div class="answer">
               <div class="answer-label">PNR</div>
               <div class="answer-value"><span id="pnrTime">-</span></div>
-              <div class="answer-sub">Simplified endurance-based point of no return</div>
+              <div class="answer-sub" id="pnrStatus">Simplified endurance-based point of no return</div>
               <div class="answer-grid">
                 <div class="answer-item">
                   <div class="answer-item-label">Distance</div>
@@ -1126,7 +1126,7 @@
             <div class="answer">
               <div class="answer-label">TOD Distance</div>
               <div class="answer-value"><span id="todDist">-</span></div>
-              <div class="answer-sub">Quick descent estimate based on VS and groundspeed</div>
+              <div class="answer-sub" id="todStatus">Quick descent estimate based on VS and groundspeed</div>
             </div>
           </div>
 
@@ -1826,7 +1826,8 @@
 
             var shell = row.parentElement;
             shell.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
-            var tab = shell.querySelector('#tab-' + btn.dataset.tab);
+            var targetId = btn.dataset.tabTarget || buildTabContentId(btn.dataset.tab);
+            var tab = shell.querySelector('#' + targetId);
             if(tab) tab.classList.add('active');
           });
         });
@@ -1957,6 +1958,115 @@
         setText(sel, getValidationMessage(result, okText));
       }
 
+      // TZ-11: normalized reusable UI template helpers and markup roles
+      function buildTabContentId(tabKey){
+        return 'tab-' + tabKey;
+      }
+
+      function buildFieldRowMarkup(label, controlMarkup, unitMarkup){
+        return [
+          '<div class="field-row" data-ui-component="field-row">',
+          '<div class="field-label" data-ui-role="label">' + label + '</div>',
+          controlMarkup,
+          unitMarkup || '<div class="field-unit" data-ui-role="unit"></div>',
+          '</div>'
+        ].join('');
+      }
+
+      function buildAnswerItemMarkup(label, valueMarkup){
+        return [
+          '<div class="answer-item" data-ui-component="answer-item">',
+          '<div class="answer-item-label" data-ui-role="label">' + label + '</div>',
+          '<div class="answer-item-value" data-ui-role="value">' + valueMarkup + '</div>',
+          '</div>'
+        ].join('');
+      }
+
+      function buildToolCardMarkup(label, valueMarkup){
+        return [
+          '<div class="tool-card" data-ui-component="tool-card">',
+          '<div class="tool-label" data-ui-role="label">' + label + '</div>',
+          '<div class="tool-value" data-ui-role="value">' + valueMarkup + '</div>',
+          '</div>'
+        ].join('');
+      }
+
+      function normalizeFieldRowMarkup(row){
+        if(!row) return;
+        row.dataset.uiComponent = 'field-row';
+        var children = Array.from(row.children || []);
+        if(children[0]) children[0].dataset.uiRole = children[0].dataset.uiRole || 'label';
+        if(children[1]) children[1].dataset.uiRole = children[1].dataset.uiRole || 'control';
+        if(children[2]) children[2].dataset.uiRole = children[2].dataset.uiRole || 'unit';
+      }
+
+      function normalizeAnswerMarkup(answer){
+        if(!answer) return;
+        answer.dataset.uiComponent = 'answer-card';
+        var label = answer.querySelector('.answer-label');
+        var value = answer.querySelector('.answer-value');
+        var sub = answer.querySelector('.answer-sub');
+        var grid = answer.querySelector('.answer-grid');
+        if(label) label.dataset.uiRole = label.dataset.uiRole || 'label';
+        if(value) value.dataset.uiRole = value.dataset.uiRole || 'value';
+        if(sub) sub.dataset.uiRole = sub.dataset.uiRole || 'status';
+        if(grid) grid.dataset.uiComponent = 'answer-grid';
+        answer.querySelectorAll('.answer-item').forEach(function(item){
+          item.dataset.uiComponent = 'answer-item';
+          var itemLabel = item.querySelector('.answer-item-label');
+          var itemValue = item.querySelector('.answer-item-value');
+          if(itemLabel) itemLabel.dataset.uiRole = itemLabel.dataset.uiRole || 'label';
+          if(itemValue) itemValue.dataset.uiRole = itemValue.dataset.uiRole || 'value';
+        });
+      }
+
+      function normalizeToolCardMarkup(card){
+        if(!card) return;
+        card.dataset.uiComponent = 'tool-card';
+        var label = card.querySelector('.tool-label');
+        var value = card.querySelector('.tool-value');
+        if(label) label.dataset.uiRole = label.dataset.uiRole || 'label';
+        if(value) value.dataset.uiRole = value.dataset.uiRole || 'value';
+      }
+
+      function normalizeTabMarkup(shell){
+        if(!shell) return;
+        shell.querySelectorAll('.tabs-row .tab-btn').forEach(function(btn){
+          btn.dataset.uiComponent = 'tab-button';
+          if(btn.dataset.tab && !btn.dataset.tabTarget){
+            btn.dataset.tabTarget = buildTabContentId(btn.dataset.tab);
+          }
+        });
+        shell.querySelectorAll('.tab-content').forEach(function(tab){
+          tab.dataset.uiComponent = 'tab-content';
+          if(!tab.dataset.tabId && tab.id && tab.id.indexOf('tab-') === 0){
+            tab.dataset.tabId = tab.id.substring(4);
+          }
+        });
+      }
+
+      function normalizeMarkup(){
+        $$('.calc-shell').forEach(function(shell){
+          shell.dataset.uiComponent = 'calc-shell';
+          shell.querySelectorAll('.field-row').forEach(normalizeFieldRowMarkup);
+          shell.querySelectorAll('.answer').forEach(normalizeAnswerMarkup);
+          shell.querySelectorAll('.tool-card').forEach(normalizeToolCardMarkup);
+          normalizeTabMarkup(shell);
+        });
+      }
+
+      App.UI.Templates = {
+        buildTabContentId: buildTabContentId,
+        buildFieldRowMarkup: buildFieldRowMarkup,
+        buildAnswerItemMarkup: buildAnswerItemMarkup,
+        buildToolCardMarkup: buildToolCardMarkup,
+        normalizeMarkup: normalizeMarkup,
+        normalizeFieldRowMarkup: normalizeFieldRowMarkup,
+        normalizeAnswerMarkup: normalizeAnswerMarkup,
+        normalizeToolCardMarkup: normalizeToolCardMarkup,
+        normalizeTabMarkup: normalizeTabMarkup
+      };
+
       function updateClock(){
         var d = new Date();
         setText('#clockDisplay',
@@ -2086,36 +2196,86 @@
         renderEndurance(calculateEndurance(readFuelEnduranceInput()));
       }
 
+      function readCostInput(){
+        return {
+          flow: readPositive('#costFlow'),
+          price: readPositive('#costPrice'),
+          gs: readPositive('#costGs', { allowEmpty:true })
+        };
+      }
+
       function calculateCost(input){
-        if(!validPositive(input.flow) || !validPositive(input.price)) return validationError('cost_invalid', 'ENTER VALID FLOW / PRICE');
+        if(!validPositive(input.flow) && !validPositive(input.price)){
+          return validationError('cost_missing', 'ENTER FLOW AND PRICE');
+        }
+        if(!validPositive(input.flow)){
+          return validationError('cost_flow', 'FLOW MUST BE ABOVE ZERO');
+        }
+        if(!validPositive(input.price)){
+          return validationError('cost_price', 'PRICE MUST BE ABOVE ZERO');
+        }
+        if(input.gs !== null && !validPositive(input.gs)){
+          return validationError('cost_gs', 'GROUND SPEED MUST BE ABOVE ZERO');
+        }
+
         var perHour = input.flow * input.price;
-        var data = { perHour:perHour, perMinute:perHour / 60, perNm:null, per100Nm:null };
+        var data = {
+          perHour: perHour,
+          perMinute: perHour / 60,
+          perNm: null,
+          per100Nm: null,
+          hasDistanceMetrics: false
+        };
+
         if(validPositive(input.gs)){
           data.perNm = perHour / input.gs;
           data.per100Nm = data.perNm * 100;
+          data.hasDistanceMetrics = true;
         }
+
         return validationOk(data);
       }
 
       function renderCost(result){
         if(!result.ok){
           clearTextTargets(['#costHour','#costMin','#costNm','#cost100']);
+          setStatusText('#costStatus', getValidationMessage(result, 'Fuel-only operating estimate'));
           return;
         }
+
         setText('#costHour', result.data.perHour.toFixed(2));
         setText('#costMin', result.data.perMinute.toFixed(2));
         setText('#costNm', result.data.perNm === null ? '-' : result.data.perNm.toFixed(2));
         setText('#cost100', result.data.per100Nm === null ? '-' : result.data.per100Nm.toFixed(2));
+
+        if(result.data.hasDistanceMetrics){
+          setStatusText('#costStatus', 'Fuel-only operating estimate');
+        } else {
+          setStatusText('#costStatus', 'Enter ground speed for NM cost');
+        }
       }
 
       function calcCost(){
-        renderCost(calculateCost({ flow: readPositive('#costFlow'), price: readPositive('#costPrice'), gs: readPositive('#costGs') }));
+        renderCost(calculateCost(readCostInput()));
+      }
+
+      function readFlightBasicInput(){
+        return {
+          tas: readPositive('#flightTas'),
+          distance: readPositive('#flightDist'),
+          course: readAngle('#flightCrs'),
+          windDir: readAngle('#flightWdir'),
+          windSpeed: readNonNegative('#flightWspd')
+        };
       }
 
       function calculateFlightBasic(input){
-        if(!validPositive(input.tas) || !validPositive(input.distance) || input.course === null || input.windDir === null || input.windSpeed === null || input.windSpeed < 0){
-          return validationError('flight_invalid', 'ENTER VALID TAS / DIST / WIND');
+        if(input.tas === null || input.distance === null || input.course === null || input.windDir === null || input.windSpeed === null){
+          return validationError('flight_missing', 'ENTER TAS / DIST / CRS / WIND');
         }
+        if(!validPositive(input.tas)) return validationError('flight_tas_invalid', 'TAS MUST BE ABOVE ZERO');
+        if(!validPositive(input.distance)) return validationError('flight_distance_invalid', 'DISTANCE MUST BE ABOVE ZERO');
+        if(input.windSpeed < 0) return validationError('flight_wind_invalid', 'WIND SPEED CANNOT BE NEGATIVE');
         var rel = normalize180(input.windDir - input.course);
         var relRad = rel * Math.PI / 180;
         var cross = input.windSpeed * Math.sin(relRad);
@@ -2124,37 +2284,38 @@
         if(ratio > 1 || ratio < -1) return validationError('flight_crosswind', 'WIND EXCEEDS TAS LIMIT');
         var wca = Math.asin(ratio) * 180 / Math.PI;
         var gs = input.tas * Math.cos(wca * Math.PI / 180) - head;
-        if(!isFinite(gs) || gs <= 0) return validationError('flight_gs', 'GROUND SPEED MUST STAY ABOVE ZERO');
+        if(!isFinite(gs) || gs <= 0) return validationError('flight_gs_invalid', 'RESULTING GS MUST BE ABOVE ZERO');
+        var ete = input.distance / gs;
+        var heading = clampHeading(input.course + wca);
         return validationOk({
-          groundSpeed:gs,
-          eteHours:input.distance / gs,
-          wca:wca,
-          heading:clampHeading(input.course + wca)
+          relAngle: rel,
+          crosswind: cross,
+          headwind: head,
+          wca: wca,
+          groundSpeed: gs,
+          eteHours: ete,
+          heading: heading
         });
       }
 
       function renderFlightBasic(result){
         if(!result.ok){
           clearTextTargets(['#flightGs','#flightEte','#flightWca','#flightHdg']);
+          setStatusText('#flightStatus', result, 'Groundspeed adjusted for wind');
           return;
         }
         setText('#flightGs', result.data.groundSpeed.toFixed(1));
         setText('#flightEte', fmtTime(result.data.eteHours));
         setText('#flightWca', normalize180(result.data.wca).toFixed(1) + '°');
         setText('#flightHdg', result.data.heading + '°');
+        setStatusText('#flightStatus', result, 'Groundspeed adjusted for wind');
       }
 
       function calcFlightBasic(){
-        renderFlightBasic(calculateFlightBasic({
-          tas: readPositive('#flightTas'),
-          distance: readPositive('#flightDist'),
-          course: readAngle('#flightCrs'),
-          windDir: readAngle('#flightWdir'),
-          windSpeed: readNonNegative('#flightWspd')
-        }));
+        App.Modules.Flight.update();
       }
 
-      function calculateDensityAltitude(input){
+      function calculateDensityAltitude(input){function calculateDensityAltitude(input){
         if(input.elevation === null || input.oat === null || !validPositive(input.qnh)) return validationError('density_altitude_invalid', 'ENTER ELEV / OAT / QNH');
         var pressureAlt = input.elevation + (1013.25 - input.qnh) * 30;
         var isaTemp = 15 - (pressureAlt / 1000) * 2;
@@ -2305,26 +2466,61 @@
         setText('#wbStatus', result.data.inLimits ? 'IN LIMITS' : 'OUT OF LIMITS');
       }
 
+      function readPNRInput(){
+        return {
+          outGs: readPositive('#pnrOutGs'),
+          retGs: readPositive('#pnrRetGs'),
+          endurance: readPositive('#pnrEnd')
+        };
+      }
+
       function calculatePNR(input){
-        if(!validPositive(input.outGs) || !validPositive(input.retGs) || !validPositive(input.endurance)) return validationError('pnr_invalid', 'ENTER VALID PNR INPUTS');
-        var pnrTime = (input.endurance * input.retGs) / (input.outGs + input.retGs);
+        if(input.outGs === null || input.retGs === null || input.endurance === null) return validationError('pnr_missing', 'ENTER OUT GS / RETURN GS / ENDURANCE');
+        if(input.outGs <= 0 || input.retGs <= 0) return validationError('pnr_gs', 'GROUND SPEEDS MUST BE ABOVE ZERO');
+        if(input.endurance <= 0) return validationError('pnr_endurance', 'ENDURANCE MUST BE ABOVE ZERO');
+
+        var denominator = input.outGs + input.retGs;
+        if(!isFinite(denominator) || denominator <= 0) return validationError('pnr_sum', 'CHECK PNR SPEED DATA');
+
+        var pnrTime = (input.endurance * input.retGs) / denominator;
         var pnrDist = input.outGs * pnrTime;
         if(!isFinite(pnrTime) || pnrTime < 0 || !isFinite(pnrDist) || pnrDist < 0) return validationError('pnr_math', 'CHECK PNR DATA');
+
         return validationOk({ timeHours:pnrTime, distanceNm:pnrDist });
       }
 
       function renderPNR(result){
-        if(!result.ok){ clearTextTargets(['#pnrTime','#pnrDist']); return; }
+        if(!result.ok){
+          clearTextTargets(['#pnrTime','#pnrDist']);
+          setStatusText('#pnrStatus', result, 'Simplified endurance-based point of no return');
+          return;
+        }
         setText('#pnrTime', fmtTime(result.data.timeHours));
         setText('#pnrDist', result.data.distanceNm.toFixed(1) + ' NM');
+        setStatusText('#pnrStatus', result, 'Simplified endurance-based point of no return');
       }
 
       function calcPNR(){
-        renderPNR(calculatePNR({ outGs: readPositive('#pnrOutGs'), retGs: readPositive('#pnrRetGs'), endurance: readPositive('#pnrEnd') }));
+        var input = readPNRInput();
+        var result = calculatePNR(input);
+        renderPNR(result);
+        return result;
+      }
+
+      function readTODInput(){
+        return {
+          altitudeToLose: readPositive('#todAlt'),
+          verticalSpeed: readPositive('#todVs'),
+          groundSpeed: readPositive('#todGs')
+        };
       }
 
       function calculateTOD(input){
-        if(!validPositive(input.altitudeToLose) || !validPositive(input.verticalSpeed) || !validPositive(input.groundSpeed)) return validationError('tod_invalid', 'ENTER VALID TOD INPUTS');
+        if(input.altitudeToLose === null || input.verticalSpeed === null || input.groundSpeed === null) return validationError('tod_missing', 'ENTER ALTITUDE / VS / GS');
+        if(input.altitudeToLose <= 0) return validationError('tod_altitude', 'ALTITUDE TO LOSE MUST BE ABOVE ZERO');
+        if(input.verticalSpeed <= 0) return validationError('tod_vs', 'DESCENT RATE MUST BE ABOVE ZERO');
+        if(input.groundSpeed <= 0) return validationError('tod_gs', 'GROUND SPEED MUST BE ABOVE ZERO');
+
         var timeMin = input.altitudeToLose / input.verticalSpeed;
         var dist = timeMin * (input.groundSpeed / 60);
         if(!isFinite(timeMin) || timeMin < 0 || !isFinite(dist) || dist < 0) return validationError('tod_math', 'CHECK TOD DATA');
@@ -2332,128 +2528,136 @@
       }
 
       function renderTOD(result){
-        if(!result.ok){ setText('#todDist','-'); return; }
+        if(!result.ok){
+          setText('#todDist','-');
+          setStatusText('#todStatus', result, 'Quick descent estimate based on VS and groundspeed');
+          return;
+        }
         setText('#todDist', result.data.distanceNm.toFixed(1) + ' NM');
+        setStatusText('#todStatus', result, 'Quick descent estimate based on VS and groundspeed');
       }
 
       function calcTOD(){
-        renderTOD(calculateTOD({ altitudeToLose: readPositive('#todAlt'), verticalSpeed: readPositive('#todVs'), groundSpeed: readPositive('#todGs') }));
+        var input = readTODInput();
+        var result = calculateTOD(input);
+        renderTOD(result);
+        return result;
       }
 
 
-      function calcPNRPro(){
-        var fuel = readNumber('#pnrProFuel');
-        var reserve = readNumber('#pnrProReserve');
-        var flowOut = readPositive('#pnrProFlowOut');
-        var flowBack = readPositive('#pnrProFlowBack');
-        var gsOut = readPositive('#pnrProGsOut');
-        var gsBack = readPositive('#pnrProGsBack');
-        var result = null;
+      function readPNRProInput(){
+        return {
+          fuel: readNumber('#pnrProFuel'),
+          reserve: readNumber('#pnrProReserve'),
+          flowOut: readPositive('#pnrProFlowOut'),
+          flowBack: readPositive('#pnrProFlowBack'),
+          gsOut: readPositive('#pnrProGsOut'),
+          gsBack: readPositive('#pnrProGsBack')
+        };
+      }
 
-        if(fuel === null || reserve === null || flowOut === null || flowBack === null || gsOut === null || gsBack === null){
-          result = validationError('MISSING_INPUT', 'ENTER ALL PNR PRO INPUTS');
-          clearTextTargets(['#pnrProTime','#pnrProDist','#pnrProUsable','#pnrProReturn']);
-          setStatusText('#pnrProStatus', result);
-          return;
+      function calculatePNRPro(input){
+        if([input.fuel,input.reserve,input.flowOut,input.flowBack,input.gsOut,input.gsBack].some(function(v){ return v === null; })){
+          return validationError('MISSING_INPUT', 'ENTER ALL PNR PRO INPUTS');
         }
-
-        if(flowOut <= 0 || flowBack <= 0 || gsOut <= 0 || gsBack <= 0){
-          result = validationError('INVALID_RANGE', 'FLOW / GS MUST BE ABOVE ZERO');
-          clearTextTargets(['#pnrProTime','#pnrProDist','#pnrProUsable','#pnrProReturn']);
-          setStatusText('#pnrProStatus', result);
-          return;
+        if(input.flowOut <= 0 || input.flowBack <= 0 || input.gsOut <= 0 || input.gsBack <= 0){
+          return validationError('INVALID_RANGE', 'FLOW / GS MUST BE ABOVE ZERO');
         }
-
-        var usable = fuel - reserve;
+        var usable = input.fuel - input.reserve;
         if(usable <= 0){
-          result = validationError('INSUFFICIENT_FUEL', 'INSUFFICIENT FUEL', { usable: usable });
-          clearTextTargets(['#pnrProTime','#pnrProDist','#pnrProReturn']);
-          setText('#pnrProUsable', usable.toFixed(1) + ' kg');
-          setStatusText('#pnrProStatus', result);
-          return;
+          return validationError('INSUFFICIENT_FUEL', 'INSUFFICIENT FUEL', { usable: usable });
         }
-
-        var pnrTime = usable / (flowOut + flowBack);
-        var pnrDist = gsOut * pnrTime;
-        var returnTime = pnrDist / gsBack;
-
+        var pnrTime = usable / (input.flowOut + input.flowBack);
+        var pnrDist = input.gsOut * pnrTime;
+        var returnTime = pnrDist / input.gsBack;
         if(!isFinite(pnrTime) || !isFinite(pnrDist) || !isFinite(returnTime) || pnrTime < 0 || pnrDist < 0 || returnTime < 0){
-          result = validationError('CALCULATION_ERROR', 'UNABLE TO COMPUTE PNR');
+          return validationError('CALCULATION_ERROR', 'UNABLE TO COMPUTE PNR');
+        }
+        return validationOk({ pnrTime: pnrTime, pnrDist: pnrDist, usable: usable, returnTime: returnTime });
+      }
+
+      function renderPNRPro(result){
+        if(!result.ok){
           clearTextTargets(['#pnrProTime','#pnrProDist','#pnrProUsable','#pnrProReturn']);
-          setStatusText('#pnrProStatus', result);
+          if(result.details && typeof result.details.usable === 'number'){
+            setText('#pnrProUsable', result.details.usable.toFixed(1) + ' kg');
+          }
+          setStatusText('#pnrProStatus', result, 'Advanced fuel-flow based point of no return');
           return;
         }
+        setText('#pnrProTime', fmtTime(result.data.pnrTime));
+        setText('#pnrProDist', result.data.pnrDist.toFixed(1) + ' NM');
+        setText('#pnrProUsable', result.data.usable.toFixed(1) + ' kg');
+        setText('#pnrProReturn', fmtTime(result.data.returnTime));
+        setStatusText('#pnrProStatus', result, 'Advanced fuel-flow based point of no return');
+      }
 
-        result = validationOk({ pnrTime: pnrTime, pnrDist: pnrDist, usable: usable, returnTime: returnTime });
-        setText('#pnrProTime', fmtTime(pnrTime));
-        setText('#pnrProDist', pnrDist.toFixed(1) + ' NM');
-        setText('#pnrProUsable', usable.toFixed(1) + ' kg');
-        setText('#pnrProReturn', fmtTime(returnTime));
-        setStatusText('#pnrProStatus', result, 'VALID');
+      function calcPNRPro(){
+        var input = readPNRProInput();
+        var result = calculatePNRPro(input);
+        renderPNRPro(result);
+        return result;
+      }
+
+      function readTODProInput(){
+        return {
+          cruiseAlt: readNumber('#todProCruiseAlt'),
+          targetAlt: readNumber('#todProTargetAlt'),
+          transAlt: readNumber('#todProTransAlt'),
+          tasMach: readPositive('#todProTasMach'),
+          windCruise: readNumber('#todProWindCruise'),
+          vsMach: readPositive('#todProVsMach'),
+          tasIas: readPositive('#todProTasIas'),
+          windLow: readNumber('#todProWindLow'),
+          vsIas: readPositive('#todProVsIas')
+        };
+      }
+
+      function calculateTODPro(input){
+        if([input.cruiseAlt,input.targetAlt,input.transAlt,input.tasMach,input.windCruise,input.vsMach,input.tasIas,input.windLow,input.vsIas].some(function(v){ return v === null; })){
+          return validationError('MISSING_INPUT', 'ENTER ALL TOD PRO INPUTS');
+        }
+        if(input.vsMach <= 0 || input.vsIas <= 0 || input.tasMach <= 0 || input.tasIas <= 0){
+          return validationError('INVALID_RANGE', 'TAS / VS MUST BE ABOVE ZERO');
+        }
+        if(input.cruiseAlt < input.transAlt || input.transAlt < input.targetAlt){
+          return validationError('INVALID_ALTITUDE_ORDER', 'CHECK ALTITUDE ORDER');
+        }
+        var gsMach = input.tasMach + input.windCruise;
+        var gsIas = input.tasIas + input.windLow;
+        if(gsMach <= 0 || gsIas <= 0){
+          return validationError('INVALID_GROUNDSPEED', 'GROUND SPEED MUST STAY ABOVE ZERO');
+        }
+        var alt1 = input.cruiseAlt - input.transAlt;
+        var alt2 = input.transAlt - input.targetAlt;
+        var time1h = (alt1 / input.vsMach) / 60;
+        var time2h = (alt2 / input.vsIas) / 60;
+        var dist = (gsMach * time1h) + (gsIas * time2h);
+        var totalTime = time1h + time2h;
+        if(!isFinite(dist) || !isFinite(totalTime) || dist < 0 || totalTime < 0){
+          return validationError('CALCULATION_ERROR', 'UNABLE TO COMPUTE TOD');
+        }
+        return validationOk({ dist: dist, totalTime: totalTime, gsMach: gsMach, gsIas: gsIas });
+      }
+
+      function renderTODPro(result){
+        if(!result.ok){
+          clearTextTargets(['#todProDist','#todProTime','#todProGsMach','#todProGsIas']);
+          setStatusText('#todProStatus', result, 'Two-phase descent profile with wind layers');
+          return;
+        }
+        setText('#todProDist', result.data.dist.toFixed(1) + ' NM');
+        setText('#todProTime', fmtTime(result.data.totalTime));
+        setText('#todProGsMach', result.data.gsMach.toFixed(1) + ' kt');
+        setText('#todProGsIas', result.data.gsIas.toFixed(1) + ' kt');
+        setStatusText('#todProStatus', result, 'Two-phase descent profile with wind layers');
       }
 
       function calcTODPro(){
-        var cruiseAlt = readNumber('#todProCruiseAlt');
-        var targetAlt = readNumber('#todProTargetAlt');
-        var transAlt = readNumber('#todProTransAlt');
-        var tasMach = readPositive('#todProTasMach');
-        var windCruise = readNumber('#todProWindCruise');
-        var vsMach = readPositive('#todProVsMach');
-        var tasIas = readPositive('#todProTasIas');
-        var windLow = readNumber('#todProWindLow');
-        var vsIas = readPositive('#todProVsIas');
-        var result = null;
-
-        if([cruiseAlt,targetAlt,transAlt,tasMach,windCruise,vsMach,tasIas,windLow,vsIas].some(function(v){ return v === null; })){
-          result = validationError('MISSING_INPUT', 'ENTER ALL TOD PRO INPUTS');
-          clearTextTargets(['#todProDist','#todProTime','#todProGsMach','#todProGsIas']);
-          setStatusText('#todProStatus', result);
-          return;
-        }
-
-        if(vsMach <= 0 || vsIas <= 0 || tasMach <= 0 || tasIas <= 0){
-          result = validationError('INVALID_RANGE', 'TAS / VS MUST BE ABOVE ZERO');
-          clearTextTargets(['#todProDist','#todProTime','#todProGsMach','#todProGsIas']);
-          setStatusText('#todProStatus', result);
-          return;
-        }
-
-        if(cruiseAlt < transAlt || transAlt < targetAlt){
-          result = validationError('INVALID_ALTITUDE_ORDER', 'CHECK ALTITUDE ORDER');
-          clearTextTargets(['#todProDist','#todProTime','#todProGsMach','#todProGsIas']);
-          setStatusText('#todProStatus', result);
-          return;
-        }
-
-        var gsMach = tasMach + windCruise;
-        var gsIas = tasIas + windLow;
-        if(gsMach <= 0 || gsIas <= 0){
-          result = validationError('INVALID_GROUNDSPEED', 'GROUND SPEED MUST STAY ABOVE ZERO');
-          clearTextTargets(['#todProDist','#todProTime','#todProGsMach','#todProGsIas']);
-          setStatusText('#todProStatus', result);
-          return;
-        }
-
-        var alt1 = cruiseAlt - transAlt;
-        var alt2 = transAlt - targetAlt;
-        var time1h = (alt1 / vsMach) / 60;
-        var time2h = (alt2 / vsIas) / 60;
-        var dist = (gsMach * time1h) + (gsIas * time2h);
-        var totalTime = time1h + time2h;
-
-        if(!isFinite(dist) || !isFinite(totalTime) || dist < 0 || totalTime < 0){
-          result = validationError('CALCULATION_ERROR', 'UNABLE TO COMPUTE TOD');
-          clearTextTargets(['#todProDist','#todProTime','#todProGsMach','#todProGsIas']);
-          setStatusText('#todProStatus', result);
-          return;
-        }
-
-        result = validationOk({ dist: dist, totalTime: totalTime, gsMach: gsMach, gsIas: gsIas });
-        setText('#todProDist', dist.toFixed(1) + ' NM');
-        setText('#todProTime', fmtTime(totalTime));
-        setText('#todProGsMach', gsMach.toFixed(1) + ' kt');
-        setText('#todProGsIas', gsIas.toFixed(1) + ' kt');
-        setStatusText('#todProStatus', result, 'VALID');
+        var input = readTODProInput();
+        var result = calculateTODPro(input);
+        renderTODPro(result);
+        return result;
       }
 
       function drawWbProEnvelope(data){
@@ -2508,108 +2712,120 @@
         }
       }
 
-      function calcWBPro(){
-        var rows = [
-          {w:'#wbProPilotW', a:'#wbProPilotA', m:'#wbProPilotM'},
-          {w:'#wbProCopilotW', a:'#wbProCopilotA', m:'#wbProCopilotM'},
-          {w:'#wbProPaxW', a:'#wbProPaxA', m:'#wbProPaxM'},
-          {w:'#wbProCargoW', a:'#wbProCargoA', m:'#wbProCargoM'},
-          {w:'#wbProFuelW', a:'#wbProFuelA', m:'#wbProFuelM'}
-        ];
+      function readWBProInput(){
+        return {
+          rows: [
+            {weight: readNonNegative('#wbProPilotW'), arm: readNumber('#wbProPilotA')},
+            {weight: readNonNegative('#wbProCopilotW'), arm: readNumber('#wbProCopilotA')},
+            {weight: readNonNegative('#wbProPaxW'), arm: readNumber('#wbProPaxA')},
+            {weight: readNonNegative('#wbProCargoW'), arm: readNumber('#wbProCargoA')},
+            {weight: readNonNegative('#wbProFuelW'), arm: readNumber('#wbProFuelA')}
+          ],
+          burn: Math.max(0, readNonNegative('#wbProBurn') || 0),
+          minCg: readNumber('#wbProMinCg'),
+          maxCg: readNumber('#wbProMaxCg'),
+          maxW: readPositive('#wbProMaxW')
+        };
+      }
 
-        var totalW = 0, totalM = 0;
-        var fuelW = 0, fuelA = 0;
-        var result = null;
-
-        rows.forEach(function(r){
-          var w = readNonNegative(r.w);
-          var a = readNumber(r.a);
-
-          if(w === null && a === null){
-            setText(r.m, '-');
-            return;
+      function calculateWBPro(input){
+        var totalW = 0, totalM = 0, fuelW = 0, fuelA = 0, hasAny = false;
+        var rowMoments = [];
+        for(var i = 0; i < input.rows.length; i++){
+          var row = input.rows[i];
+          if(row.weight === null && row.arm === null){
+            rowMoments.push(null);
+            continue;
           }
-          if(w === null || a === null || w < 0){
-            setText(r.m, '-');
-            result = validationError('INVALID_ROW', 'CHECK WB PRO INPUTS');
-            return;
+          hasAny = true;
+          if(row.weight === null || row.arm === null || row.weight < 0){
+            return validationError('INVALID_ROW', 'CHECK WB PRO INPUTS');
           }
-          var m = w * a;
-          totalW += w;
-          totalM += m;
-          setText(r.m, m.toFixed(1));
-          if(r.w === '#wbProFuelW'){ fuelW = w; fuelA = a; }
+          var moment = row.weight * row.arm;
+          rowMoments.push(moment);
+          totalW += row.weight;
+          totalM += moment;
+          if(i === 4){ fuelW = row.weight; fuelA = row.arm; }
+        }
+        if(!hasAny || totalW <= 0){
+          return validationError('EMPTY_WEIGHT', 'ENTER WEIGHT DATA');
+        }
+        var cg = totalM / totalW;
+        var afterCg = null, afterW = null;
+        if(input.burn > 0 && fuelW > 0){
+          var used = Math.min(input.burn, fuelW);
+          afterW = totalW - used;
+          var afterM = totalM - (used * fuelA);
+          if(afterW > 0){
+            afterCg = afterM / afterW;
+          }
+        }
+        var envelope = {
+          cg: cg,
+          tw: totalW,
+          minCg: input.minCg,
+          maxCg: input.maxCg,
+          maxW: input.maxW,
+          afterCg: afterCg,
+          afterW: afterW
+        };
+        if(input.minCg === null || input.maxCg === null || input.maxW === null){
+          return validationError('LIMITS_NOT_SET', 'LIMITS NOT SET', {
+            totalW: totalW, totalM: totalM, cg: cg, afterCg: afterCg, afterW: afterW, rowMoments: rowMoments, envelope: envelope
+          });
+        }
+        var ok = cg >= input.minCg && cg <= input.maxCg && totalW <= input.maxW;
+        if(!ok){
+          return validationError('OUT_OF_LIMITS', 'OUT OF LIMITS', {
+            totalW: totalW, totalM: totalM, cg: cg, afterCg: afterCg, afterW: afterW, rowMoments: rowMoments, envelope: envelope,
+            minCg: input.minCg, maxCg: input.maxCg, maxW: input.maxW
+          });
+        }
+        return validationOk({ totalW: totalW, totalM: totalM, cg: cg, afterCg: afterCg, afterW: afterW, rowMoments: rowMoments, envelope: envelope });
+      }
+
+      function renderWBPro(result){
+        var momentTargets = ['#wbProPilotM','#wbProCopilotM','#wbProPaxM','#wbProCargoM','#wbProFuelM'];
+        var details = result.ok ? result.data : (result.details || {});
+        var moments = details.rowMoments || [];
+        momentTargets.forEach(function(sel, idx){
+          if(typeof moments[idx] === 'number') setText(sel, moments[idx].toFixed(1)); else setText(sel, '-');
         });
 
-        if(result && !result.ok){
+        if(result.code === 'INVALID_ROW'){
           clearTextTargets(['#wbProTotalW','#wbProTotalM','#wbProCg','#wbProCgAfter','#wbProWAfter']);
           setStatusText('#wbProStatus', result);
           drawWbProEnvelope(null);
           return;
         }
-
-        setText('#wbProTotalW', totalW.toFixed(1));
-        setText('#wbProTotalM', totalM.toFixed(1));
-
-        if(totalW <= 0){
-          clearTextTargets(['#wbProCg','#wbProCgAfter','#wbProWAfter']);
-          setText('#wbProStatus','ENTER WEIGHT DATA');
+        if(result.code === 'EMPTY_WEIGHT'){
+          clearTextTargets(['#wbProTotalW','#wbProTotalM','#wbProCg','#wbProCgAfter','#wbProWAfter']);
+          setText('#wbProStatus', 'ENTER WEIGHT DATA');
           drawWbProEnvelope(null);
           return;
         }
 
-        var cg = totalM / totalW;
-        setText('#wbProCg', cg.toFixed(2));
+        if(typeof details.totalW === 'number') setText('#wbProTotalW', details.totalW.toFixed(1)); else setText('#wbProTotalW','-');
+        if(typeof details.totalM === 'number') setText('#wbProTotalM', details.totalM.toFixed(1)); else setText('#wbProTotalM','-');
+        if(typeof details.cg === 'number') setText('#wbProCg', details.cg.toFixed(2)); else setText('#wbProCg','-');
+        if(typeof details.afterCg === 'number') setText('#wbProCgAfter', details.afterCg.toFixed(2)); else setText('#wbProCgAfter','-');
+        if(typeof details.afterW === 'number') setText('#wbProWAfter', details.afterW.toFixed(1)); else setText('#wbProWAfter','-');
 
-        var burn = Math.max(0, readNonNegative('#wbProBurn') || 0);
-        var afterCg = null, afterW = null;
-        if(burn > 0 && fuelW > 0){
-          var used = Math.min(burn, fuelW);
-          afterW = totalW - used;
-          var afterM = totalM - (used * fuelA);
-          if(afterW > 0){
-            afterCg = afterM / afterW;
-            setText('#wbProCgAfter', afterCg.toFixed(2));
-            setText('#wbProWAfter', afterW.toFixed(1));
-          } else {
-            clearTextTargets(['#wbProCgAfter','#wbProWAfter']);
-          }
-        } else {
-          clearTextTargets(['#wbProCgAfter','#wbProWAfter']);
-        }
-
-        var minCg = readNumber('#wbProMinCg');
-        var maxCg = readNumber('#wbProMaxCg');
-        var maxW = readPositive('#wbProMaxW');
-
-        if(minCg === null || maxCg === null || maxW === null){
+        if(result.code === 'LIMITS_NOT_SET'){
           setText('#wbProStatus', 'LIMITS NOT SET');
-          drawWbProEnvelope({
-            cg: cg,
-            tw: totalW,
-            minCg: minCg,
-            maxCg: maxCg,
-            maxW: maxW,
-            afterCg: afterCg,
-            afterW: afterW
-          });
+          drawWbProEnvelope(details.envelope || null);
           return;
         }
 
-        result = (cg >= minCg && cg <= maxCg && totalW <= maxW)
-          ? validationOk({ cg: cg, totalW: totalW, afterCg: afterCg, afterW: afterW })
-          : validationError('OUT_OF_LIMITS', 'OUT OF LIMITS', { cg: cg, totalW: totalW, minCg: minCg, maxCg: maxCg, maxW: maxW });
         setStatusText('#wbProStatus', result, 'IN LIMITS');
+        drawWbProEnvelope(details.envelope || null);
+      }
 
-        drawWbProEnvelope({
-          cg: cg,
-          tw: totalW,
-          minCg: minCg,
-          maxCg: maxCg,
-          maxW: maxW,
-          afterCg: afterCg,
-          afterW: afterW
-        });
+      function calcWBPro(){
+        var input = readWBProInput();
+        var result = calculateWBPro(input);
+        renderWBPro(result);
+        return result;
       }
 
       function setSpeedFrom(source){
@@ -2834,6 +3050,106 @@
         }
       };
 
+      App.Modules.Cost = {
+        readInput: readCostInput,
+        calculate: calculateCost,
+        render: renderCost,
+        update: calcCost,
+        init: function(){
+          calcCost();
+        }
+      };
+
+      App.Modules.Flight = {
+        readInput: readFlightBasicInput,
+        calculate: calculateFlightBasic,
+        render: renderFlightBasic,
+        update: function(){
+          var input = readFlightBasicInput();
+          var result = calculateFlightBasic(input);
+          renderFlightBasic(result);
+          return result;
+        },
+        init: function(){
+          this.update();
+        }
+      };
+
+      App.Modules.PNR = {
+        readInput: readPNRInput,
+        calculate: calculatePNR,
+        render: renderPNR,
+        update: function(){
+          var input = readPNRInput();
+          var result = calculatePNR(input);
+          renderPNR(result);
+          return result;
+        },
+        init: function(){
+          this.update();
+        }
+      };
+
+      App.Modules.TOD = {
+        readInput: readTODInput,
+        calculate: calculateTOD,
+        render: renderTOD,
+        update: function(){
+          var input = readTODInput();
+          var result = calculateTOD(input);
+          renderTOD(result);
+          return result;
+        },
+        init: function(){
+          this.update();
+        }
+      };
+
+      App.Modules.PNRPro = {
+        readInput: readPNRProInput,
+        calculate: calculatePNRPro,
+        render: renderPNRPro,
+        update: function(){
+          var input = readPNRProInput();
+          var result = calculatePNRPro(input);
+          renderPNRPro(result);
+          return result;
+        },
+        init: function(){
+          this.update();
+        }
+      };
+
+      App.Modules.TODPro = {
+        readInput: readTODProInput,
+        calculate: calculateTODPro,
+        render: renderTODPro,
+        update: function(){
+          var input = readTODProInput();
+          var result = calculateTODPro(input);
+          renderTODPro(result);
+          return result;
+        },
+        init: function(){
+          this.update();
+        }
+      };
+
+      App.Modules.WBPro = {
+        readInput: readWBProInput,
+        calculate: calculateWBPro,
+        render: renderWBPro,
+        update: function(){
+          var input = readWBProInput();
+          var result = calculateWBPro(input);
+          renderWBPro(result);
+          return result;
+        },
+        init: function(){
+          this.update();
+        }
+      };
+
       App.Modules.calcFuel = calcFuel;
       App.Modules.calcCost = calcCost;
       App.Modules.calcFlightBasic = calcFlightBasic;
@@ -2858,6 +3174,9 @@
       App.Calculations.calculateWB = calculateWB;
       App.Calculations.calculatePNR = calculatePNR;
       App.Calculations.calculateTOD = calculateTOD;
+      App.Calculations.calculatePNRPro = calculatePNRPro;
+      App.Calculations.calculateTODPro = calculateTODPro;
+      App.Calculations.calculateWBPro = calculateWBPro;
 
       App.Modules.calcWBPro = calcWBPro;
 
@@ -2893,6 +3212,7 @@
 
       function initDOM(){
         cacheDom();
+        App.UI.Templates.normalizeMarkup();
       }
 
       function initNavigation(){
@@ -2977,6 +3297,9 @@
         App.Modules.calcWB();
         App.Modules.calcPNR();
         App.Modules.calcTOD();
+        App.Modules.calcPNRPro();
+        App.Modules.calcTODPro();
+        App.Modules.calcWBPro();
         App.Tools.renderTimer();
         App.UI.showScreen(App.State.currentScreen || 'menu');
       }
