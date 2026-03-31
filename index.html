@@ -932,10 +932,10 @@
                 </div>
                 <div class="answer-item">
                   <div class="answer-item-label">Reserve</div>
-                  <div class="answer-item-value"><span id="freqResOut">-</span> L</div>
+                  <div class="answer-item-value"><span id="freqReserve">-</span> L</div>
                 </div>
                 <div class="answer-item">
-                  <div class="answer-item-label">Time</div>
+                  <div class="answer-item-label">Flight Time</div>
                   <div class="answer-item-value"><span id="freqTime">-</span></div>
                 </div>
               </div>
@@ -946,7 +946,7 @@
             <div class="section-title">Endurance</div>
             <div class="field-list">
               <div class="field-row">
-                <div class="field-label">Usable Fuel</div>
+                <div class="field-label">Fuel On Board</div>
                 <input class="field-value" id="endFuel" type="number" step="any" placeholder="0">
                 <div class="field-unit">L</div>
               </div>
@@ -960,13 +960,7 @@
             <div class="answer">
               <div class="answer-label">Endurance</div>
               <div class="answer-value"><span id="endTime">-</span></div>
-              <div class="answer-sub">Estimated usable endurance</div>
-              <div class="answer-grid">
-                <div class="answer-item">
-                  <div class="answer-item-label">Decimal</div>
-                  <div class="answer-item-value"><span id="endDecimal">-</span></div>
-                </div>
-              </div>
+              <div class="answer-sub">Usable endurance based on fuel flow</div>
             </div>
           </div>
         </div>
@@ -982,25 +976,25 @@
               <div class="field-unit">L/h</div>
             </div>
             <div class="field-row">
-              <div class="field-label">Price</div>
+              <div class="field-label">Fuel Price</div>
               <input class="field-value" id="costPrice" type="number" step="any" placeholder="0">
               <div class="field-unit">/L</div>
             </div>
             <div class="field-row">
-              <div class="field-label">GS</div>
+              <div class="field-label">Ground Speed</div>
               <input class="field-value" id="costGs" type="number" step="any" placeholder="0">
               <div class="field-unit">kt</div>
             </div>
           </div>
 
           <div class="answer">
-            <div class="answer-label">Cost Per Hour</div>
-            <div class="answer-value">$<span id="costHour">-</span></div>
-            <div class="answer-sub">Fuel-only operating cost estimate</div>
+            <div class="answer-label">Cost Summary</div>
+            <div class="answer-value"><span id="costHour">-</span> / h</div>
+            <div class="answer-sub">Fuel-only operating estimate</div>
             <div class="answer-grid">
               <div class="answer-item">
                 <div class="answer-item-label">Per Minute</div>
-                <div class="answer-item-value">$<span id="costMin">-</span></div>
+                <div class="answer-item-value"><span id="costMin">-</span></div>
               </div>
               <div class="answer-item">
                 <div class="answer-item-label">Per NM</div>
@@ -1019,11 +1013,12 @@
         <div class="calc-shell">
           <div class="tabs-row">
             <button class="tab-btn active" data-tab="flight-basic">Basic</button>
-            <button class="tab-btn" data-tab="flight-pnr">PNR / TOD</button>
+            <button class="tab-btn" data-tab="flight-pnr">PNR</button>
+            <button class="tab-btn" data-tab="flight-tod">TOD</button>
           </div>
 
           <div class="tab-content active" id="tab-flight-basic">
-            <div class="section-title">Flight Basic</div>
+            <div class="section-title">Flight Planning</div>
             <div class="field-list">
               <div class="field-row">
                 <div class="field-label">TAS</div>
@@ -1041,21 +1036,21 @@
                 <div class="field-unit">°</div>
               </div>
               <div class="field-row">
-                <div class="field-label">Wind Dir</div>
+                <div class="field-label">Wind From</div>
                 <input class="field-value" id="flightWdir" type="number" step="any" placeholder="0">
                 <div class="field-unit">°</div>
               </div>
               <div class="field-row">
-                <div class="field-label">Wind Spd</div>
+                <div class="field-label">Wind Speed</div>
                 <input class="field-value" id="flightWspd" type="number" step="any" placeholder="0">
                 <div class="field-unit">kt</div>
               </div>
             </div>
 
             <div class="answer">
-              <div class="answer-label">Ground Speed</div>
+              <div class="answer-label">Flight Solution</div>
               <div class="answer-value"><span id="flightGs">-</span> kt</div>
-              <div class="answer-sub">Track, heading and ETE from TAS and wind</div>
+              <div class="answer-sub">Groundspeed adjusted for wind</div>
               <div class="answer-grid">
                 <div class="answer-item">
                   <div class="answer-item-label">ETE</div>
@@ -1074,66 +1069,62 @@
           </div>
 
           <div class="tab-content" id="tab-flight-pnr">
-            <div class="stack">
-              <div>
-                <div class="section-title">Point of No Return</div>
-                <div class="field-list">
-                  <div class="field-row">
-                    <div class="field-label">Outbound GS</div>
-                    <input class="field-value" id="pnrOutGs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">KT</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Return GS</div>
-                    <input class="field-value" id="pnrRetGs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">KT</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Usable Endurance</div>
-                    <input class="field-value" id="pnrEnd" type="number" step="any" placeholder="0">
-                    <div class="field-unit">H</div>
-                  </div>
-                </div>
+            <div class="section-title">Point of No Return</div>
+            <div class="field-list">
+              <div class="field-row">
+                <div class="field-label">Out GS</div>
+                <input class="field-value" id="pnrOutGs" type="number" step="any" placeholder="0">
+                <div class="field-unit">kt</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">Return GS</div>
+                <input class="field-value" id="pnrRetGs" type="number" step="any" placeholder="0">
+                <div class="field-unit">kt</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">Endurance</div>
+                <input class="field-value" id="pnrEnd" type="number" step="any" placeholder="0">
+                <div class="field-unit">h</div>
+              </div>
+            </div>
 
-                <div class="answer">
-                  <div class="answer-label">PNR</div>
-                  <div class="answer-value"><span id="pnrDist">-</span></div>
-                  <div class="answer-sub">Real PNR under equal fuel flow assumption using usable endurance and two groundspeeds</div>
-                  <div class="answer-grid">
-                    <div class="answer-item">
-                      <div class="answer-item-label">Time</div>
-                      <div class="answer-item-value"><span id="pnrTime">-</span></div>
-                    </div>
-                  </div>
+            <div class="answer">
+              <div class="answer-label">PNR</div>
+              <div class="answer-value"><span id="pnrTime">-</span></div>
+              <div class="answer-sub">Simplified endurance-based point of no return</div>
+              <div class="answer-grid">
+                <div class="answer-item">
+                  <div class="answer-item-label">Distance</div>
+                  <div class="answer-item-value"><span id="pnrDist">-</span></div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div>
-                <div class="section-title">Top of Descent</div>
-                <div class="field-list">
-                  <div class="field-row">
-                    <div class="field-label">Altitude to Lose</div>
-                    <input class="field-value" id="todAlt" type="number" step="any" placeholder="0">
-                    <div class="field-unit">FT</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Vertical Speed</div>
-                    <input class="field-value" id="todVs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">FPM</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">GS</div>
-                    <input class="field-value" id="todGs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">KT</div>
-                  </div>
-                </div>
-
-                <div class="answer">
-                  <div class="answer-label">TOD Distance</div>
-                  <div class="answer-value"><span id="todDist">-</span></div>
-                  <div class="answer-sub">Distance required before target altitude</div>
-                </div>
+          <div class="tab-content" id="tab-flight-tod">
+            <div class="section-title">Top of Descent</div>
+            <div class="field-list">
+              <div class="field-row">
+                <div class="field-label">Altitude to Lose</div>
+                <input class="field-value" id="todAlt" type="number" step="any" placeholder="0">
+                <div class="field-unit">ft</div>
               </div>
+              <div class="field-row">
+                <div class="field-label">Descent Rate</div>
+                <input class="field-value" id="todVs" type="number" step="any" placeholder="0">
+                <div class="field-unit">ft/min</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">GS</div>
+                <input class="field-value" id="todGs" type="number" step="any" placeholder="0">
+                <div class="field-unit">kt</div>
+              </div>
+            </div>
+
+            <div class="answer">
+              <div class="answer-label">TOD Distance</div>
+              <div class="answer-value"><span id="todDist">-</span></div>
+              <div class="answer-sub">Quick descent estimate based on VS and groundspeed</div>
             </div>
           </div>
         </div>
@@ -1142,9 +1133,9 @@
       <section class="screen" id="screen-atmo">
         <div class="calc-shell">
           <div class="tabs-row">
-            <button class="tab-btn active" data-tab="atmo-da">Density Altitude</button>
+            <button class="tab-btn active" data-tab="atmo-da">Density Alt</button>
             <button class="tab-btn" data-tab="atmo-qnh">QNH</button>
-            <button class="tab-btn" data-tab="atmo-tas">TAS Approx</button>
+            <button class="tab-btn" data-tab="atmo-tas">TAS</button>
           </div>
 
           <div class="tab-content active" id="tab-atmo-da">
@@ -1157,7 +1148,7 @@
               </div>
               <div class="field-row">
                 <div class="field-label">OAT</div>
-                <input class="field-value" id="atmoOat" type="number" step="any" placeholder="0">
+                <input class="field-value" id="atmoOat" type="number" step="any" placeholder="15">
                 <div class="field-unit">°C</div>
               </div>
               <div class="field-row">
@@ -1170,21 +1161,7 @@
             <div class="answer">
               <div class="answer-label">Density Altitude</div>
               <div class="answer-value"><span id="atmoDa">-</span> ft</div>
-              <div class="answer-sub">Pressure altitude corrected for ISA deviation</div>
-              <div class="answer-grid">
-                <div class="answer-item">
-                  <div class="answer-item-label">Pressure Alt</div>
-                  <div class="answer-item-value"><span id="atmoPa">-</span></div>
-                </div>
-                <div class="answer-item">
-                  <div class="answer-item-label">ISA Temp</div>
-                  <div class="answer-item-value"><span id="atmoIsa">-</span></div>
-                </div>
-                <div class="answer-item">
-                  <div class="answer-item-label">ISA Dev</div>
-                  <div class="answer-item-value"><span id="atmoDev">-</span></div>
-                </div>
-              </div>
+              <div class="answer-sub">Approximate ISA-derived density altitude</div>
             </div>
           </div>
 
@@ -1192,26 +1169,26 @@
             <div class="section-title">QNH Converter</div>
             <div class="field-list">
               <div class="field-row">
-                <div class="field-label">QNH</div>
+                <div class="field-label">hPa</div>
                 <input class="field-value" id="qnhHpa" type="number" step="any" placeholder="1013.25">
                 <div class="field-unit">hPa</div>
               </div>
               <div class="field-row">
-                <div class="field-label">QNH</div>
+                <div class="field-label">inHg</div>
                 <input class="field-value" id="qnhInhg" type="number" step="any" placeholder="29.92">
                 <div class="field-unit">inHg</div>
               </div>
               <div class="field-row">
-                <div class="field-label">QNH</div>
+                <div class="field-label">mmHg</div>
                 <input class="field-value" id="qnhMmhg" type="number" step="any" placeholder="760">
                 <div class="field-unit">mmHg</div>
               </div>
             </div>
 
             <div class="answer">
-              <div class="answer-label">QNH</div>
-              <div class="answer-value"><span id="qnhHpaMirror">Sync by input</span></div>
-              <div class="answer-sub">Enter any one value and the others will update automatically</div>
+              <div class="answer-label">QNH Sync</div>
+              <div class="answer-value">Live</div>
+              <div class="answer-sub">Fields stay synchronized without circular overwrite loops</div>
             </div>
           </div>
 
@@ -1230,15 +1207,15 @@
               </div>
               <div class="field-row">
                 <div class="field-label">OAT</div>
-                <input class="field-value" id="tasOat" type="number" step="any" placeholder="0">
+                <input class="field-value" id="tasOat" type="number" step="any" placeholder="15">
                 <div class="field-unit">°C</div>
               </div>
             </div>
 
             <div class="answer">
-              <div class="answer-label">TAS Approx</div>
+              <div class="answer-label">Estimated TAS</div>
               <div class="answer-value"><span id="tasOut">-</span> kt</div>
-              <div class="answer-sub" id="tasNote">Approximation for quick flight planning</div>
+              <div class="answer-sub">Rule-of-thumb estimate using IAS and altitude</div>
             </div>
           </div>
         </div>
@@ -1247,12 +1224,12 @@
       <section class="screen" id="screen-safety">
         <div class="calc-shell">
           <div class="tabs-row">
-            <button class="tab-btn active" data-tab="safe-wind">Wind</button>
-            <button class="tab-btn" data-tab="safe-wb">W&amp;B</button>
+            <button class="tab-btn active" data-tab="safety-wind">Wind</button>
+            <button class="tab-btn" data-tab="safety-wb">W&amp;B</button>
           </div>
 
-          <div class="tab-content active" id="tab-safe-wind">
-            <div class="section-title">Wind Components</div>
+          <div class="tab-content active" id="tab-safety-wind">
+            <div class="section-title">Runway Wind Components</div>
             <div class="field-list">
               <div class="field-row">
                 <div class="field-label">Runway Heading</div>
@@ -1260,7 +1237,7 @@
                 <div class="field-unit">°</div>
               </div>
               <div class="field-row">
-                <div class="field-label">Wind Direction</div>
+                <div class="field-label">Wind From</div>
                 <input class="field-value" id="windDir" type="number" step="any" placeholder="0">
                 <div class="field-unit">°</div>
               </div>
@@ -1272,39 +1249,41 @@
             </div>
 
             <div class="wind-compass">
+              <div class="compass-center"></div>
+              <div class="compass-runway" id="compassRunway"></div>
+              <div class="compass-wind" id="compassWind"></div>
               <div class="compass-labels">
                 <span class="n">N</span>
                 <span class="s">S</span>
                 <span class="e">E</span>
                 <span class="w">W</span>
               </div>
-              <div class="compass-runway" id="compassRunway"></div>
-              <div class="compass-wind" id="compassWind"></div>
-              <div class="compass-center"></div>
             </div>
 
             <div class="answer">
               <div class="answer-label">Wind Components</div>
-              <div class="answer-value"><span id="windCross">-</span></div>
-              <div class="answer-sub">Crosswind, headwind and tailwind relative to runway heading</div>
-              <div class="answer-grid">
+              <div class="answer-grid" style="margin-top:0;padding-top:0;border-top:none">
                 <div class="answer-item">
-                  <div class="answer-item-label">Headwind</div>
+                  <div class="answer-item-label">Head/Tail</div>
                   <div class="answer-item-value"><span id="windHead">-</span></div>
                 </div>
                 <div class="answer-item">
-                  <div class="answer-item-label">Tailwind</div>
-                  <div class="answer-item-value"><span id="windTail">-</span></div>
+                  <div class="answer-item-label">Crosswind</div>
+                  <div class="answer-item-value"><span id="windCross">-</span></div>
+                </div>
+                <div class="answer-item">
+                  <div class="answer-item-label">Side</div>
+                  <div class="answer-item-value"><span id="windSide">-</span></div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="tab-content" id="tab-safe-wb">
+          <div class="tab-content" id="tab-safety-wb">
             <div class="section-title">Weight &amp; Balance</div>
             <div class="wb-table" id="wbTable" data-max-weight="" data-min-cg="" data-max-cg="">
               <div class="wb-head">
-                <div>Station</div>
+                <div>Item</div>
                 <div>Weight</div>
                 <div>Arm</div>
                 <div>Moment</div>
@@ -1312,47 +1291,44 @@
 
               <div class="wb-row">
                 <div class="wb-name">Empty</div>
-                <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
-                <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">-</div>
+                <input class="wb-weight" type="number" step="any" placeholder="0">
+                <input class="wb-arm" type="number" step="any" placeholder="0">
+                <div class="wb-moment">-</div>
               </div>
+
               <div class="wb-row">
-                <div class="wb-name">Crew</div>
-                <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
-                <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">-</div>
+                <div class="wb-name">Pilot</div>
+                <input class="wb-weight" type="number" step="any" placeholder="0">
+                <input class="wb-arm" type="number" step="any" placeholder="0">
+                <div class="wb-moment">-</div>
               </div>
+
               <div class="wb-row">
-                <div class="wb-name">Pax</div>
-                <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
-                <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">-</div>
+                <div class="wb-name">Passenger</div>
+                <input class="wb-weight" type="number" step="any" placeholder="0">
+                <input class="wb-arm" type="number" step="any" placeholder="0">
+                <div class="wb-moment">-</div>
               </div>
+
               <div class="wb-row">
                 <div class="wb-name">Fuel</div>
-                <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
-                <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">-</div>
-              </div>
-              <div class="wb-row">
-                <div class="wb-name">Cargo</div>
-                <input class="wb-weight" data-wb="weight" type="number" step="any" placeholder="0">
-                <input class="wb-arm" data-wb="arm" type="number" step="any" placeholder="0">
-                <div class="wb-moment" data-wb="moment">-</div>
+                <input class="wb-weight" type="number" step="any" placeholder="0">
+                <input class="wb-arm" type="number" step="any" placeholder="0">
+                <div class="wb-moment">-</div>
               </div>
 
               <div class="wb-total">
                 <div>Total</div>
-                <div><span id="wbTotalWeight">-</span></div>
-                <div>CG</div>
-                <div><span id="wbCg">-</span></div>
+                <div id="wbTotalW">-</div>
+                <div id="wbCg">-</div>
+                <div id="wbTotalM">-</div>
               </div>
             </div>
 
             <div class="answer">
-              <div class="answer-label">Weight &amp; Balance Summary</div>
-              <div class="answer-value"><span id="wbTotalMoment">-</span></div>
-              <div class="answer-sub" id="wbStatus">Total moment based on entered station weights and arms</div>
+              <div class="answer-label">W&amp;B Status</div>
+              <div class="answer-value"><span id="wbStatus">LIMITS NOT SET</span></div>
+              <div class="answer-sub">Uses optional data-max-weight, data-min-cg and data-max-cg attributes on the W&amp;B table</div>
             </div>
           </div>
         </div>
@@ -1361,105 +1337,105 @@
       <section class="screen" id="screen-tools">
         <div class="calc-shell">
           <div class="tabs-row">
-            <button class="tab-btn active" data-tab="tools-conv">Converters</button>
+            <button class="tab-btn active" data-tab="tools-speed">Speed</button>
+            <button class="tab-btn" data-tab="tools-distance">Distance</button>
+            <button class="tab-btn" data-tab="tools-mass">Mass</button>
+            <button class="tab-btn" data-tab="tools-temp">Temp</button>
             <button class="tab-btn" data-tab="tools-timer">Timer</button>
             <button class="tab-btn" data-tab="tools-notes">Notes</button>
           </div>
 
-          <div class="tab-content active" id="tab-tools-conv">
-            <div class="stack">
-              <div>
-                <div class="section-title">Speed Converter</div>
-                <div class="field-list">
-                  <div class="field-row">
-                    <div class="field-label">Speed</div>
-                    <input class="field-value" id="spdKt" type="number" step="any" placeholder="0">
-                    <div class="field-unit">kt</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Speed</div>
-                    <input class="field-value" id="spdKmh" type="number" step="any" placeholder="0">
-                    <div class="field-unit">km/h</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Speed</div>
-                    <input class="field-value" id="spdMph" type="number" step="any" placeholder="0">
-                    <div class="field-unit">mph</div>
-                  </div>
-                </div>
+          <div class="tab-content active" id="tab-tools-speed">
+            <div class="section-title">Speed Converter</div>
+            <div class="field-list">
+              <div class="field-row">
+                <div class="field-label">Knots</div>
+                <input class="field-value" id="spdKt" type="number" step="any" placeholder="0">
+                <div class="field-unit">kt</div>
               </div>
-
-              <div>
-                <div class="section-title">Distance Converter</div>
-                <div class="field-list">
-                  <div class="field-row">
-                    <div class="field-label">Distance</div>
-                    <input class="field-value" id="dstNm" type="number" step="any" placeholder="0">
-                    <div class="field-unit">NM</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Distance</div>
-                    <input class="field-value" id="dstKm" type="number" step="any" placeholder="0">
-                    <div class="field-unit">km</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Distance</div>
-                    <input class="field-value" id="dstSm" type="number" step="any" placeholder="0">
-                    <div class="field-unit">sm</div>
-                  </div>
-                </div>
+              <div class="field-row">
+                <div class="field-label">km/h</div>
+                <input class="field-value" id="spdKmh" type="number" step="any" placeholder="0">
+                <div class="field-unit">km/h</div>
               </div>
-
-              <div>
-                <div class="section-title">Mass / Volume</div>
-                <div class="field-list">
-                  <div class="field-row">
-                    <div class="field-label">Mass</div>
-                    <input class="field-value" id="massKg" type="number" step="any" placeholder="0">
-                    <div class="field-unit">kg</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Mass</div>
-                    <input class="field-value" id="massLbs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">lb</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Volume</div>
-                    <input class="field-value" id="volL" type="number" step="any" placeholder="0">
-                    <div class="field-unit">L</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Volume</div>
-                    <input class="field-value" id="volUs" type="number" step="any" placeholder="0">
-                    <div class="field-unit">USG</div>
-                  </div>
-                </div>
+              <div class="field-row">
+                <div class="field-label">mph</div>
+                <input class="field-value" id="spdMph" type="number" step="any" placeholder="0">
+                <div class="field-unit">mph</div>
               </div>
+            </div>
+          </div>
 
-              <div>
-                <div class="section-title">Temperature</div>
-                <div class="field-list">
-                  <div class="field-row">
-                    <div class="field-label">Temp</div>
-                    <input class="field-value" id="tmpC" type="number" step="any" placeholder="0">
-                    <div class="field-unit">°C</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Temp</div>
-                    <input class="field-value" id="tmpF" type="number" step="any" placeholder="0">
-                    <div class="field-unit">°F</div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-label">Temp</div>
-                    <input class="field-value" id="tmpK" type="number" step="any" placeholder="0">
-                    <div class="field-unit">K</div>
-                  </div>
-                </div>
+          <div class="tab-content" id="tab-tools-distance">
+            <div class="section-title">Distance Converter</div>
+            <div class="field-list">
+              <div class="field-row">
+                <div class="field-label">NM</div>
+                <input class="field-value" id="dstNm" type="number" step="any" placeholder="0">
+                <div class="field-unit">NM</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">km</div>
+                <input class="field-value" id="dstKm" type="number" step="any" placeholder="0">
+                <div class="field-unit">km</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">sm</div>
+                <input class="field-value" id="dstSm" type="number" step="any" placeholder="0">
+                <div class="field-unit">sm</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-tools-mass">
+            <div class="section-title">Mass / Volume</div>
+            <div class="field-list">
+              <div class="field-row">
+                <div class="field-label">kg</div>
+                <input class="field-value" id="massKg" type="number" step="any" placeholder="0">
+                <div class="field-unit">kg</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">lb</div>
+                <input class="field-value" id="massLbs" type="number" step="any" placeholder="0">
+                <div class="field-unit">lb</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">Liters</div>
+                <input class="field-value" id="volL" type="number" step="any" placeholder="0">
+                <div class="field-unit">L</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">US Gal</div>
+                <input class="field-value" id="volUs" type="number" step="any" placeholder="0">
+                <div class="field-unit">gal</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-tools-temp">
+            <div class="section-title">Temperature Converter</div>
+            <div class="field-list">
+              <div class="field-row">
+                <div class="field-label">°C</div>
+                <input class="field-value" id="tmpC" type="number" step="any" placeholder="0">
+                <div class="field-unit">°C</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">°F</div>
+                <input class="field-value" id="tmpF" type="number" step="any" placeholder="32">
+                <div class="field-unit">°F</div>
+              </div>
+              <div class="field-row">
+                <div class="field-label">K</div>
+                <input class="field-value" id="tmpK" type="number" step="any" placeholder="273.15">
+                <div class="field-unit">K</div>
               </div>
             </div>
           </div>
 
           <div class="tab-content" id="tab-tools-timer">
+            <div class="section-title">Cockpit Timer</div>
             <div class="timer-card">
               <div class="timer-display" id="timerDisplay">00:00:00</div>
               <div class="timer-actions">
@@ -1471,8 +1447,9 @@
           </div>
 
           <div class="tab-content" id="tab-tools-notes">
+            <div class="section-title">Notes</div>
             <div class="notes-wrap">
-              <textarea class="notes-box" id="notesBox" placeholder="Flight notes..."></textarea>
+              <textarea class="notes-box" id="notesBox" placeholder="Write your notes here..."></textarea>
               <div class="notes-actions">
                 <button class="note-btn note-save" id="notesSave">Save</button>
                 <button class="note-btn note-copy" id="notesCopy">Copy</button>
@@ -1485,23 +1462,23 @@
 
       <section class="screen" id="screen-system">
         <div class="calc-shell">
-          <div class="section-title">Quick Utility Overview</div>
+          <div class="section-title">System Pages</div>
           <div class="tool-grid">
             <div class="tool-card">
-              <div class="tool-label">Flight</div>
-              <div class="tool-value">GS / ETE / WCA / HDG</div>
+              <div class="tool-label">Fuel</div>
+              <div class="tool-value">Mass, required, endurance</div>
             </div>
             <div class="tool-card">
-              <div class="tool-label">Fuel</div>
-              <div class="tool-value">Mass / Required / Endurance</div>
+              <div class="tool-label">Flight</div>
+              <div class="tool-value">GS, PNR, TOD</div>
             </div>
             <div class="tool-card">
               <div class="tool-label">Atmosphere</div>
-              <div class="tool-value">DA / QNH / TAS Approx</div>
+              <div class="tool-value">DA, QNH, TAS</div>
             </div>
             <div class="tool-card">
               <div class="tool-label">Safety</div>
-              <div class="tool-value">Wind / W&amp;B / PNR / TOD</div>
+              <div class="tool-value">Wind, W&amp;B</div>
             </div>
           </div>
         </div>
@@ -1509,8 +1486,8 @@
 
       <nav class="tabbar">
         <button class="tab active" data-screen="menu">
-          <svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-          <span>Menu</span>
+          <svg viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
+          <span>Home</span>
           <div class="dot"></div>
         </button>
         <button class="tab" data-screen="fuel">
@@ -1554,169 +1531,168 @@
 
   <script>
     (function(){
-      'use strict';
+      function $(sel){ return document.querySelector(sel); }
+      function $$(sel){ return Array.from(document.querySelectorAll(sel)); }
 
-      var $ = function(s){ return document.querySelector(s); };
-      var $$ = function(s){ return [].slice.call(document.querySelectorAll(s)); };
-
-      function num(v){
-        if(v === null || v === undefined) return null;
-        var s = String(v).trim().replace(',', '.');
-        if(s === '') return null;
-        var n = Number(s);
-        return isFinite(n) ? n : null;
-      }
-
-      function setText(id, val){
-        var el = $(id);
-        if(el) el.textContent = val;
-      }
-
-      function setValue(id, val){
-        var el = $(id);
-        if(el) el.value = val;
-      }
-
-      function clampHeading(v){
-        if(v === null || !isFinite(v)) return null;
-        return ((v % 360) + 360) % 360;
-      }
-
-      function normalize180(v){
-        v = clampHeading(v);
-        if(v === null) return null;
-        return v > 180 ? v - 360 : v;
-      }
-
-      function degRad(d){ return d * Math.PI / 180; }
-      function radDeg(r){ return r * 180 / Math.PI; }
-
-      function fmtTime(h){
-        if(h === null || !isFinite(h) || h < 0) return '-';
-        var totalMinutes = Math.round(h * 60);
-        var hr = Math.floor(totalMinutes / 60);
-        var mn = totalMinutes % 60;
-        return String(hr).padStart(2,'0') + ':' + String(mn).padStart(2,'0');
-      }
-
-      function validPositive(v){ return v !== null && v > 0; }
-      function validNonNegative(v){ return v !== null && v >= 0; }
-      function validHeading(v){ return v !== null && v >= 0 && v <= 360; }
-
-      var bgClasses = {
-        menu:'bg-menu',
-        fuel:'bg-fuel',
-        cost:'bg-cost',
-        flight:'bg-flight',
-        atmo:'bg-atmo',
-        safety:'bg-safety',
-        tools:'bg-tools',
-        system:'bg-system'
+      var screenConfig = {
+        menu:{ title:'Aviation Pro', bg:'bg-menu' },
+        fuel:{ title:'Fuel', bg:'bg-fuel' },
+        cost:{ title:'Cost', bg:'bg-cost' },
+        flight:{ title:'Flight', bg:'bg-flight' },
+        atmo:{ title:'Atmosphere', bg:'bg-atmo' },
+        safety:{ title:'Safety', bg:'bg-safety' },
+        tools:{ title:'Tools', bg:'bg-tools' },
+        system:{ title:'System', bg:'bg-system' }
       };
 
-      function showScreen(id){
+      function showScreen(name){
         $$('.screen').forEach(function(s){ s.classList.remove('active'); });
-        $$('.tabbar .tab').forEach(function(t){ t.classList.remove('active'); });
+        var target = $('#screen-' + name);
+        if(target) target.classList.add('active');
 
-        var scr = $('#screen-' + id);
-        if(scr) scr.classList.add('active');
+        $$('.tabbar .tab').forEach(function(t){
+          t.classList.toggle('active', t.dataset.screen === name);
+        });
 
-        var tab = $('.tabbar .tab[data-screen="' + id + '"]');
-        if(tab) tab.classList.add('active');
-
-        if($('#topTitle')){
-          $('#topTitle').textContent = id === 'menu' ? 'Aviation Pro' : id.charAt(0).toUpperCase() + id.slice(1);
-        }
-        if($('#backBtn')){
-          $('#backBtn').style.visibility = id === 'menu' ? 'hidden' : 'visible';
-        }
-
-        var bg = $('#bgLayer');
-        if(bg){
-          Object.keys(bgClasses).forEach(function(k){ bg.classList.remove(bgClasses[k]); });
-          if(bgClasses[id]) bg.classList.add(bgClasses[id]);
-        }
+        var cfg = screenConfig[name] || screenConfig.menu;
+        $('#topTitle').textContent = cfg.title;
+        $('#bgLayer').className = 'bg ' + cfg.bg;
+        $('#backBtn').style.visibility = name === 'menu' ? 'hidden' : 'visible';
       }
 
-      function setupTabs(container){
-        container.addEventListener('click', function(e){
-          var btn = e.target.closest('.tab-btn');
-          if(!btn) return;
+      function setupTabs(row){
+        var buttons = Array.from(row.querySelectorAll('.tab-btn'));
+        buttons.forEach(function(btn){
+          btn.addEventListener('click', function(){
+            buttons.forEach(function(b){ b.classList.remove('active'); });
+            btn.classList.add('active');
 
-          container.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-          btn.classList.add('active');
-
-          var shell = container.closest('.calc-shell');
-          if(!shell) return;
-
-          shell.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
-
-          var tab = $('#tab-' + btn.dataset.tab);
-          if(tab) tab.classList.add('active');
+            var shell = row.parentElement;
+            shell.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
+            var tab = shell.querySelector('#tab-' + btn.dataset.tab);
+            if(tab) tab.classList.add('active');
+          });
         });
       }
 
-      function updateClock(){
-        var n = new Date();
-        if($('#clockDisplay')){
-          $('#clockDisplay').textContent =
-            String(n.getUTCHours()).padStart(2,'0') + ':' +
-            String(n.getUTCMinutes()).padStart(2,'0') + 'Z';
-        }
+      function fmtTime(hours){
+        if(!isFinite(hours) || hours < 0) return '-';
+        var totalMin = Math.round(hours * 60);
+        var h = Math.floor(totalMin / 60);
+        var m = totalMin % 60;
+        return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
       }
 
-      var FUEL = {
-        jeta1:{ density15:0.800, alpha:0.00099 },
-        jeta: { density15:0.804, alpha:0.00098 },
-        avgas:{ density15:0.721, alpha:0.00125 }
-      };
+      function clampHeading(v){
+        if(!isFinite(v)) return 0;
+        v = Math.round(v);
+        while(v < 1) v += 360;
+        while(v > 360) v -= 360;
+        return v;
+      }
+
+      function normalize180(v){
+        if(!isFinite(v)) return 0;
+        v = ((v % 360) + 360) % 360;
+        if(v > 180) v -= 360;
+        return v;
+      }
+
+      function setText(sel, text){
+        var el = $(sel);
+        if(el) el.textContent = text;
+      }
+
+      function setValue(sel, value){
+        var el = $(sel);
+        if(el) el.value = value;
+      }
+
+      function num(v){
+        if(v === '' || v === null || typeof v === 'undefined') return null;
+        var n = parseFloat(v);
+        return isFinite(n) ? n : null;
+      }
+
+      function validPositive(v){
+        return typeof v === 'number' && isFinite(v) && v > 0;
+      }
+
+      function updateClock(){
+        var d = new Date();
+        setText('#clockDisplay',
+          String(d.getUTCHours()).padStart(2,'0') + ':' +
+          String(d.getUTCMinutes()).padStart(2,'0') + 'Z'
+        );
+      }
+
+      function fuelDensity(type, tempC){
+        var t = typeof tempC === 'number' ? tempC : 15;
+        var table = {
+          jeta1: { base:0.804, slope:0.00064 },
+          jeta:  { base:0.800, slope:0.00064 },
+          avgas: { base:0.720, slope:0.00095 }
+        };
+        var d = table[type] || table.jeta1;
+        return d.base - d.slope * (t - 15);
+      }
 
       function calcFuel(){
-        var t = $('#fuelType').value;
-        var v = num($('#fuelVol').value);
+        var type = $('#fuelType').value;
+        var vol = num($('#fuelVol').value);
         var temp = num($('#fuelTemp').value);
-
-        if(!validPositive(v)){
+        if(!validPositive(vol)){
           setText('#fuelMass','-');
           setText('#fuelLbs','-');
           setText('#fuelUsg','-');
           setText('#fuelImp','-');
           return;
         }
+        var dens = fuelDensity(type, temp);
+        var mass = vol * dens;
+        setText('#fuelMass', mass.toFixed(1));
+        setText('#fuelLbs', (mass * 2.20462).toFixed(1));
+        setText('#fuelUsg', (vol * 0.264172).toFixed(1));
+        setText('#fuelImp', (vol * 0.219969).toFixed(1));
+      }
 
-        if(temp !== null && (temp < -60 || temp > 60)){
-          setText('#fuelMass','-');
-          setText('#fuelLbs','-');
-          setText('#fuelUsg','-');
-          setText('#fuelImp','-');
+      function calcFuelReq(){
+        var gs = num($('#freqGs').value);
+        var dist = num($('#freqDist').value);
+        var flow = num($('#freqFlow').value);
+        var res = num($('#freqRes').value);
+        if(!validPositive(gs) || !validPositive(dist) || !validPositive(flow) || res === null || res < 0){
+          setText('#freqTotal','-');
+          setText('#freqTrip','-');
+          setText('#freqReserve','-');
+          setText('#freqTime','-');
           return;
         }
+        var time = dist / gs;
+        var trip = time * flow;
+        var total = trip + res;
+        setText('#freqTotal', total.toFixed(1));
+        setText('#freqTrip', trip.toFixed(1));
+        setText('#freqReserve', res.toFixed(1));
+        setText('#freqTime', fmtTime(time));
+      }
 
-        var fuel = FUEL[t] || FUEL.jeta1;
-        var refTemp = temp === null ? 15 : temp;
-        var density = fuel.density15 / (1 + fuel.alpha * (refTemp - 15));
-
-        if(!isFinite(density) || density <= 0){
-          setText('#fuelMass','-');
-          setText('#fuelLbs','-');
-          setText('#fuelUsg','-');
-          setText('#fuelImp','-');
+      function calcEndurance(){
+        var fuel = num($('#endFuel').value);
+        var flow = num($('#endFlow').value);
+        if(!validPositive(fuel) || !validPositive(flow)){
+          setText('#endTime','-');
           return;
         }
-
-        var kg = v * density;
-        setText('#fuelMass', Math.round(kg));
-        setText('#fuelLbs', Math.round(kg * 2.20462));
-        setText('#fuelUsg', (v * 0.264172).toFixed(1));
-        setText('#fuelImp', (v * 0.219969).toFixed(1));
+        setText('#endTime', fmtTime(fuel / flow));
       }
 
       function calcCost(){
-        var f = num($('#costFlow').value);
-        var p = num($('#costPrice').value);
-        var g = num($('#costGs').value);
+        var flow = num($('#costFlow').value);
+        var price = num($('#costPrice').value);
+        var gs = num($('#costGs').value);
 
-        if(!validPositive(f) || !validPositive(p)){
+        if(!validPositive(flow) || !validPositive(price)){
           setText('#costHour','-');
           setText('#costMin','-');
           setText('#costNm','-');
@@ -1724,27 +1700,27 @@
           return;
         }
 
-        var cph = f * p;
-        setText('#costHour', cph.toFixed(2));
-        setText('#costMin', (cph / 60).toFixed(2));
+        var perHour = flow * price;
+        setText('#costHour', perHour.toFixed(2));
+        setText('#costMin', (perHour / 60).toFixed(2));
 
-        if(validPositive(g)){
-          setText('#costNm', '$' + (cph / g).toFixed(3));
-          setText('#cost100', '$' + ((cph / g) * 100).toFixed(2));
+        if(validPositive(gs)){
+          setText('#costNm', (perHour / gs).toFixed(2));
+          setText('#cost100', ((perHour / gs) * 100).toFixed(2));
         } else {
-          setText('#costNm', '-');
-          setText('#cost100', '-');
+          setText('#costNm','-');
+          setText('#cost100','-');
         }
       }
 
       function calcFlightBasic(){
         var tas = num($('#flightTas').value);
         var dist = num($('#flightDist').value);
-        var crsRaw = num($('#flightCrs').value);
-        var wdirRaw = num($('#flightWdir').value);
+        var crs = num($('#flightCrs').value);
+        var wdir = num($('#flightWdir').value);
         var wspd = num($('#flightWspd').value);
 
-        if(!validPositive(tas) || !validPositive(dist) || !validHeading(crsRaw)){
+        if(!validPositive(tas) || !validPositive(dist) || crs === null || wdir === null || wspd === null || wspd < 0){
           setText('#flightGs','-');
           setText('#flightEte','-');
           setText('#flightWca','-');
@@ -1752,17 +1728,13 @@
           return;
         }
 
-        var crs = clampHeading(crsRaw);
+        var rel = normalize180(wdir - crs);
+        var relRad = rel * Math.PI / 180;
+        var cross = wspd * Math.sin(relRad);
+        var head = wspd * Math.cos(relRad);
 
-        if(wdirRaw === null && wspd === null){
-          setText('#flightGs', tas.toFixed(0));
-          setText('#flightEte', fmtTime(dist / tas));
-          setText('#flightWca', '0.0°');
-          setText('#flightHdg', Math.round(crs) + '°');
-          return;
-        }
-
-        if(!validHeading(wdirRaw) || !validNonNegative(wspd)){
+        var ratio = cross / tas;
+        if(ratio > 1 || ratio < -1){
           setText('#flightGs','-');
           setText('#flightEte','-');
           setText('#flightWca','-');
@@ -1770,75 +1742,21 @@
           return;
         }
 
-        var wdir = clampHeading(wdirRaw);
-        var beta = degRad(normalize180(wdir - crs));
-        var cross = wspd * Math.sin(beta);
-        var headwind = wspd * Math.cos(beta);
-
-        if(Math.abs(cross) > tas){
-          setText('#flightGs','-');
-          setText('#flightEte','-');
-          setText('#flightWca','-');
-          setText('#flightHdg','-');
-          return;
-        }
-
-        var wca = radDeg(Math.asin(cross / tas));
-        var hdg = clampHeading(crs + wca);
-        var gs = tas * Math.cos(degRad(wca)) - headwind;
+        var wca = Math.asin(ratio) * 180 / Math.PI;
+        var gs = tas * Math.cos(wca * Math.PI / 180) - head;
 
         if(!isFinite(gs) || gs <= 0){
           setText('#flightGs','-');
           setText('#flightEte','-');
-          setText('#flightWca', (wca >= 0 ? '+' : '') + wca.toFixed(1) + '°');
-          setText('#flightHdg', Math.round(hdg) + '°');
+          setText('#flightWca','-');
+          setText('#flightHdg','-');
           return;
         }
 
-        setText('#flightGs', gs.toFixed(0));
+        setText('#flightGs', gs.toFixed(1));
         setText('#flightEte', fmtTime(dist / gs));
-        setText('#flightWca', (wca >= 0 ? '+' : '') + wca.toFixed(1) + '°');
-        setText('#flightHdg', Math.round(hdg) + '°');
-      }
-
-      function calcFuelReq(){
-        var gs = num($('#freqGs').value);
-        var dist = num($('#freqDist').value);
-        var flow = num($('#freqFlow').value);
-        var reserve = num($('#freqRes').value);
-
-        if(!validPositive(gs) || !validPositive(dist) || !validPositive(flow) || (reserve !== null && reserve < 0)){
-          setText('#freqTrip','-');
-          setText('#freqResOut','-');
-          setText('#freqTotal','-');
-          setText('#freqTime','-');
-          return;
-        }
-
-        reserve = reserve === null ? 0 : reserve;
-        var time = dist / gs;
-        var trip = time * flow;
-        var total = trip + reserve;
-
-        setText('#freqTrip', trip.toFixed(1));
-        setText('#freqResOut', reserve.toFixed(1));
-        setText('#freqTotal', total.toFixed(1));
-        setText('#freqTime', fmtTime(time));
-      }
-
-      function calcEndurance(){
-        var fuel = num($('#endFuel').value);
-        var flow = num($('#endFlow').value);
-
-        if(!validPositive(fuel) || !validPositive(flow)){
-          setText('#endTime','-');
-          setText('#endDecimal','-');
-          return;
-        }
-
-        var end = fuel / flow;
-        setText('#endTime', fmtTime(end));
-        setText('#endDecimal', end.toFixed(2) + ' h');
+        setText('#flightWca', normalize180(wca).toFixed(1) + '°');
+        setText('#flightHdg', clampHeading(crs + wca) + '°');
       }
 
       function calcDensityAltitude(){
@@ -1846,22 +1764,15 @@
         var oat = num($('#atmoOat').value);
         var qnh = num($('#atmoQnh').value);
 
-        if(elev === null || oat === null || qnh === null || qnh < 850 || qnh > 1100 || oat < -80 || oat > 60){
+        if(elev === null || oat === null || !validPositive(qnh)){
           setText('#atmoDa','-');
-          setText('#atmoPa','-');
-          setText('#atmoIsa','-');
-          setText('#atmoDev','-');
           return;
         }
 
-        var pa = elev + (1013.25 - qnh) * 27;
-        var isa = 15 - (2 * pa / 1000);
-        var dev = oat - isa;
-        var da = pa + 120 * dev;
+        var pressureAlt = elev + (1013.25 - qnh) * 30;
+        var isaTemp = 15 - (pressureAlt / 1000) * 2;
+        var da = pressureAlt + 120 * (oat - isaTemp);
 
-        setText('#atmoPa', pa.toFixed(0));
-        setText('#atmoIsa', isa.toFixed(1) + '°C');
-        setText('#atmoDev', (dev >= 0 ? '+' : '') + dev.toFixed(1) + '°C');
         setText('#atmoDa', da.toFixed(0));
       }
 
@@ -1869,32 +1780,29 @@
 
       function syncQnh(source){
         if(qnhSyncLock) return;
-
-        var hpa = num($('#qnhHpa').value);
-        var inhg = num($('#qnhInhg').value);
-        var mmhg = num($('#qnhMmhg').value);
-
         qnhSyncLock = true;
+
         try{
-          if(source === 'hpa'){
-            if(hpa !== null && hpa > 0){
-              setValue('#qnhInhg', (hpa * 0.0295299831).toFixed(2));
-              setValue('#qnhMmhg', (hpa * 0.750061683).toFixed(1));
-            }
-          } else if(source === 'inhg'){
-            if(inhg !== null && inhg > 0){
-              var H = inhg / 0.0295299831;
-              setValue('#qnhHpa', H.toFixed(2));
-              setValue('#qnhMmhg', (H * 0.750061683).toFixed(1));
-            }
-          } else if(source === 'mmhg'){
-            if(mmhg !== null && mmhg > 0){
-              var H2 = mmhg / 0.750061683;
-              setValue('#qnhHpa', H2.toFixed(2));
-              setValue('#qnhInhg', (H2 * 0.0295299831).toFixed(2));
-            }
+          var hpa = num($('#qnhHpa').value);
+          var inhg = num($('#qnhInhg').value);
+          var mmhg = num($('#qnhMmhg').value);
+          var base = null;
+
+          if(source === 'hpa' && validPositive(hpa)) base = hpa;
+          if(source === 'inhg' && validPositive(inhg)) base = inhg * 33.8638866667;
+          if(source === 'mmhg' && validPositive(mmhg)) base = mmhg * 1.33322387415;
+
+          if(!validPositive(base)) return;
+
+          if(source !== 'hpa'){
+            setValue('#qnhHpa', base.toFixed(2));
           }
-          setText('#qnhHpaMirror', ($('#qnhHpa').value || '') + ' hPa');
+          if(source !== 'inhg'){
+            setValue('#qnhInhg', (base / 33.8638866667).toFixed(2));
+          }
+          if(source !== 'mmhg'){
+            setValue('#qnhMmhg', (base / 1.33322387415).toFixed(1));
+          }
         } finally {
           qnhSyncLock = false;
         }
@@ -1905,128 +1813,100 @@
         var alt = num($('#tasAlt').value);
         var oat = num($('#tasOat').value);
 
-        if(!validPositive(ias) || alt === null || oat === null || alt < -1000 || alt > 45000){
+        if(!validPositive(ias) || alt === null || oat === null){
           setText('#tasOut','-');
-          setText('#tasNote','Approximation for quick flight planning');
           return;
         }
 
-        var theta = (oat + 273.15) / 288.15;
-        var delta = Math.pow(1 - 6.8755856e-6 * alt, 5.2558797);
-        var sigma = delta / theta;
-
-        if(!isFinite(sigma) || sigma <= 0){
-          setText('#tasOut','-');
-          setText('#tasNote','Approximation for quick flight planning');
-          return;
-        }
-
-        var tas = ias / Math.sqrt(sigma);
-
-        if(!isFinite(tas) || tas <= 0){
-          setText('#tasOut','-');
-          setText('#tasNote','Approximation for quick flight planning');
-          return;
-        }
-
-        setText('#tasOut', tas.toFixed(0));
-        setText('#tasNote', 'IAS≈CAS/EAS');
+        var tas = ias * (1 + (alt / 1000) * 0.02);
+        setText('#tasOut', tas.toFixed(1));
       }
 
       function calcWind(){
-        var rwyRaw = num($('#windRwy').value);
-        var dirRaw = num($('#windDir').value);
+        var rwy = num($('#windRwy').value);
+        var dir = num($('#windDir').value);
         var spd = num($('#windSpd').value);
 
-        if(!validHeading(rwyRaw) || !validHeading(dirRaw) || !validNonNegative(spd)){
-          setText('#windCross','-');
+        if(rwy === null || dir === null || spd === null || spd < 0){
           setText('#windHead','-');
-          setText('#windTail','-');
+          setText('#windCross','-');
+          setText('#windSide','-');
           return;
         }
 
-        var rwy = clampHeading(rwyRaw);
-        var dir = clampHeading(dirRaw);
-        var angle = degRad(normalize180(dir - rwy));
-        var cross = Math.abs(spd * Math.sin(angle));
-        var hw = spd * Math.cos(angle);
-        var head = hw > 0 ? hw : 0;
-        var tail = hw < 0 ? Math.abs(hw) : 0;
+        var rel = normalize180(dir - rwy);
+        var rad = rel * Math.PI / 180;
+        var head = spd * Math.cos(rad);
+        var cross = spd * Math.sin(rad);
 
-        setText('#windCross', cross.toFixed(1) + ' KT');
-        setText('#windHead', head.toFixed(1) + ' KT');
-        setText('#windTail', tail.toFixed(1) + ' KT');
+        setText('#windHead', (Math.abs(head)).toFixed(1) + (head >= 0 ? ' HW' : ' TW'));
+        setText('#windCross', Math.abs(cross).toFixed(1) + ' kt');
+        setText('#windSide', cross >= 0 ? 'R' : 'L');
 
-        if($('#compassRunway')) $('#compassRunway').style.transform = 'translate(-50%,-100%) rotate(' + rwy + 'deg)';
-        if($('#compassWind')) $('#compassWind').style.transform = 'translate(-50%,-100%) rotate(' + dir + 'deg)';
+        $('#compassRunway').style.transform = 'translate(-50%,-100%) rotate(' + clampHeading(rwy) + 'deg)';
+        $('#compassWind').style.transform = 'translate(-50%,-100%) rotate(' + clampHeading(dir) + 'deg)';
       }
 
       function calcWB(){
         var rows = $$('.wb-row');
         var totalW = 0;
         var totalM = 0;
-        var hasAny = false;
-        var invalid = false;
+        var hasInvalid = false;
 
         rows.forEach(function(row){
-          var wEl = row.querySelector('[data-wb="weight"]');
-          var aEl = row.querySelector('[data-wb="arm"]');
-          var mEl = row.querySelector('[data-wb="moment"]');
-          var w = num(wEl && wEl.value);
-          var a = num(aEl && aEl.value);
+          var w = num(row.querySelector('.wb-weight').value);
+          var a = num(row.querySelector('.wb-arm').value);
+          var momentCell = row.querySelector('.wb-moment');
 
           if(w === null && a === null){
-            if(mEl) mEl.textContent = '-';
+            momentCell.textContent = '-';
             return;
           }
 
-          hasAny = true;
-
-          if(!validNonNegative(w) || a === null){
-            invalid = true;
-            if(mEl) mEl.textContent = '-';
+          if(w === null || a === null || w < 0){
+            momentCell.textContent = '-';
+            hasInvalid = true;
             return;
           }
 
           var m = w * a;
-          if(mEl) mEl.textContent = m.toFixed(0);
           totalW += w;
           totalM += m;
+          momentCell.textContent = m.toFixed(1);
         });
 
-        if(invalid || !hasAny || totalW <= 0){
-          setText('#wbTotalWeight','-');
-          setText('#wbTotalMoment','-');
+        if(hasInvalid){
+          setText('#wbTotalW','-');
+          setText('#wbTotalM','-');
           setText('#wbCg','-');
-          setText('#wbStatus','Total moment based on entered station weights and arms');
+          setText('#wbStatus','INVALID INPUT');
+          return;
+        }
+
+        setText('#wbTotalW', totalW.toFixed(1));
+        setText('#wbTotalM', totalM.toFixed(1));
+
+        if(totalW <= 0){
+          setText('#wbCg','-');
+          setText('#wbStatus','INVALID INPUT');
           return;
         }
 
         var cg = totalM / totalW;
-        setText('#wbTotalWeight', totalW.toFixed(1));
-        setText('#wbTotalMoment', totalM.toFixed(0));
         setText('#wbCg', cg.toFixed(2));
 
         var table = $('#wbTable');
-        var maxWeight = num(table && table.dataset.maxWeight);
-        var minCg = num(table && table.dataset.minCg);
-        var maxCg = num(table && table.dataset.maxCg);
+        var maxWeight = num(table.dataset.maxWeight);
+        var minCg = num(table.dataset.minCg);
+        var maxCg = num(table.dataset.maxCg);
 
         if(maxWeight === null || minCg === null || maxCg === null){
-          setText('#wbStatus','Limits not set. To enable control, fill data-max-weight, data-min-cg, data-max-cg on #wbTable.');
+          setText('#wbStatus', 'LIMITS NOT SET');
           return;
         }
 
-        var problems = [];
-        if(totalW > maxWeight) problems.push('weight over max');
-        if(cg < minCg) problems.push('CG forward of limit');
-        if(cg > maxCg) problems.push('CG aft of limit');
-
-        if(problems.length){
-          setText('#wbStatus', 'OUT OF LIMITS: ' + problems.join(', '));
-        } else {
-          setText('#wbStatus', 'IN LIMITS');
-        }
+        var inLimits = totalW <= maxWeight && cg >= minCg && cg <= maxCg;
+        setText('#wbStatus', inLimits ? 'IN LIMITS' : 'OUT OF LIMITS');
       }
 
       function calcPNR(){
@@ -2041,7 +1921,7 @@
         }
 
         var pnrTime = (end * retGs) / (outGs + retGs);
-        var pnrDist = pnrTime * outGs;
+        var pnrDist = outGs * pnrTime;
 
         if(!isFinite(pnrTime) || pnrTime < 0 || !isFinite(pnrDist) || pnrDist < 0){
           setText('#pnrTime','-');
@@ -2067,7 +1947,7 @@
         var nmPerMin = gs / 60;
         var dist = timeMin * nmPerMin;
 
-        if(!isFinite(dist) || dist < 0){
+        if(!isFinite(timeMin) || timeMin < 0 || !isFinite(nmPerMin) || nmPerMin < 0 || !isFinite(dist) || dist < 0){
           setText('#todDist','-');
           return;
         }
@@ -2204,6 +2084,46 @@
         renderTimer();
       }
 
+      function fallbackCopyText(box){
+        var active = document.activeElement;
+        var start = typeof box.selectionStart === 'number' ? box.selectionStart : null;
+        var end = typeof box.selectionEnd === 'number' ? box.selectionEnd : null;
+        var ok = false;
+
+        try{
+          box.focus();
+          box.select();
+          ok = document.execCommand('copy');
+        } catch(err){
+          ok = false;
+        }
+
+        if(start !== null && end !== null){
+          box.setSelectionRange(start, end);
+        }
+        if(active && typeof active.focus === 'function' && active !== box){
+          active.focus();
+        }
+
+        return ok;
+      }
+
+      async function notesCopy(){
+        var box = $('#notesBox');
+        if(!box) return false;
+
+        var text = box.value || '';
+
+        if(navigator.clipboard && window.isSecureContext){
+          try{
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch(err){}
+        }
+
+        return fallbackCopyText(box);
+      }
+
       function initNotes(){
         var box = $('#notesBox');
         if(!box) return;
@@ -2214,20 +2134,8 @@
           localStorage.setItem('aviation_pro_notes', box.value);
         });
 
-        $('#notesCopy').addEventListener('click', async function(){
-          try{
-            if(navigator.clipboard && window.isSecureContext){
-              await navigator.clipboard.writeText(box.value || '');
-            } else {
-              box.focus();
-              box.select();
-              document.execCommand('copy');
-            }
-          } catch(err){
-            box.focus();
-            box.select();
-            document.execCommand('copy');
-          }
+        $('#notesCopy').addEventListener('click', function(){
+          notesCopy();
         });
 
         $('#notesClear').addEventListener('click', function(){
