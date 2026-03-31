@@ -17,12 +17,6 @@
   --green:#43c463;
   --blue:#3b82f6;
   --orange:#ff9f0a;
-  --shadow:0 20px 50px rgba(0,0,0,.25);
-  --shadow-soft:0 8px 18px rgba(0,0,0,.10);
-  --radius-xl:24px;
-  --radius-lg:20px;
-  --radius-md:16px;
-  --radius-sm:12px;
   --header-h:64px;
   --tabbar-h:82px;
   --content-max:760px
@@ -38,22 +32,20 @@ body{
 .bg{
   position:fixed;inset:0;z-index:-3;
   background-size:cover;background-position:center;
-  transform:scale(1.04);
-  filter:saturate(.90) brightness(.48);
   transition:background-image 0.5s ease
 }
 .bg::after{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(6,11,20,.30) 0%,rgba(6,11,20,.56) 34%,rgba(6,11,20,.76) 100%)
+  background:linear-gradient(180deg,rgba(6,11,20,.15) 0%,rgba(6,11,20,.35) 50%,rgba(6,11,20,.65) 100%)
 }
-.bg-menu{background-image:url('https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=1200')}
-.bg-fuel{background-image:url('https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=1200')}
-.bg-cost{background-image:url('https://images.unsplash.com/photo-1559628233-100c798642d4?w=1200')}
-.bg-flight{background-image:url('https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=1200')}
-.bg-atmo{background-image:url('https://images.unsplash.com/photo-1436891620584-47fd0e565afb?w=1200')}
-.bg-safety{background-image:url('https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=1200')}
-.bg-tools{background-image:url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200')}
-.bg-system{background-image:url('https://images.unsplash.com/photo-1559628233-100c798642d4?w=1200')}
+.bg-menu{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-Ez889A91dg8W5kQDhf2mvwFJdMrg58.webp')}
+.bg-fuel{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/istockphoto-1053505692-612x612-VkvezcjUzqFCZ6bhwOpgU24Wjy3MUj.jpg')}
+.bg-cost{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-sIMtD1RlziEl1Oih0ZfS7f6XoyjBQu.jpg')}
+.bg-flight{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1521722685154115526-2UsZXMr3sFh5xPg1YgmY8DiE4goAm3.jpg')}
+.bg-atmo{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kabina-Airbus-A380-600x320-LPLi9CDKC6lmGaQzhW2kRgyC01Wn7w.jpg')}
+.bg-safety{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Kabina-pilotov-A319-yWCHxgcCU7MgUCdNZFvtjiNdtCHjiZ.jpg')}
+.bg-tools{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2023-11-21_02-13-56-1skru2MqtcsuqEmh5U8tFZiryQWcVO.jpg')}
+.bg-system{background-image:url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/0_a6cf5_5f8fb1d6_orig-sIMtD1RlziEl1Oih0ZfS7f6XoyjBQu.jpg')}
 
 .app{
   min-height:100vh;
@@ -173,8 +165,6 @@ body{
   border-radius:20px;color:#fff;padding:16px 18px;
   box-shadow:0 14px 24px rgba(56,187,87,.24)
 }
-.answer.warning{background:linear-gradient(180deg,#f59e0b,#d97706)}
-.answer.error{background:linear-gradient(180deg,#ef4444,#dc2626)}
 .answer-label{font-size:12px;font-weight:800;letter-spacing:.95px;text-transform:uppercase;opacity:.88;margin-bottom:8px}
 .answer-value{font-size:28px;line-height:1.08;font-weight:900;letter-spacing:-.5px}
 .answer-sub{font-size:14px;opacity:.94;margin-top:7px}
@@ -297,7 +287,6 @@ body{
         <div class="right" id="clockDisplay">00:00Z</div>
       </header>
 
-      <!-- MENU -->
       <section class="screen active" id="screen-menu">
         <div class="hero">
           <h1>Aviation Pro</h1>
@@ -345,7 +334,6 @@ body{
         </div>
       </section>
 
-      <!-- FUEL -->
       <section class="screen" id="screen-fuel">
         <div class="calc-shell">
           <div class="section-title">Fuel Type</div>
@@ -385,7 +373,6 @@ body{
         </div>
       </section>
 
-      <!-- COST -->
       <section class="screen" id="screen-cost">
         <div class="calc-shell">
           <div class="section-title">Input</div>
@@ -419,7 +406,6 @@ body{
         </div>
       </section>
 
-      <!-- FLIGHT -->
       <section class="screen" id="screen-flight">
         <div class="calc-shell">
           <div class="tabs-row">
@@ -437,7 +423,7 @@ body{
               <div class="field-row"><div class="field-label">Wind Speed</div><input class="field-value" id="flightWspd" type="number" placeholder="0"><div class="field-unit">KT</div></div>
             </div>
             <div class="section-title">Result</div>
-            <div class="answer" id="flightAnswer">
+            <div class="answer">
               <div class="answer-label">Ground Speed</div>
               <div class="answer-value"><span id="flightGs">-</span> KT</div>
               <div class="answer-grid">
@@ -482,7 +468,6 @@ body{
         </div>
       </section>
 
-      <!-- ATMOSPHERE -->
       <section class="screen" id="screen-atmo">
         <div class="calc-shell">
           <div class="tabs-row">
@@ -532,7 +517,6 @@ body{
         </div>
       </section>
 
-      <!-- SAFETY -->
       <section class="screen" id="screen-safety">
         <div class="calc-shell">
           <div class="tabs-row">
@@ -613,7 +597,6 @@ body{
         </div>
       </section>
 
-      <!-- TOOLS -->
       <section class="screen" id="screen-tools">
         <div class="calc-shell">
           <div class="tabs-row">
@@ -662,7 +645,6 @@ body{
         </div>
       </section>
 
-      <!-- SYSTEM -->
       <section class="screen" id="screen-system">
         <div class="calc-shell">
           <div class="tabs-row">
@@ -701,12 +683,10 @@ body{
 var $=function(s){return document.querySelector(s)};
 var $$=function(s){return[].slice.call(document.querySelectorAll(s))};
 var num=function(v){var n=parseFloat(v);return isFinite(n)?n:null};
-var fmt=function(n,d){return n===null?'-':n.toFixed(d||0)};
 var fmtTime=function(h){if(h===null||h<0)return'-';var hr=Math.floor(h),mn=Math.round((h-hr)*60);if(mn===60){hr++;mn=0}return String(hr).padStart(2,'0')+':'+String(mn).padStart(2,'0')};
 var degRad=function(d){return d*Math.PI/180};
 
 var bgClasses={menu:'bg-menu',fuel:'bg-fuel',cost:'bg-cost',flight:'bg-flight',atmo:'bg-atmo',safety:'bg-safety',tools:'bg-tools',system:'bg-system'};
-var currentScreen='menu';
 
 function showScreen(id){
   $$('.screen').forEach(function(s){s.classList.remove('active')});
@@ -718,7 +698,6 @@ function showScreen(id){
   var bg=$('#bgLayer');
   Object.values(bgClasses).forEach(function(c){if(c)bg.classList.remove(c)});
   if(bgClasses[id])bg.classList.add(bgClasses[id]);
-  currentScreen=id;
 }
 
 function setupTabs(container){
