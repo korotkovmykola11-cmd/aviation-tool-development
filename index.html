@@ -723,21 +723,158 @@
     }
     .tab.active .dot{background:var(--blue)}
 
-    .lang-toggle{
-      border:none;
-      border-radius:10px;
-      padding:6px 10px;
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:.4px;
-      background:rgba(255,255,255,.14);
-      color:#fff;
-      cursor:pointer;
-      transition:transform .12s ease, background .18s ease, opacity .18s ease;
-      margin-right:10px;
+
+    .pro-toggle{
+      background:rgba(217,119,6,.18);
+      color:#fff3d6;
+      border:1px solid rgba(255,255,255,.16);
     }
-    .lang-toggle:hover{background:rgba(255,255,255,.20)}
-    .lang-toggle:active{transform:scale(.98)}
+
+    [data-pro-feature].pro-locked{
+      position:relative;
+      opacity:.78;
+    }
+
+    [data-pro-feature].pro-locked::after{
+      content:"PRO";
+      position:absolute;
+      top:-6px;
+      right:-4px;
+      font-size:9px;
+      font-weight:800;
+      letter-spacing:.6px;
+      color:#fff;
+      background:linear-gradient(180deg,#d97706,#b45309);
+      border-radius:999px;
+      padding:3px 6px;
+      box-shadow:0 6px 12px rgba(0,0,0,.18);
+    }
+
+    .pro-modal-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:80;
+      background:rgba(4,8,15,.62);
+      backdrop-filter:blur(10px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+
+    .pro-modal-backdrop.active{display:flex}
+
+    .pro-modal{
+      width:min(100%,460px);
+      border-radius:24px;
+      padding:20px;
+      background:linear-gradient(180deg,#f8fafc,#eef3f9);
+      color:#121826;
+      box-shadow:0 24px 70px rgba(0,0,0,.34);
+      border:1px solid rgba(255,255,255,.6);
+    }
+
+    .pro-modal-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .pro-pill{
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.8px;
+      color:#fff;
+      background:linear-gradient(180deg,#d97706,#b45309);
+      border-radius:999px;
+      padding:6px 10px;
+      text-transform:uppercase;
+    }
+
+    .pro-close{
+      border:none;
+      background:rgba(0,0,0,.06);
+      border-radius:12px;
+      width:34px;
+      height:34px;
+      cursor:pointer;
+      font-size:18px;
+      line-height:1;
+      color:#374151;
+    }
+
+    .pro-modal-title{
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:-.3px;
+      margin-bottom:6px;
+    }
+
+    .pro-modal-sub{
+      font-size:14px;
+      line-height:1.45;
+      color:#4b5563;
+      margin-bottom:14px;
+    }
+
+    .pro-feature-list{
+      display:grid;
+      gap:8px;
+      margin-bottom:16px;
+      color:#1f2937;
+      font-size:13px;
+      font-weight:600;
+    }
+
+    .pro-code{
+      width:100%;
+      border:1px solid #d7dde6;
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:14px;
+      outline:none;
+      margin-bottom:12px;
+      background:#fff;
+      color:#111827;
+    }
+
+    .pro-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .pro-btn{
+      border:none;
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .pro-btn-primary{
+      background:linear-gradient(180deg,#3b82f6,#2563eb);
+      color:#fff;
+    }
+
+    .pro-btn-secondary{
+      background:rgba(0,0,0,.06);
+      color:#1f2937;
+    }
+
+    .pro-status{
+      min-height:20px;
+      font-size:12px;
+      font-weight:700;
+      color:#6b7280;
+    }
+
+    .pro-status.success{color:#15803d}
+    .pro-status.error{color:#b91c1c}
 
     @media (max-width:640px){
       .app{padding:0 0 94px}
@@ -767,7 +904,7 @@
           <span>Back</span>
         </div>
         <div class="title" id="topTitle">Aviation Pro</div>
-        <div class="right"><button class="lang-toggle" id="langToggle" type="button">EN</button><span class="mono" id="clockDisplay">00:00Z</span></div>
+        <div class="right"><button class="lang-toggle pro-toggle" id="proToggle" type="button">PRO</button><button class="lang-toggle" id="langToggle" type="button">EN</button><span class="mono" id="clockDisplay">00:00Z</span></div>
       </header>
 
       <section class="screen active" id="screen-menu">
@@ -1031,8 +1168,8 @@
             <button class="tab-btn active" data-tab="flight-basic">Basic</button>
             <button class="tab-btn" data-tab="flight-pnr">PNR</button>
             <button class="tab-btn" data-tab="flight-tod">TOD</button>
-            <button class="tab-btn" data-tab="flight-pnrpro">PNR PRO+</button>
-            <button class="tab-btn" data-tab="flight-todpro">TOD PRO+</button>
+            <button class="tab-btn" data-tab="flight-pnrpro" data-pro-feature="pnrpro">PNR PRO+</button>
+            <button class="tab-btn" data-tab="flight-todpro" data-pro-feature="todpro">TOD PRO+</button>
           </div>
 
           <div class="tab-content active" id="tab-flight-basic">
@@ -1371,7 +1508,7 @@
           <div class="tabs-row">
             <button class="tab-btn active" data-tab="safety-wind">Wind</button>
             <button class="tab-btn" data-tab="safety-wb">W&amp;B</button>
-            <button class="tab-btn" data-tab="safety-wbpro">W&amp;B PRO+</button>
+            <button class="tab-btn" data-tab="safety-wbpro" data-pro-feature="wbpro">W&amp;B PRO+</button>
           </div>
 
           <div class="tab-content active" id="tab-safety-wind">
@@ -1773,6 +1910,39 @@
     </div>
   </div>
 
+
+  <div class="pro-modal-backdrop" id="proModal" aria-hidden="true">
+    <div class="pro-modal">
+      <div class="pro-modal-head">
+        <div class="pro-pill">PRO ACCESS</div>
+        <button class="pro-close" id="proCloseBtn" type="button">×</button>
+      </div>
+      <div class="pro-modal-title" id="proModalTitle">Unlock Pro Tools</div>
+      <div class="pro-modal-sub" id="proModalSub">PNR PRO+, TOD PRO+, and Weight &amp; Balance PRO+ are locked in the standard version.</div>
+      <div class="pro-feature-list">
+        <div>• PNR PRO+ advanced return point planning</div>
+        <div>• TOD PRO+ cruise / transition descent logic</div>
+        <div>• W&amp;B PRO+ detailed loading worksheet</div>
+      </div>
+      <input class="pro-code mono" id="proCodeInput" type="text" placeholder="Enter activation code">
+      <div class="pro-actions">
+        <button class="pro-btn pro-btn-primary" id="proActivateBtn" type="button">Activate Code</button>
+        <button class="pro-btn pro-btn-secondary" id="proTrialBtn" type="button">Start 7-Day Trial</button>
+      </div>
+      <div class="pro-actions">
+        <button class="pro-btn pro-btn-secondary" id="proResetBtn" type="button">Reset Access</button>
+        <button class="pro-btn pro-btn-secondary" id="proCloseActionBtn" type="button">Close</button>
+      </div>
+      <div class="pro-status" id="proStatusText"></div>
+    </div>
+  </div>
+
+  <!--
+    TZ1 ARCHITECTURE AUDIT + TZ2 CALCULATION CORE EXTRACTION
+    TZ1: freeze architecture without visual changes.
+    TZ2: introduce a dedicated calculation core so DOM handlers stop owning the math.
+    UI handlers now follow the same pipeline: read input -> App.Core calculation -> render result.
+  -->
   <script>
     (function(){
       var App = window.App || (window.App = {});
@@ -1785,7 +1955,84 @@
       App.Tools = App.Tools || {};
       App.Modules = App.Modules || {};
       App.Calculations = App.Calculations || {};
+      App.Core = App.Core || {};
       App.Init = App.Init || {};
+
+      /*
+       * TZ1 — Architecture freeze layer
+       * This block documents the current monolithic standalone app before refactor.
+       * It is intentionally non-visual and does not change calculator behavior.
+       */
+      App.AuditManifest = {
+        stage: 'TZ2',
+        sourceType: 'Standalone HTML app',
+        auditGoal: 'Freeze architecture and extract a dedicated calculation core while preserving UI.',
+        screens: [
+          { name:'menu', calculators:['entry hub'] },
+          { name:'fuel', calculators:['fuel-main','fuel-required','fuel-endurance'] },
+          { name:'cost', calculators:['cost-main'] },
+          { name:'flight', calculators:['flight-basic','flight-pnr','flight-tod','flight-pnrpro','flight-todpro'] },
+          { name:'atmo', calculators:['atmo-da','atmo-qnh','atmo-tas'] },
+          { name:'safety', calculators:['safety-wind','safety-wb','safety-wbpro'] },
+          { name:'tools', calculators:['timer','notes','converter quick tools'] },
+          { name:'system', calculators:['access / trial / activation'] }
+        ],
+        initFlow: [
+          'initApp()',
+          'initDOM()',
+          'initNavigation()',
+          'initBindings()',
+          'initModules()',
+          'renderInitialState()',
+          'App.Access.init()'
+        ],
+        primaryEventWiring: [
+          'showScreen() from menu buttons and bottom tab bar',
+          'setupTabs() from each .tabs-row',
+          'bindInputs(...) for calculator input listeners',
+          'initNotes() for save/copy/clear handlers',
+          'App.Access.bind() for modal / trial / activation handlers'
+        ],
+        calculationFamilies: [
+          'Fuel: calculateFuel, calculateFuelReq, calculateEndurance',
+          'Cost: calculateCost',
+          'Flight: calculateFlightBasic, calculatePNR, calculateTOD, calculatePNRPro, calculateTODPro',
+          'Atmosphere: calculateDensityAltitude, calculateTasApprox',
+          'Safety: calculateWind, calculateWB, calculateWBPro'
+        ],
+        domCoupledZones: [
+          'showScreen()',
+          'setupTabs()',
+          'render* functions',
+          'calc* functions that directly read fields then immediately render',
+          'initBindings()',
+          'initNotes()',
+          'App.Access module UI methods'
+        ],
+        localStorageKeys: [
+          'aviation_pro_notes',
+          'aviation_pro_access_v1'
+        ],
+        directLocalStorageTouchPoints: [
+          'initNotes()',
+          'App.Access.readState()',
+          'App.Access.writeState()'
+        ],
+        highestRiskZones: [
+          'Monolithic single-file architecture mixing UI, math, storage and access logic',
+          'Calculator chains where DOM read -> validate -> calculate -> render are tightly coupled',
+          'Repeated field / answer markup patterns that increase maintenance cost',
+          'Global App namespace is useful, but boundaries between UI and calculations are still weak',
+          'Validation behavior is inconsistent across modules and often collapses to generic status text'
+        ],
+        refactorPriorityAfterTZ1: [
+          'Extract pure calculation core',
+          'Standardize result object',
+          'Centralize validation',
+          'Then normalize repeated markup / binding patterns'
+        ]
+      };
+
 
       function $(sel){ return document.querySelector(sel); }
       function $$(sel){ return Array.from(document.querySelectorAll(sel)); }
@@ -1799,7 +2046,6 @@
         App.DOM.topTitle = $('#topTitle');
         App.DOM.backBtn = $('#backBtn');
         App.DOM.clockDisplay = $('#clockDisplay');
-        App.DOM.langToggle = $('#langToggle');
         App.DOM.screens = $$('.screen');
         App.DOM.tabbarTabs = $$('.tabbar .tab');
         App.DOM.menuButtons = $$('.item[data-screen]');
@@ -1829,7 +2075,7 @@
         });
 
         var cfg = (App.Config.screenConfig && App.Config.screenConfig[name]) || App.Config.screenConfig.menu;
-        if(App.DOM.topTitle) App.DOM.topTitle.textContent = translateText(cfg.title);
+        if(App.DOM.topTitle) App.DOM.topTitle.textContent = cfg.title;
         if(App.DOM.bgLayer) App.DOM.bgLayer.className = 'bg ' + cfg.bg;
         if(App.DOM.backBtn) App.DOM.backBtn.style.visibility = name === 'menu' ? 'hidden' : 'visible';
       }
@@ -1843,7 +2089,8 @@
 
             var shell = row.parentElement;
             shell.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
-            var tab = shell.querySelector('#tab-' + btn.dataset.tab);
+            var targetId = btn.dataset.tabTarget || buildTabContentId(btn.dataset.tab);
+            var tab = shell.querySelector('#' + targetId);
             if(tab) tab.classList.add('active');
           });
         });
@@ -1934,295 +2181,87 @@
         return typeof v === 'number' && isFinite(v) && v > 0;
       }
 
-      // TZ-12: i18n stabilization layer
-      var staticTranslations = {
-        ru: {
-          'Back':'Назад',
-          'Aviation Pro':'Aviation Pro',
-          'Professional quick-reference calculations for fuel, flight, atmosphere, safety margins, conversions, and cockpit utility tools.':'Профессиональные быстрые расчёты для топлива, полёта, атмосферы, запасов безопасности, конвертеров и полезных cockpit-инструментов.',
-          'Calculators':'Калькуляторы',
-          'Fuel':'Топливо',
-          'Cost':'Стоимость',
-          'Flight':'Полёт',
-          'Atmosphere':'Атмосфера',
-          'Safety':'Безопасность',
-          'Tools':'Инструменты',
-          'System':'Система',
-          'Mass, gallons, required fuel, endurance':'Масса, галлоны, требуемое топливо, запас',
-          'Hourly, per minute, per NM, per 100 NM':'За час, за минуту, за NM, за 100 NM',
-          'GS, ETE, WCA, heading, PNR, TOD':'GS, ETE, WCA, курс, PNR, TOD',
-          'Density altitude, QNH, TAS approximation':'Плотностная высота, QNH, приближённый TAS',
-          'Wind components, weight & balance':'Компоненты ветра, центровка и вес',
-          'Converters, timer, notes':'Конвертеры, таймер, заметки',
-          'Quick-access grouped pages':'Страницы быстрого доступа',
-
-          'Required':'Требуемое',
-          'Endurance':'Запас',
-          'Basic':'Базовый',
-          'Density Alt':'Плотн. выс.',
-          'QNH':'QNH',
-          'TAS':'TAS',
-          'Wind':'Ветер',
-          'W&B':'Вес и баланс',
-          'Mass':'Масса',
-          'Temp':'Темп.',
-          'Timer':'Таймер',
-          'Notes':'Заметки',
-
-          'Fuel Mass':'Масса топлива',
-          'Fuel Required':'Требуемое топливо',
-          'Operating Cost':'Эксплуатационная стоимость',
-          'Flight Planning':'Планирование полёта',
-          'Point of No Return':'Точка невозврата',
-          'Top of Descent':'Начало снижения',
-          'Density Altitude':'Плотностная высота',
-          'QNH Converter':'Конвертер QNH',
-          'TAS Approximation':'Приближённый TAS',
-          'Runway Wind Components':'Компоненты ветра на ВПП',
-          'Weight & Balance':'Вес и баланс',
-          'Speed Converter':'Конвертер скорости',
-          'Distance Converter':'Конвертер дистанции',
-          'Mass / Volume':'Масса / объём',
-          'Temperature Converter':'Конвертер температуры',
-          'Cockpit Timer':'Cockpit-таймер',
-          'System Pages':'Системные страницы',
-
-          'Fuel Type':'Тип топлива',
-          'Volume':'Объём',
-          'Fuel Temp':'Температура топлива',
-          'GS':'GS',
-          'Distance':'Дистанция',
-          'Fuel Flow':'Расход топлива',
-          'Reserve':'Резерв',
-          'Fuel On Board':'Топливо на борту',
-          'Fuel Price':'Цена топлива',
-          'Ground Speed':'Путевая скорость',
-          'TAS':'TAS',
-          'Course':'Курс',
-          'Wind From':'Ветер от',
-          'Wind Speed':'Скорость ветра',
-          'Out GS':'GS туда',
-          'Return GS':'GS обратно',
-          'Altitude to Lose':'Высота для потери',
-          'Descent Rate':'Вертикальная скорость снижения',
-          'Total Fuel':'Общее топливо',
-          'Reserve Fuel':'Резерв топлива',
-          'Flow OUT':'Расход туда',
-          'Flow BACK':'Расход обратно',
-          'GS OUT':'GS туда',
-          'GS BACK':'GS обратно',
-          'Cruise Alt':'Крейсерская высота',
-          'IAS':'IAS',
-          'OAT':'OAT',
-          'Elevation':'Превышение',
-          'Pressure Alt':'Баро-высота',
-          'Runway Heading':'Курс ВПП',
-          'Pilot':'Пилот',
-          'Front Pax':'Передний пасс.',
-          'Rear Pax':'Задний пасс.',
-          'Baggage':'Багаж',
-          'Fuel Arm':'Плечо топлива',
-          'Takeoff Fuel':'Взлётное топливо',
-
-          'Required Fuel':'Требуемое топливо',
-          'Cost Summary':'Сводка стоимости',
-          'Flight Solution':'Результат полёта',
-          'PNR':'PNR',
-          'TOD Distance':'Дистанция TOD',
-          'Density Altitude':'Плотностная высота',
-          'QNH Sync':'Синхронизация QNH',
-          'Estimated TAS':'Расчётный TAS',
-          'Wind Components':'Компоненты ветра',
-          'W&B Status':'Статус W&B',
-          'W&B PRO+ Status':'Статус W&B PRO+',
-
-          'Pounds':'Фунты',
-          'US Gallons':'Галлоны US',
-          'Imp Gallons':'Галлоны Imp',
-          'Trip':'Маршрут',
-          'Time':'Время',
-          'Per Hour':'За час',
-          'Per Minute':'За минуту',
-          'Per NM':'За NM',
-          'Per 100 NM':'За 100 NM',
-          'Heading':'Курс',
-          'WCA':'WCA',
-          'ETE':'ETE',
-          'Crosswind':'Боковой',
-          'Head/Tail':'Встречн./попутн.',
-          'Distance to PNR':'До PNR',
-          'Time to PNR':'Время до PNR',
-          'Descent Time':'Время снижения',
-          'Vertical':'Вертик.',
-          'QNH hPa':'QNH гПа',
-          'QNH inHg':'QNH inHg',
-          'Pressure Altitude':'Баро-высота',
-          'Headwind':'Встречный',
-          'Tailwind':'Попутный',
-          'Left XW':'Лев. XW',
-          'Right XW':'Прав. XW',
-          'Status':'Статус',
-          'Envelope':'Огибающая',
-          'Fuel':'Топливо',
-          'Flight':'Полёт',
-          'Atmosphere':'Атмосфера',
-          'Safety':'Безопасность',
-
-          'Calculated from density approximation and entered volume':'Расчёт по приближённой плотности и введённому объёму',
-          'Trip fuel plus reserve':'Маршрутное топливо плюс резерв',
-          'Usable endurance based on fuel flow':'Полезный запас по расходу топлива',
-          'Fuel-only operating estimate':'Оценка эксплуатационных затрат только по топливу',
-          'Groundspeed adjusted for wind':'Путевая скорость с учётом ветра',
-          'Simplified endurance-based point of no return':'Упрощённая точка невозврата по запасу',
-          'Quick descent estimate based on VS and groundspeed':'Быстрая оценка снижения по VS и GS',
-          'Advanced fuel-flow based point of no return':'Расширенный расчёт точки невозврата по расходу топлива',
-          'Two-phase descent profile with wind layers':'Двухэтапный профиль снижения со слоями ветра',
-          'Approximate ISA-derived density altitude':'Приближённая плотностная высота по ISA',
-          'Fields stay synchronized without circular overwrite loops':'Поля синхронизируются без циклической перезаписи',
-          'Rule-of-thumb estimate using IAS and altitude':'Приближённая оценка по IAS и высоте',
-          'After-burn CG and envelope point are shown below':'Ниже показаны CG и точка огибающей после сгорания топлива',
-          'Uses optional data-max-weight, data-min-cg and data-max-cg attributes on the W&B table':'Используются опциональные атрибуты data-max-weight, data-min-cg и data-max-cg таблицы W&B',
-
-          'Start':'Старт',
-          'Stop':'Стоп',
-          'Reset':'Сброс',
-          'Save':'Сохранить',
-          'Copy':'Копировать',
-          'Clear':'Очистить'
-        }
-      };
-
-      var messageTranslations = {
-        ru: {
-          'VALID':'Готово',
-          'INVALID INPUT':'НЕКОРРЕКТНЫЙ ВВОД',
-          'ENTER VALID FUEL VOLUME':'ВВЕДИ КОРРЕКТНЫЙ ОБЪЁМ ТОПЛИВА',
-          'CHECK FUEL TEMPERATURE':'ПРОВЕРЬ ТЕМПЕРАТУРУ ТОПЛИВА',
-          'CHECK FUEL TYPE / TEMP':'ПРОВЕРЬ ТИП ТОПЛИВА / ТЕМПЕРАТУРУ',
-          'GROUND SPEED MUST BE ABOVE ZERO':'ПУТЕВАЯ СКОРОСТЬ ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
-          'DISTANCE MUST BE ABOVE ZERO':'ДИСТАНЦИЯ ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
-          'FUEL FLOW MUST BE ABOVE ZERO':'РАСХОД ТОПЛИВА ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
-          'RESERVE CANNOT BE NEGATIVE':'РЕЗЕРВ НЕ МОЖЕТ БЫТЬ ОТРИЦАТЕЛЬНЫМ',
-          'USABLE FUEL MUST BE ABOVE ZERO':'ПОЛЕЗНОЕ ТОПЛИВО ДОЛЖНО БЫТЬ БОЛЬШЕ НУЛЯ',
-          'ENTER FLOW AND PRICE':'ВВЕДИ РАСХОД И ЦЕНУ',
-          'FLOW MUST BE ABOVE ZERO':'РАСХОД ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
-          'PRICE MUST BE ABOVE ZERO':'ЦЕНА ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
-          'ENTER TAS / DIST / CRS / WIND':'ВВЕДИ TAS / ДИСТ / КУРС / ВЕТЕР',
-          'TAS MUST BE ABOVE ZERO':'TAS ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
-          'WIND SPEED CANNOT BE NEGATIVE':'СКОРОСТЬ ВЕТРА НЕ МОЖЕТ БЫТЬ ОТРИЦАТЕЛЬНОЙ',
-          'WIND EXCEEDS TAS LIMIT':'ВЕТЕР ПРЕВЫШАЕТ ДОПУСТИМЫЙ ПРЕДЕЛ ДЛЯ TAS',
-          'RESULTING GS MUST BE ABOVE ZERO':'РАСЧЁТНЫЙ GS ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
-          'ENTER OUT GS / RETURN GS / ENDURANCE':'ВВЕДИ GS ТУДА / GS ОБРАТНО / ЗАПАС',
-          'GROUND SPEEDS MUST BE ABOVE ZERO':'GS ДОЛЖНЫ БЫТЬ БОЛЬШЕ НУЛЯ',
-          'ENDURANCE MUST BE ABOVE ZERO':'ЗАПАС ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
-          'CHECK PNR DATA':'ПРОВЕРЬ ДАННЫЕ PNR',
-          'CHECK PNR SPEED DATA':'ПРОВЕРЬ ДАННЫЕ СКОРОСТИ PNR',
-          'UNABLE TO COMPUTE PNR':'НЕ УДАЛОСЬ РАССЧИТАТЬ PNR',
-          'ENTER ALTITUDE / VS / GS':'ВВЕДИ ВЫСОТУ / VS / GS',
-          'ALTITUDE TO LOSE MUST BE ABOVE ZERO':'ПОТЕРЯ ВЫСОТЫ ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
-          'DESCENT RATE MUST BE ABOVE ZERO':'СКОРОСТЬ СНИЖЕНИЯ ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
-          'CHECK TOD DATA':'ПРОВЕРЬ ДАННЫЕ TOD',
-          'UNABLE TO COMPUTE TOD':'НЕ УДАЛОСЬ РАССЧИТАТЬ TOD',
-          'ENTER ALL PNR PRO INPUTS':'ВВЕДИ ВСЕ ДАННЫЕ PNR PRO',
-          'FLOW / GS MUST BE ABOVE ZERO':'РАСХОД / GS ДОЛЖНЫ БЫТЬ БОЛЬШЕ НУЛЯ',
-          'INSUFFICIENT FUEL':'НЕДОСТАТОЧНО ТОПЛИВА',
-          'ENTER ALL TOD PRO INPUTS':'ВВЕДИ ВСЕ ДАННЫЕ TOD PRO',
-          'CHECK ALTITUDE ORDER':'ПРОВЕРЬ ПОРЯДОК ВЫСОТ',
-          'GROUND SPEED MUST STAY ABOVE ZERO':'GS ДОЛЖЕН ОСТАВАТЬСЯ БОЛЬШЕ НУЛЯ',
-          'TAS / VS MUST BE ABOVE ZERO':'TAS / VS ДОЛЖНЫ БЫТЬ БОЛЬШЕ НУЛЯ',
-          'ENTER ELEV / OAT / QNH':'ВВЕДИ ПРЕВЫШЕНИЕ / OAT / QNH',
-          'ENTER IAS / ALT / OAT':'ВВЕДИ IAS / ВЫСОТУ / OAT',
-          'ENTER RWY / WIND DATA':'ВВЕДИ ДАННЫЕ ВПП / ВЕТРА',
-          'ENTER WEIGHT DATA':'ВВЕДИ ДАННЫЕ ВЕСА',
-          'CHECK WEIGHT / ARM INPUT':'ПРОВЕРЬ ВЕС / ПЛЕЧО',
-          'IN LIMITS':'В ПРЕДЕЛАХ',
-          'OUT OF LIMITS':'ВНЕ ПРЕДЕЛОВ',
-          'CHECK WB PRO INPUTS':'ПРОВЕРЬ ДАННЫЕ WB PRO',
-          'LIMITS NOT SET':'ПРЕДЕЛЫ НЕ ЗАДАНЫ'
-        }
-      };
-
-      function translateText(text){
-        var lang = (App.State && App.State.language) || 'en';
-        if(!text) return text;
-        if(lang === 'en') return text;
-        return (staticTranslations[lang] && staticTranslations[lang][text]) || text;
-      }
-
-      function translateMessage(text){
-        var lang = (App.State && App.State.language) || 'en';
-        if(!text) return text;
-        if(lang === 'en') return text;
-        return (messageTranslations[lang] && messageTranslations[lang][text]) || translateText(text);
-      }
-
-      function translateStaticDom(){
-        var selectors = [
-          '.hero h1','.hero p','.group-label','.item-title','.item-sub','.tab-btn',
-          '.section-title','.field-label','.answer-label','.answer-item-label','.tool-label',
-          '.answer-sub','.topbar .back span','.note-btn','.timer-btn'
-        ];
-        selectors.forEach(function(sel){
-          $$(sel).forEach(function(el){
-            if(!el.dataset.i18nBase){
-              el.dataset.i18nBase = el.textContent.trim();
-            }
-            el.textContent = translateText(el.dataset.i18nBase);
-          });
+      // TZ-03: unified calculation result contract
+      // Every calculation now returns: { ok, result, errors, warnings, debug }
+      // Backward-compatible aliases are preserved for the existing UI renderers.
+      function normalizeIssueList(items){
+        if(!Array.isArray(items)) return [];
+        return items.map(function(item, index){
+          if(typeof item === 'string'){
+            return { code:'msg_' + index, message:item, meta:{} };
+          }
+          return {
+            code: item && item.code ? item.code : 'msg_' + index,
+            message: item && item.message ? item.message : 'UNKNOWN',
+            meta: item && item.meta ? item.meta : {}
+          };
         });
       }
 
-      function setLanguage(lang){
-        App.State.language = lang === 'ru' ? 'ru' : 'en';
-        try { localStorage.setItem('aviationpro_language', App.State.language); } catch(e){}
-        document.documentElement.lang = App.State.language;
-        if(App.DOM.langToggle){
-          App.DOM.langToggle.textContent = App.State.language.toUpperCase();
-          App.DOM.langToggle.setAttribute('aria-label', App.State.language === 'en' ? 'Switch to Russian' : 'Переключить на английский');
-        }
-        translateStaticDom();
-        if(App.State.currentScreen){
-          showScreen(App.State.currentScreen);
-        }
-        if(App.Init && typeof App.Init.renderInitialState === 'function'){
-          App.Init.renderInitialState();
-        }
-      }
+      function createValidationResult(ok, result, errors, warnings, debug){
+        var normalizedErrors = normalizeIssueList(errors);
+        var normalizedWarnings = normalizeIssueList(warnings);
+        var normalizedResult = result || {};
+        var normalizedDebug = debug || {};
+        var primaryMessage = '';
 
-      function toggleLanguage(){
-        setLanguage(((App.State && App.State.language) || 'en') === 'en' ? 'ru' : 'en');
-      }
+        if(!ok && normalizedErrors.length){
+          primaryMessage = normalizedErrors[0].message;
+        } else if(ok && normalizedWarnings.length){
+          primaryMessage = normalizedWarnings[0].message;
+        }
 
-      // TZ-03: validation result system
-      function createValidationResult(ok, data, errors, warnings){
         return {
           ok: !!ok,
-          data: data || {},
-          errors: errors || [],
-          warnings: warnings || []
+          result: normalizedResult,
+          errors: normalizedErrors,
+          warnings: normalizedWarnings,
+          debug: normalizedDebug,
+          message: primaryMessage,
+
+          // Backward compatibility for pre-TZ3 renderers / helpers
+          data: normalizedResult,
+          details: normalizedDebug
         };
       }
 
-      function validationOk(data, warnings){
-        return createValidationResult(true, data, [], warnings || []);
+      function validationOk(result, warnings, debug){
+        return createValidationResult(true, result || {}, [], warnings || [], debug || {});
       }
 
-      function validationError(code, message, meta){
-        return createValidationResult(false, {}, [{ code:code, message:message, meta:meta || {} }], []);
+      function validationWarning(result, warnings, debug){
+        return createValidationResult(true, result || {}, [], warnings || [], debug || {});
+      }
+
+      function validationError(code, message, meta, debug){
+        var errorMeta = meta || {};
+        var debugPayload = debug || errorMeta || {};
+        return createValidationResult(false, {}, [{ code:code, message:message, meta:errorMeta }], [], debugPayload);
+      }
+
+      function ensureCalculationResultShape(result){
+        if(result && typeof result === 'object' && 'ok' in result && 'result' in result && 'errors' in result && 'warnings' in result && 'debug' in result){
+          return result;
+        }
+        if(result && typeof result === 'object' && 'ok' in result && 'data' in result){
+          return createValidationResult(!!result.ok, result.data || {}, result.errors || [], result.warnings || [], result.debug || result.details || {});
+        }
+        return validationError('invalid_result_shape', 'CALCULATION RESULT SHAPE IS INVALID', {}, { receivedType: typeof result, received: result });
       }
 
       function getValidationMessage(result, fallback){
         if(!result) return fallback || 'INVALID INPUT';
+        if(result.message) return result.message;
         if(result.ok){
           if(result.warnings && result.warnings.length){
             return result.warnings[0].message;
           }
-          return translateMessage(fallback || 'VALID');
+          return fallback || 'VALID';
         }
         if(result.errors && result.errors.length){
-          return translateMessage(result.errors[0].message);
+          return result.errors[0].message;
         }
-        return translateMessage(fallback || 'INVALID INPUT');
+        return fallback || 'INVALID INPUT';
       }
 
       function clearTextTargets(selectors){
@@ -2230,7 +2269,128 @@
       }
 
       function setStatusText(sel, result, okText){
-        setText(sel, translateMessage(getValidationMessage(result, okText)));
+        setText(sel, getValidationMessage(result, okText));
+      }
+
+      // TZ-11: normalized reusable UI template helpers and markup roles
+      function buildTabContentId(tabKey){
+        return 'tab-' + tabKey;
+      }
+
+      function buildFieldRowMarkup(label, controlMarkup, unitMarkup){
+        return [
+          '<div class="field-row" data-ui-component="field-row">',
+          '<div class="field-label" data-ui-role="label">' + label + '</div>',
+          controlMarkup,
+          unitMarkup || '<div class="field-unit" data-ui-role="unit"></div>',
+          '</div>'
+        ].join('');
+      }
+
+      function buildAnswerItemMarkup(label, valueMarkup){
+        return [
+          '<div class="answer-item" data-ui-component="answer-item">',
+          '<div class="answer-item-label" data-ui-role="label">' + label + '</div>',
+          '<div class="answer-item-value" data-ui-role="value">' + valueMarkup + '</div>',
+          '</div>'
+        ].join('');
+      }
+
+      function buildToolCardMarkup(label, valueMarkup){
+        return [
+          '<div class="tool-card" data-ui-component="tool-card">',
+          '<div class="tool-label" data-ui-role="label">' + label + '</div>',
+          '<div class="tool-value" data-ui-role="value">' + valueMarkup + '</div>',
+          '</div>'
+        ].join('');
+      }
+
+      function normalizeFieldRowMarkup(row){
+        if(!row) return;
+        row.dataset.uiComponent = 'field-row';
+        var children = Array.from(row.children || []);
+        if(children[0]) children[0].dataset.uiRole = children[0].dataset.uiRole || 'label';
+        if(children[1]) children[1].dataset.uiRole = children[1].dataset.uiRole || 'control';
+        if(children[2]) children[2].dataset.uiRole = children[2].dataset.uiRole || 'unit';
+      }
+
+      function normalizeAnswerMarkup(answer){
+        if(!answer) return;
+        answer.dataset.uiComponent = 'answer-card';
+        var label = answer.querySelector('.answer-label');
+        var value = answer.querySelector('.answer-value');
+        var sub = answer.querySelector('.answer-sub');
+        var grid = answer.querySelector('.answer-grid');
+        if(label) label.dataset.uiRole = label.dataset.uiRole || 'label';
+        if(value) value.dataset.uiRole = value.dataset.uiRole || 'value';
+        if(sub) sub.dataset.uiRole = sub.dataset.uiRole || 'status';
+        if(grid) grid.dataset.uiComponent = 'answer-grid';
+        answer.querySelectorAll('.answer-item').forEach(function(item){
+          item.dataset.uiComponent = 'answer-item';
+          var itemLabel = item.querySelector('.answer-item-label');
+          var itemValue = item.querySelector('.answer-item-value');
+          if(itemLabel) itemLabel.dataset.uiRole = itemLabel.dataset.uiRole || 'label';
+          if(itemValue) itemValue.dataset.uiRole = itemValue.dataset.uiRole || 'value';
+        });
+      }
+
+      function normalizeToolCardMarkup(card){
+        if(!card) return;
+        card.dataset.uiComponent = 'tool-card';
+        var label = card.querySelector('.tool-label');
+        var value = card.querySelector('.tool-value');
+        if(label) label.dataset.uiRole = label.dataset.uiRole || 'label';
+        if(value) value.dataset.uiRole = value.dataset.uiRole || 'value';
+      }
+
+      function normalizeTabMarkup(shell){
+        if(!shell) return;
+        shell.querySelectorAll('.tabs-row .tab-btn').forEach(function(btn){
+          btn.dataset.uiComponent = 'tab-button';
+          if(btn.dataset.tab && !btn.dataset.tabTarget){
+            btn.dataset.tabTarget = buildTabContentId(btn.dataset.tab);
+          }
+        });
+        shell.querySelectorAll('.tab-content').forEach(function(tab){
+          tab.dataset.uiComponent = 'tab-content';
+          if(!tab.dataset.tabId && tab.id && tab.id.indexOf('tab-') === 0){
+            tab.dataset.tabId = tab.id.substring(4);
+          }
+        });
+      }
+
+      function normalizeMarkup(){
+        $$('.calc-shell').forEach(function(shell){
+          shell.dataset.uiComponent = 'calc-shell';
+          shell.querySelectorAll('.field-row').forEach(normalizeFieldRowMarkup);
+          shell.querySelectorAll('.answer').forEach(normalizeAnswerMarkup);
+          shell.querySelectorAll('.tool-card').forEach(normalizeToolCardMarkup);
+          normalizeTabMarkup(shell);
+        });
+      }
+
+      App.UI.Templates = {
+        buildTabContentId: buildTabContentId,
+        buildFieldRowMarkup: buildFieldRowMarkup,
+        buildAnswerItemMarkup: buildAnswerItemMarkup,
+        buildToolCardMarkup: buildToolCardMarkup,
+        normalizeMarkup: normalizeMarkup,
+        normalizeFieldRowMarkup: normalizeFieldRowMarkup,
+        normalizeAnswerMarkup: normalizeAnswerMarkup,
+        normalizeToolCardMarkup: normalizeToolCardMarkup,
+        normalizeTabMarkup: normalizeTabMarkup
+      };
+
+      /*
+       * TZ2 — unified execution pipeline
+       * UI handlers no longer own formulas. They only read input, call App.Core, and render.
+       */
+      function executeCorePipeline(readFn, calculateFn, renderFn){
+        var input = typeof readFn === 'function' ? readFn() : null;
+        var rawResult = typeof calculateFn === 'function' ? calculateFn(input) : validationError('core_missing', 'CALCULATION CORE NOT AVAILABLE');
+        var result = ensureCalculationResultShape(rawResult);
+        if(typeof renderFn === 'function') renderFn(result, input);
+        return result;
       }
 
       function updateClock(){
@@ -2351,15 +2511,15 @@
       }
 
       function calcFuel(){
-        renderFuel(calculateFuel(readFuelMassInput()));
+        return executeCorePipeline(readFuelMassInput, App.Core.Fuel.calculateMass, renderFuel);
       }
 
       function calcFuelReq(){
-        renderFuelReq(calculateFuelReq(readFuelRequiredInput()));
+        return executeCorePipeline(readFuelRequiredInput, App.Core.Fuel.calculateRequired, renderFuelReq);
       }
 
       function calcEndurance(){
-        renderEndurance(calculateEndurance(readFuelEnduranceInput()));
+        return executeCorePipeline(readFuelEnduranceInput, App.Core.Fuel.calculateEndurance, renderEndurance);
       }
 
       function readCostInput(){
@@ -2422,7 +2582,7 @@
       }
 
       function calcCost(){
-        renderCost(calculateCost(readCostInput()));
+        return executeCorePipeline(readCostInput, App.Core.Cost.calculate, renderCost);
       }
 
       function readFlightBasicInput(){
@@ -2478,10 +2638,10 @@
       }
 
       function calcFlightBasic(){
-        App.Modules.Flight.update();
+        return executeCorePipeline(readFlightBasicInput, App.Core.Flight.calculateBasic, renderFlightBasic);
       }
 
-      function calculateDensityAltitude(input){function calculateDensityAltitude(input){
+      function calculateDensityAltitude(input){
         if(input.elevation === null || input.oat === null || !validPositive(input.qnh)) return validationError('density_altitude_invalid', 'ENTER ELEV / OAT / QNH');
         var pressureAlt = input.elevation + (1013.25 - input.qnh) * 30;
         var isaTemp = 15 - (pressureAlt / 1000) * 2;
@@ -2494,12 +2654,16 @@
         setText('#atmoDa', result.data.densityAltitude.toFixed(0));
       }
 
-      function calcDensityAltitude(){
-        renderDensityAltitude(calculateDensityAltitude({
+      function readDensityAltitudeInput(){
+        return {
           elevation: readNumber('#atmoElev'),
           oat: readNumber('#atmoOat'),
           qnh: readPositive('#atmoQnh')
-        }));
+        };
+      }
+
+      function calcDensityAltitude(){
+        return executeCorePipeline(readDensityAltitudeInput, App.Core.Atmosphere.calculateDensityAltitude, renderDensityAltitude);
       }
 
       var qnhSyncLock = false;
@@ -2544,8 +2708,12 @@
         setText('#tasOut', result.data.tas.toFixed(1));
       }
 
+      function readTasApproxInput(){
+        return { ias: readPositive('#tasIas'), altitude: readNonNegative('#tasAlt'), oat: readNumber('#tasOat') };
+      }
+
       function calcTasApprox(){
-        renderTasApprox(calculateTasApprox({ ias: readPositive('#tasIas'), altitude: readNonNegative('#tasAlt'), oat: readNumber('#tasOat') }));
+        return executeCorePipeline(readTasApproxInput, App.Core.Atmosphere.calculateTasApprox, renderTasApprox);
       }
 
       function calculateWind(input){
@@ -2569,8 +2737,12 @@
         $('#compassWind').style.transform = 'translate(-50%,-100%) rotate(' + clampHeading(result.data.direction) + 'deg)';
       }
 
+      function readWindInput(){
+        return { runway: readAngle('#windRwy'), direction: readAngle('#windDir'), speed: readNonNegative('#windSpd') };
+      }
+
       function calcWind(){
-        renderWind(calculateWind({ runway: readAngle('#windRwy'), direction: readAngle('#windDir'), speed: readNonNegative('#windSpd') }));
+        return executeCorePipeline(readWindInput, App.Core.Safety.calculateWind, renderWind);
       }
 
       function calculateWB(rowsData, limits){
@@ -2667,10 +2839,7 @@
       }
 
       function calcPNR(){
-        var input = readPNRInput();
-        var result = calculatePNR(input);
-        renderPNR(result);
-        return result;
+        return executeCorePipeline(readPNRInput, App.Core.Flight.calculatePNR, renderPNR);
       }
 
       function readTODInput(){
@@ -2704,11 +2873,9 @@
       }
 
       function calcTOD(){
-        var input = readTODInput();
-        var result = calculateTOD(input);
-        renderTOD(result);
-        return result;
+        return executeCorePipeline(readTODInput, App.Core.Flight.calculateTOD, renderTOD);
       }
+
 
       function readPNRProInput(){
         return {
@@ -2758,10 +2925,7 @@
       }
 
       function calcPNRPro(){
-        var input = readPNRProInput();
-        var result = calculatePNRPro(input);
-        renderPNRPro(result);
-        return result;
+        return executeCorePipeline(readPNRProInput, App.Core.Flight.calculatePNRPro, renderPNRPro);
       }
 
       function readTODProInput(){
@@ -2819,10 +2983,7 @@
       }
 
       function calcTODPro(){
-        var input = readTODProInput();
-        var result = calculateTODPro(input);
-        renderTODPro(result);
-        return result;
+        return executeCorePipeline(readTODProInput, App.Core.Flight.calculateTODPro, renderTODPro);
       }
 
       function drawWbProEnvelope(data){
@@ -2987,10 +3148,7 @@
       }
 
       function calcWBPro(){
-        var input = readWBProInput();
-        var result = calculateWBPro(input);
-        renderWBPro(result);
-        return result;
+        return executeCorePipeline(readWBProInput, App.Core.Safety.calculateWBPro, renderWBPro);
       }
 
       function setSpeedFrom(source){
@@ -3199,9 +3357,9 @@
         readMassInput: readFuelMassInput,
         readRequiredInput: readFuelRequiredInput,
         readEnduranceInput: readFuelEnduranceInput,
-        calculateMass: calculateFuel,
-        calculateRequired: calculateFuelReq,
-        calculateEndurance: calculateEndurance,
+        calculateMass: function(input){ return App.Core.Fuel.calculateMass(input); },
+        calculateRequired: function(input){ return App.Core.Fuel.calculateRequired(input); },
+        calculateEndurance: function(input){ return App.Core.Fuel.calculateEndurance(input); },
         renderMass: renderFuel,
         renderRequired: renderFuelReq,
         renderEndurance: renderEndurance,
@@ -3217,7 +3375,7 @@
 
       App.Modules.Cost = {
         readInput: readCostInput,
-        calculate: calculateCost,
+        calculate: function(input){ return App.Core.Cost.calculate(input); },
         render: renderCost,
         update: calcCost,
         init: function(){
@@ -3227,13 +3385,10 @@
 
       App.Modules.Flight = {
         readInput: readFlightBasicInput,
-        calculate: calculateFlightBasic,
+        calculate: function(input){ return App.Core.Flight.calculateBasic(input); },
         render: renderFlightBasic,
         update: function(){
-          var input = readFlightBasicInput();
-          var result = calculateFlightBasic(input);
-          renderFlightBasic(result);
-          return result;
+          return executeCorePipeline(readFlightBasicInput, App.Core.Flight.calculateBasic, renderFlightBasic);
         },
         init: function(){
           this.update();
@@ -3242,13 +3397,10 @@
 
       App.Modules.PNR = {
         readInput: readPNRInput,
-        calculate: calculatePNR,
+        calculate: function(input){ return App.Core.Flight.calculatePNR(input); },
         render: renderPNR,
         update: function(){
-          var input = readPNRInput();
-          var result = calculatePNR(input);
-          renderPNR(result);
-          return result;
+          return executeCorePipeline(readPNRInput, App.Core.Flight.calculatePNR, renderPNR);
         },
         init: function(){
           this.update();
@@ -3257,13 +3409,10 @@
 
       App.Modules.TOD = {
         readInput: readTODInput,
-        calculate: calculateTOD,
+        calculate: function(input){ return App.Core.Flight.calculateTOD(input); },
         render: renderTOD,
         update: function(){
-          var input = readTODInput();
-          var result = calculateTOD(input);
-          renderTOD(result);
-          return result;
+          return executeCorePipeline(readTODInput, App.Core.Flight.calculateTOD, renderTOD);
         },
         init: function(){
           this.update();
@@ -3272,13 +3421,10 @@
 
       App.Modules.PNRPro = {
         readInput: readPNRProInput,
-        calculate: calculatePNRPro,
+        calculate: function(input){ return App.Core.Flight.calculatePNRPro(input); },
         render: renderPNRPro,
         update: function(){
-          var input = readPNRProInput();
-          var result = calculatePNRPro(input);
-          renderPNRPro(result);
-          return result;
+          return executeCorePipeline(readPNRProInput, App.Core.Flight.calculatePNRPro, renderPNRPro);
         },
         init: function(){
           this.update();
@@ -3287,13 +3433,10 @@
 
       App.Modules.TODPro = {
         readInput: readTODProInput,
-        calculate: calculateTODPro,
+        calculate: function(input){ return App.Core.Flight.calculateTODPro(input); },
         render: renderTODPro,
         update: function(){
-          var input = readTODProInput();
-          var result = calculateTODPro(input);
-          renderTODPro(result);
-          return result;
+          return executeCorePipeline(readTODProInput, App.Core.Flight.calculateTODPro, renderTODPro);
         },
         init: function(){
           this.update();
@@ -3302,13 +3445,10 @@
 
       App.Modules.WBPro = {
         readInput: readWBProInput,
-        calculate: calculateWBPro,
+        calculate: function(input){ return App.Core.Safety.calculateWBPro(input); },
         render: renderWBPro,
         update: function(){
-          var input = readWBProInput();
-          var result = calculateWBPro(input);
-          renderWBPro(result);
-          return result;
+          return executeCorePipeline(readWBProInput, App.Core.Safety.calculateWBPro, renderWBPro);
         },
         init: function(){
           this.update();
@@ -3320,28 +3460,71 @@
       App.Modules.calcFlightBasic = calcFlightBasic;
       App.Modules.calcFuelReq = calcFuelReq;
       App.Modules.calcEndurance = calcEndurance;
+      App.Modules.readDensityAltitudeInput = readDensityAltitudeInput;
       App.Modules.calcDensityAltitude = calcDensityAltitude;
+      App.Modules.readTasApproxInput = readTasApproxInput;
       App.Modules.calcTasApprox = calcTasApprox;
+      App.Modules.readWindInput = readWindInput;
       App.Modules.calcWind = calcWind;
       App.Modules.calcWB = calcWB;
       App.Modules.calcPNR = calcPNR;
       App.Modules.calcTOD = calcTOD;
       App.Modules.calcPNRPro = calcPNRPro;
       App.Modules.calcTODPro = calcTODPro;
-      App.Calculations.calculateFuel = calculateFuel;
-      App.Calculations.calculateFuelReq = calculateFuelReq;
-      App.Calculations.calculateEndurance = calculateEndurance;
-      App.Calculations.calculateCost = calculateCost;
-      App.Calculations.calculateFlightBasic = calculateFlightBasic;
-      App.Calculations.calculateDensityAltitude = calculateDensityAltitude;
-      App.Calculations.calculateTasApprox = calculateTasApprox;
-      App.Calculations.calculateWind = calculateWind;
-      App.Calculations.calculateWB = calculateWB;
-      App.Calculations.calculatePNR = calculatePNR;
-      App.Calculations.calculateTOD = calculateTOD;
-      App.Calculations.calculatePNRPro = calculatePNRPro;
-      App.Calculations.calculateTODPro = calculateTODPro;
-      App.Calculations.calculateWBPro = calculateWBPro;
+      App.Calculations = App.Core;
+      App.Calculations.calculateFuel = App.Core.Fuel.calculateMass;
+      App.Calculations.calculateFuelReq = App.Core.Fuel.calculateRequired;
+      App.Calculations.calculateEndurance = App.Core.Fuel.calculateEndurance;
+      App.Calculations.calculateCost = App.Core.Cost.calculate;
+      App.Calculations.calculateFlightBasic = App.Core.Flight.calculateBasic;
+      App.Calculations.calculateDensityAltitude = App.Core.Atmosphere.calculateDensityAltitude;
+      App.Calculations.calculateTasApprox = App.Core.Atmosphere.calculateTasApprox;
+      App.Calculations.calculateWind = App.Core.Safety.calculateWind;
+      App.Calculations.calculateWB = App.Core.Safety.calculateWB;
+      App.Calculations.calculatePNR = App.Core.Flight.calculatePNR;
+      App.Calculations.calculateTOD = App.Core.Flight.calculateTOD;
+      App.Calculations.calculatePNRPro = App.Core.Flight.calculatePNRPro;
+      App.Calculations.calculateTODPro = App.Core.Flight.calculateTODPro;
+      App.Calculations.calculateWBPro = App.Core.Safety.calculateWBPro;
+
+      App.Core.Fuel = {
+        fuelDensity: fuelDensity,
+        calculateMass: calculateFuel,
+        calculateRequired: calculateFuelReq,
+        calculateEndurance: calculateEndurance
+      };
+
+      App.Core.Cost = {
+        calculate: calculateCost
+      };
+
+      App.Core.Flight = {
+        calculateBasic: calculateFlightBasic,
+        calculatePNR: calculatePNR,
+        calculateTOD: calculateTOD,
+        calculatePNRPro: calculatePNRPro,
+        calculateTODPro: calculateTODPro
+      };
+
+      App.Core.Atmosphere = {
+        calculateDensityAltitude: calculateDensityAltitude,
+        calculateTasApprox: calculateTasApprox
+      };
+
+      App.Core.Safety = {
+        calculateWind: calculateWind,
+        calculateWB: calculateWB,
+        calculateWBPro: calculateWBPro
+      };
+
+      App.Core.execute = executeCorePipeline;
+      App.Core.ResultFactory = {
+        create: createValidationResult,
+        ok: validationOk,
+        warning: validationWarning,
+        error: validationError,
+        ensureShape: ensureCalculationResultShape
+      };
 
       App.Modules.calcWBPro = calcWBPro;
 
@@ -3377,6 +3560,7 @@
 
       function initDOM(){
         cacheDom();
+        App.UI.Templates.normalizeMarkup();
       }
 
       function initNavigation(){
@@ -3468,6 +3652,248 @@
         App.UI.showScreen(App.State.currentScreen || 'menu');
       }
 
+
+      App.Access = App.Access || (function(){
+        var ACCESS_KEY = 'aviation_pro_access_v1';
+        var TRIAL_DAYS = 7;
+        var VALID_CODES = ['AVIATION-PRO-2026','AAL-DEMO-2026','UNLOCK-PRO-16'];
+
+        function now(){ return Date.now(); }
+
+        function readState(){
+          try{
+            var raw = localStorage.getItem(ACCESS_KEY);
+            if(!raw) return { pro:false, activatedAt:null, trialStartedAt:null, code:null };
+            var data = JSON.parse(raw);
+            return {
+              pro: !!data.pro,
+              activatedAt: data.activatedAt || null,
+              trialStartedAt: data.trialStartedAt || null,
+              code: data.code || null
+            };
+          }catch(err){
+            return { pro:false, activatedAt:null, trialStartedAt:null, code:null };
+          }
+        }
+
+        function writeState(next){
+          try{ localStorage.setItem(ACCESS_KEY, JSON.stringify(next)); }catch(err){}
+          App.State.accessState = next;
+          return next;
+        }
+
+        function getState(){
+          if(!App.State.accessState){ App.State.accessState = readState(); }
+          return App.State.accessState;
+        }
+
+        function trialEndsAt(state){
+          if(!state || !state.trialStartedAt) return null;
+          return state.trialStartedAt + (TRIAL_DAYS * 24 * 60 * 60 * 1000);
+        }
+
+        function isTrialActive(){
+          var state = getState();
+          var ends = trialEndsAt(state);
+          return !!ends && now() < ends;
+        }
+
+        function isPro(){
+          var state = getState();
+          return !!state.pro || isTrialActive();
+        }
+
+        function getModeLabel(){
+          var state = getState();
+          if(state.pro) return 'PRO';
+          if(isTrialActive()) return 'TRIAL';
+          return 'FREE';
+        }
+
+        function daysLeft(){
+          var ends = trialEndsAt(getState());
+          if(!ends || now() >= ends) return 0;
+          return Math.max(1, Math.ceil((ends - now()) / (24 * 60 * 60 * 1000)));
+        }
+
+        function setStatus(message, type){
+          var el = document.getElementById('proStatusText');
+          if(!el) return;
+          el.textContent = message || '';
+          el.className = 'pro-status' + (type ? ' ' + type : '');
+        }
+
+        function refreshButton(){
+          var btn = document.getElementById('proToggle');
+          if(!btn) return;
+          btn.textContent = getModeLabel();
+          btn.classList.toggle('pro-toggle', true);
+        }
+
+        function refreshLocks(){
+          document.querySelectorAll('[data-pro-feature]').forEach(function(el){
+            el.classList.toggle('pro-locked', !isPro());
+            el.setAttribute('aria-disabled', String(!isPro()));
+            if(!isPro()){
+              el.setAttribute('title', 'Pro feature');
+            }else{
+              el.removeAttribute('title');
+            }
+          });
+        }
+
+        function openModal(feature){
+          var modal = document.getElementById('proModal');
+          if(!modal) return;
+          modal.classList.add('active');
+          modal.setAttribute('aria-hidden', 'false');
+          App.State.pendingProFeature = feature || null;
+          var title = document.getElementById('proModalTitle');
+          var sub = document.getElementById('proModalSub');
+          if(title) title.textContent = 'Unlock Pro Tools';
+          if(sub){
+            var featureText = feature ? ('Requested feature: ' + String(feature).toUpperCase() + '. ') : '';
+            if(isTrialActive()){
+              sub.textContent = featureText + 'Trial active: ' + daysLeft() + ' day(s) remaining.';
+            }else if(getState().pro){
+              sub.textContent = featureText + 'Pro access is active on this device.';
+            }else{
+              sub.textContent = featureText + 'PNR PRO+, TOD PRO+, and Weight & Balance PRO+ are locked in the standard version.';
+            }
+          }
+          setStatus('');
+        }
+
+        function closeModal(){
+          var modal = document.getElementById('proModal');
+          if(!modal) return;
+          modal.classList.remove('active');
+          modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function activateCode(code){
+          var normalized = String(code || '').trim().toUpperCase();
+          if(!normalized){
+            setStatus('Enter activation code first.', 'error');
+            return false;
+          }
+          if(VALID_CODES.indexOf(normalized) === -1){
+            setStatus('Invalid activation code.', 'error');
+            return false;
+          }
+        }
+
+        function startTrial(){
+          var state = getState();
+          if(state.pro){
+            setStatus('Pro access is already active.', 'success');
+            return true;
+          }
+          if(isTrialActive()){
+            setStatus('Trial already active: ' + daysLeft() + ' day(s) left.', 'success');
+            return true;
+          }
+          writeState({
+            pro: false,
+            activatedAt: state.activatedAt || null,
+            trialStartedAt: now(),
+            code: state.code || null
+          });
+          refresh();
+          setStatus('7-day trial started.', 'success');
+          return true;
+        }
+
+        function resetAccess(){
+          writeState({ pro:false, activatedAt:null, trialStartedAt:null, code:null });
+          refresh();
+          setStatus('Access state reset.', 'success');
+        }
+
+        function finishActivation(code){
+          writeState({
+            pro: true,
+            activatedAt: now(),
+            trialStartedAt: null,
+            code: String(code || '').trim().toUpperCase()
+          });
+          refresh();
+          setStatus('Pro access activated on this device.', 'success');
+          return true;
+        }
+
+        function handleActivate(){
+          var input = document.getElementById('proCodeInput');
+          var code = input ? input.value : '';
+          var normalized = String(code || '').trim().toUpperCase();
+          if(!normalized){
+            setStatus('Enter activation code first.', 'error');
+            return;
+          }
+          if(VALID_CODES.indexOf(normalized) === -1){
+            setStatus('Invalid activation code.', 'error');
+            return;
+          }
+          finishActivation(normalized);
+        }
+
+        function handleLockedClick(target){
+          var lockedNode = target.closest ? target.closest('[data-pro-feature]') : null;
+          if(!lockedNode || isPro()) return false;
+          openModal(lockedNode.getAttribute('data-pro-feature'));
+          return true;
+        }
+
+        function bind(){
+          var proToggle = document.getElementById('proToggle');
+          var closeBtn = document.getElementById('proCloseBtn');
+          var closeActionBtn = document.getElementById('proCloseActionBtn');
+          var activateBtn = document.getElementById('proActivateBtn');
+          var trialBtn = document.getElementById('proTrialBtn');
+          var resetBtn = document.getElementById('proResetBtn');
+          var modal = document.getElementById('proModal');
+
+          if(proToggle) proToggle.addEventListener('click', function(){ openModal(null); });
+          if(closeBtn) closeBtn.addEventListener('click', closeModal);
+          if(closeActionBtn) closeActionBtn.addEventListener('click', closeModal);
+          if(activateBtn) activateBtn.addEventListener('click', handleActivate);
+          if(trialBtn) trialBtn.addEventListener('click', startTrial);
+          if(resetBtn) resetBtn.addEventListener('click', resetAccess);
+          if(modal) modal.addEventListener('click', function(e){
+            if(e.target === modal) closeModal();
+          });
+
+          document.addEventListener('click', function(e){
+            if(handleLockedClick(e.target)){
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }, true);
+        }
+
+        function refresh(){
+          refreshButton();
+          refreshLocks();
+        }
+
+        function init(){
+          getState();
+          bind();
+          refresh();
+        }
+
+        return {
+          init: init,
+          refresh: refresh,
+          isPro: isPro,
+          isTrialActive: isTrialActive,
+          openModal: openModal,
+          closeModal: closeModal,
+          resetAccess: resetAccess
+        };
+      })();
+
+
       function initApp(){
         initDOM();
         initNavigation();
@@ -3484,6 +3910,7 @@
       App.Init.initApp = initApp;
 
       initApp();
+      if(App.Access && App.Access.init) App.Access.init();
     })();
   </script>
 </body>
