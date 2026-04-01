@@ -1178,6 +1178,66 @@
     .screen{padding:16px}
   }
 
+
+  /* ===== TZ-07: empty / unavailable tabs handling ===== */
+  .tab-btn.is-empty-tab{
+    position:relative;
+    opacity:.92;
+  }
+  .tab-btn.is-empty-tab::after{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:999px;
+    background:rgba(217,119,6,.78);
+    position:absolute;
+    top:7px;
+    right:7px;
+  }
+  .empty-state-card{
+    background:rgba(255,255,255,.84);
+    border:1px dashed rgba(148,163,184,.55);
+    border-radius:18px;
+    padding:16px;
+    color:#334155;
+    box-shadow:var(--shadow-soft);
+  }
+  .empty-state-card.pro-state{
+    background:rgba(255,248,235,.92);
+    border-color:rgba(217,119,6,.34);
+  }
+  .empty-state-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:76px;
+    padding:5px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.7px;
+    text-transform:uppercase;
+    background:rgba(59,130,246,.12);
+    color:#1d4ed8;
+    margin-bottom:10px;
+  }
+  .empty-state-card.pro-state .empty-state-badge{
+    background:rgba(217,119,6,.14);
+    color:#b45309;
+  }
+  .empty-state-title{
+    font-size:15px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:6px;
+  }
+  .empty-state-text{
+    font-size:13px;
+    line-height:1.45;
+    font-weight:600;
+    color:#475569;
+  }
+
 </style>
 </head>
 <body>
@@ -3988,6 +4048,8 @@
         readMassInput: readFuelMassInput,
         readRequiredInput: readFuelRequiredInput,
         readEnduranceInput: readFuelEnduranceInput,
+        describeMassPipeline: function(){ return App.Workflows.describe('fuel.mass'); },
+        describePilotScope: function(){ return App.Workflows.describePilot(); },
         calculateMass: function(input){ return App.Core.Fuel.calculateMass(input); },
         calculateRequired: function(input){ return App.Core.Fuel.calculateRequired(input); },
         calculateEndurance: function(input){ return App.Core.Fuel.calculateEndurance(input); },
@@ -4200,6 +4262,29 @@
         return value;
       }
 
+      App.Audit = App.Audit || {};
+      App.Audit.Pipelines = App.Audit.Pipelines || {};
+
+      function inferFunctionName(fn, fallback){
+        if(typeof fn !== 'function') return fallback || 'anonymous';
+        return fn.name && fn.name.trim() ? fn.name.trim() : (fallback || 'anonymous');
+      }
+
+      function buildWorkflowDescription(name, spec, meta){
+        return {
+          name: name,
+          stages: ['read', 'normalize', 'validate', 'calculate', 'render'],
+          read: inferFunctionName(spec && spec.read, 'read'),
+          normalize: inferFunctionName(spec && spec.normalize, 'normalize'),
+          validate: spec && typeof spec.validate === 'function' ? inferFunctionName(spec.validate, 'validate') : null,
+          calculate: inferFunctionName(spec && spec.calculate, 'calculate'),
+          render: inferFunctionName(spec && spec.render, 'render'),
+          selectors: meta && meta.selectors ? meta.selectors.slice() : [],
+          outputs: meta && meta.outputs ? meta.outputs.slice() : [],
+          notes: meta && meta.notes ? meta.notes : ''
+        };
+      }
+
       function buildWorkflowSpec(name, spec){
         return {
           name: name,
@@ -4242,8 +4327,21 @@
       }
 
       function registerWorkflow(name, spec){
-        App.Workflows.registry[name] = buildWorkflowSpec(name, spec);
-        return App.Workflows.registry[name];
+        var workflow = buildWorkflowSpec(name, spec);
+        App.Workflows.registry[name] = workflow;
+        if(spec && spec.meta){
+          App.Audit.Pipelines[name] = buildWorkflowDescription(name, workflow, spec.meta);
+        }
+        return workflow;
+      }
+
+      function describeWorkflow(name){
+        var workflow = App.Workflows && App.Workflows.registry ? App.Workflows.registry[name] : null;
+        if(!workflow) return null;
+        if(App.Audit && App.Audit.Pipelines && App.Audit.Pipelines[name]){
+          return App.Audit.Pipelines[name];
+        }
+        return buildWorkflowDescription(name, workflow);
       }
 
       function readWBInput(){
@@ -4301,20 +4399,146 @@
         setText('#wbStatus', result.data.inLimits ? 'IN LIMITS' : 'OUT OF LIMITS');
       }
 
+      function getPilotWorkflowName(){
+        return (App.Stage1Pilot && App.Stage1Pilot.workflow) || 'fuel.mass';
+      }
+
+      function getPilotWorkflowMeta(){
+        var workflow = App.Workflows && App.Workflows.registry ? App.Workflows.registry[getPilotWorkflowName()] : null;
+        return workflow && workflow.meta ? workflow.meta : null;
+      }
+
+      function describePilotWorkflow(){
+        return {
+          workflow: getPilotWorkflowName(),
+          scope: App.Stage1Pilot || null,
+          pipeline: describeWorkflow(getPilotWorkflowName()),
+          meta: getPilotWorkflowMeta()
+        };
+      }
+
       App.Workflows = App.Workflows || {
         registry: {},
         register: registerWorkflow,
-        execute: executeWorkflow
+        execute: executeWorkflow,
+        describe: describeWorkflow
       };
       App.Workflows.registry = App.Workflows.registry || {};
       App.Workflows.register = registerWorkflow;
       App.Workflows.execute = executeWorkflow;
+      App.Workflows.describe = describeWorkflow;
+      App.Workflows.getPilot = getPilotWorkflowName;
+      App.Workflows.describePilot = describePilotWorkflow;
+
+      App.Stage1Pilot = App.Stage1Pilot || {
+        id: 'TZ4-PILOT-01',
+        workflow: 'fuel.mass',
+        module: 'Fuel',
+        screen: 'fuel',
+        tabId: 'fuel-main',
+        tabLabel: 'Fuel',
+        title: 'Fuel mass calculator',
+        reasons: [
+          'Main user-visible calculator in Fuel screen',
+          'Smallest safe scope for stage-by-stage cleanup',
+          'Already covered by TZ-3 pipeline description'
+        ],
+        selectors: {
+          screen: '#screen-fuel',
+          tabButton: '.tabs-row .tab-btn[data-tab="fuel-main"]',
+          tabContent: '#tab-fuel-main',
+          inputs: ['#fuelType', '#fuelVol', '#fuelTemp'],
+          outputs: ['#fuelMass', '#fuelLbs', '#fuelUsg', '#fuelImp', '#fuelMassStatus']
+        },
+        acceptance: [
+          'Screen opens from menu and tabbar',
+          'Fuel main tab remains selectable',
+          'Inputs calculate mass, density and specific weight',
+          'Validation/result rendering stays within this calculator scope'
+        ],
+        notes: 'TZ-4: one canonical pilot calculator selected for Stage 1 work.'
+      };
+
+
+      /*
+       * TZ-05A: fuel pilot emptiness diagnosis
+       * The Fuel screen content exists in HTML, but the legacy/runtime contracts were partially mismatched:
+       * 1) tab buttons use data-tab="fuel-main" while DOM panels use id="tab-fuel-main"
+       * 2) some legacy recovery bindings still pointed to pre-refactor ids like fuelVolume / reqBurn / endBurn
+       * 3) pilot metadata was still pointing at stale DOM selectors from the pre-cleanup layer
+       * This block makes the diagnosis explicit and exposes it for audit/runtime checks.
+       */
+      App.Diagnostics = App.Diagnostics || {};
+
+      function normalizeLegacyTabKey(value){
+        return typeof value === 'string' ? value.replace(/^tab-/, '') : value;
+      }
+
+      function buildFuelPilotDiagnosis(){
+        var shell = $('#screen-fuel .calc-shell');
+        var tabButtons = shell ? Array.from(shell.querySelectorAll('.tabs-row .tab-btn[data-tab]')) : [];
+        var panels = shell ? Array.from(shell.querySelectorAll('.tab-content')) : [];
+        var panelIds = panels.map(function(panel){ return panel.id; });
+        var fieldRows = shell ? shell.querySelectorAll('#tab-fuel-main .field-row').length : 0;
+        var findings = [];
+        var mismatchIds = panelIds.filter(function(id){ return id.indexOf('tab-') === 0; }).map(function(id){ return { domId:id, logicalId: normalizeLegacyTabKey(id) }; });
+        if(mismatchIds.length){
+          findings.push({
+            id:'fuel-tab-id-mismatch',
+            severity:'high',
+            category:'logic-markup-contract',
+            message:'Fuel tab buttons use logical ids while DOM tab-content panels use prefixed ids.',
+            details:mismatchIds
+          });
+        }
+        findings.push({
+          id:'fuel-content-presence',
+          severity:'info',
+          category:'markup',
+          message:'Fuel main panel already contains concrete field rows and answer markup.',
+          details:{ fieldRows: fieldRows, panelCount: panels.length, buttonCount: tabButtons.length }
+        });
+        findings.push({
+          id:'fuel-empty-state-root-cause',
+          severity:'high',
+          category:'logic',
+          message:'The screen can look empty/inert not because markup is missing, but because legacy wiring may fail to target the active Fuel panel and some fallback bindings used stale control ids.',
+          details:{
+            tabContentPresent: panels.length > 0,
+            staleSelectorRisk: true,
+            cssOnlyCause: false,
+            missingMarkupCause: false
+          }
+        });
+        return {
+          workflow:'fuel.mass',
+          screen:'fuel',
+          tabButtonCount: tabButtons.length,
+          tabContentIds: panelIds,
+          fieldRowsInMain: fieldRows,
+          findings: findings,
+          conclusion: 'Primary cause is contract mismatch between legacy logic and current Fuel DOM ids/selectors, not missing HTML.'
+        };
+      }
+
+      App.Diagnostics.buildFuelPilotDiagnosis = buildFuelPilotDiagnosis;
+      App.Diagnostics.describeFuelPilot = function(){
+        return buildFuelPilotDiagnosis();
+      };
 
       registerWorkflow('fuel.mass', {
         read: readFuelMassInput,
         normalize: identityWorkflowValue,
         calculate: App.Core.Fuel.calculateMass,
-        render: renderFuel
+        render: renderFuel,
+        meta: {
+          pilot: true,
+          screen: 'fuel',
+          tabId: 'fuel-main',
+          selectors: ['#fuelType', '#fuelVol', '#fuelTemp'],
+          outputs: ['#fuelMass', '#fuelLbs', '#fuelUsg', '#fuelImp', '#fuelMassStatus'],
+          notes: 'TZ-3/TZ-4 canonical pipeline for one pilot calculator: read input -> normalize -> validate inside core -> calculate -> render result.'
+        }
       });
       registerWorkflow('fuel.required', {
         read: readFuelRequiredInput,
@@ -4934,15 +5158,15 @@
   function bindCalcRecovery(){
     if(!(window.App && App.Modules)) return;
     [
-      ['fuelVolume', App.Modules.calcFuel], ['fuelTemp', App.Modules.calcFuel], ['fuelType', App.Modules.calcFuel],
-      ['reqDist', App.Modules.calcFuelReq], ['reqBurn', App.Modules.calcFuelReq], ['reqReserve', App.Modules.calcFuelReq],
-      ['endFuel', App.Modules.calcEndurance], ['endBurn', App.Modules.calcEndurance],
-      ['costBurn', App.Modules.calcCost], ['costPrice', App.Modules.calcCost], ['costGs', App.Modules.calcCost], ['costCurrency', App.Modules.calcCost],
-      ['fltDist', App.Modules.calcFlightBasic], ['fltTas', App.Modules.calcFlightBasic], ['fltWindDir', App.Modules.calcFlightBasic], ['fltWindSpd', App.Modules.calcFlightBasic], ['fltCourse', App.Modules.calcFlightBasic],
-      ['daAlt', App.Modules.calcDensityAltitude], ['daTemp', App.Modules.calcDensityAltitude], ['daQnh', App.Modules.calcDensityAltitude],
-      ['tasIas', App.Modules.calcTasApprox], ['tasAlt', App.Modules.calcTasApprox], ['tasTemp', App.Modules.calcTasApprox],
-      ['windRunway', App.Modules.calcWind], ['windDir', App.Modules.calcWind], ['windSpd', App.Modules.calcWind], ['windLimit', App.Modules.calcWind],
-      ['pnrFuel', App.Modules.calcPNR], ['pnrReserve', App.Modules.calcPNR], ['pnrBurn', App.Modules.calcPNR], ['pnrGsOut', App.Modules.calcPNR], ['pnrGsHome', App.Modules.calcPNR],
+      ['fuelVol', App.Modules.calcFuel], ['fuelTemp', App.Modules.calcFuel], ['fuelType', App.Modules.calcFuel],
+      ['freqGs', App.Modules.calcFuelReq], ['freqDist', App.Modules.calcFuelReq], ['freqFlow', App.Modules.calcFuelReq], ['freqRes', App.Modules.calcFuelReq],
+      ['endFuel', App.Modules.calcEndurance], ['endFlow', App.Modules.calcEndurance],
+      ['costFlow', App.Modules.calcCost], ['costPrice', App.Modules.calcCost], ['costGs', App.Modules.calcCost], ['costCurrency', App.Modules.calcCost],
+      ['flightDist', App.Modules.calcFlightBasic], ['flightTas', App.Modules.calcFlightBasic], ['flightWdir', App.Modules.calcFlightBasic], ['flightWspd', App.Modules.calcFlightBasic], ['flightCrs', App.Modules.calcFlightBasic],
+      ['atmoElev', App.Modules.calcDensityAltitude], ['atmoOat', App.Modules.calcDensityAltitude], ['atmoQnh', App.Modules.calcDensityAltitude],
+      ['tasIas', App.Modules.calcTasApprox], ['tasAlt', App.Modules.calcTasApprox], ['tasOat', App.Modules.calcTasApprox],
+      ['windRwy', App.Modules.calcWind], ['windDir', App.Modules.calcWind], ['windSpd', App.Modules.calcWind],
+      ['pnrOutGs', App.Modules.calcPNR], ['pnrRetGs', App.Modules.calcPNR], ['pnrEnd', App.Modules.calcPNR],
       ['todAlt', App.Modules.calcTOD], ['todVs', App.Modules.calcTOD], ['todGs', App.Modules.calcTOD],
       ['pnrProFuel', App.Modules.calcPNRPro], ['pnrProReserve', App.Modules.calcPNRPro], ['pnrProFlowOut', App.Modules.calcPNRPro], ['pnrProFlowBack', App.Modules.calcPNRPro], ['pnrProGsOut', App.Modules.calcPNRPro], ['pnrProGsBack', App.Modules.calcPNRPro],
       ['todProCruiseAlt', App.Modules.calcTODPro], ['todProTargetAlt', App.Modules.calcTODPro], ['todProTransAlt', App.Modules.calcTODPro], ['todProTasMach', App.Modules.calcTODPro], ['todProWindCruise', App.Modules.calcTODPro], ['todProVsMach', App.Modules.calcTODPro], ['todProTasIas', App.Modules.calcTODPro], ['todProWindLow', App.Modules.calcTODPro], ['todProVsIas', App.Modules.calcTODPro]
@@ -5061,7 +5285,8 @@
         var shell = tabBtn.closest('.calc-shell');
         if(!shell) return;
         $$('.tabs-row .tab-btn', shell).forEach(function(btn){ btn.classList.toggle('active', btn === tabBtn); });
-        $$('.tab-content', shell).forEach(function(panel){ panel.classList.toggle('active', panel.id === tabBtn.dataset.tab); });
+        var targetId = tabBtn.dataset.tabTarget || ('tab-' + tabBtn.dataset.tab);
+        $$('.tab-content', shell).forEach(function(panel){ panel.classList.toggle('active', panel.id === targetId); });
         triggerActivePanelCalculation(shell);
       }
     }, true);
@@ -5070,15 +5295,15 @@
   function getCalcMap(){
     var M = window.App && App.Modules ? App.Modules : {};
     return {
-      fuelVolume: M.calcFuel, fuelTemp: M.calcFuel, fuelType: M.calcFuel,
-      reqDist: M.calcFuelReq, reqBurn: M.calcFuelReq, reqReserve: M.calcFuelReq,
-      endFuel: M.calcEndurance, endBurn: M.calcEndurance,
-      costBurn: M.calcCost, costPrice: M.calcCost, costGs: M.calcCost, costCurrency: M.calcCost,
-      fltDist: M.calcFlightBasic, fltTas: M.calcFlightBasic, fltWindDir: M.calcFlightBasic, fltWindSpd: M.calcFlightBasic, fltCourse: M.calcFlightBasic,
-      daAlt: M.calcDensityAltitude, daTemp: M.calcDensityAltitude, daQnh: M.calcDensityAltitude,
-      tasIas: M.calcTasApprox, tasAlt: M.calcTasApprox, tasTemp: M.calcTasApprox,
-      windRunway: M.calcWind, windDir: M.calcWind, windSpd: M.calcWind, windLimit: M.calcWind,
-      pnrFuel: M.calcPNR, pnrReserve: M.calcPNR, pnrBurn: M.calcPNR, pnrGsOut: M.calcPNR, pnrGsHome: M.calcPNR,
+      fuelVol: M.calcFuel, fuelTemp: M.calcFuel, fuelType: M.calcFuel,
+      freqGs: M.calcFuelReq, freqDist: M.calcFuelReq, freqFlow: M.calcFuelReq, freqRes: M.calcFuelReq,
+      endFuel: M.calcEndurance, endFlow: M.calcEndurance,
+      costFlow: M.calcCost, costPrice: M.calcCost, costGs: M.calcCost, costCurrency: M.calcCost,
+      flightDist: M.calcFlightBasic, flightTas: M.calcFlightBasic, flightWdir: M.calcFlightBasic, flightWspd: M.calcFlightBasic, flightCrs: M.calcFlightBasic,
+      atmoElev: M.calcDensityAltitude, atmoOat: M.calcDensityAltitude, atmoQnh: M.calcDensityAltitude,
+      tasIas: M.calcTasApprox, tasAlt: M.calcTasApprox, tasOat: M.calcTasApprox,
+      windRwy: M.calcWind, windDir: M.calcWind, windSpd: M.calcWind,
+      pnrOutGs: M.calcPNR, pnrRetGs: M.calcPNR, pnrEnd: M.calcPNR,
       todAlt: M.calcTOD, todVs: M.calcTOD, todGs: M.calcTOD,
       pnrProFuel: M.calcPNRPro, pnrProReserve: M.calcPNRPro, pnrProFlowOut: M.calcPNRPro, pnrProFlowBack: M.calcPNRPro, pnrProGsOut: M.calcPNRPro, pnrProGsBack: M.calcPNRPro,
       todProCruiseAlt: M.calcTODPro, todProTargetAlt: M.calcTODPro, todProTransAlt: M.calcTODPro, todProTasMach: M.calcTODPro, todProWindCruise: M.calcTODPro, todProVsMach: M.calcTODPro, todProTasIas: M.calcTODPro, todProWindLow: M.calcTODPro, todProVsIas: M.calcTODPro,
@@ -5151,7 +5376,7 @@
     if(!scope) return;
     var active = $('.tab-content.active', scope) || $('.tab-content', scope);
     if(!active) return;
-    var id = active.id;
+    var id = normalizeLegacyTabKey(active.id);
     var map = {
       'fuel-main': M.calcFuel,
       'fuel-required': M.calcFuelReq,
@@ -5313,6 +5538,633 @@
   });
 
   window.AviationProLang = { applyLanguage: applyLanguage, cycleLang: cycleLang };
+})();
+</script>
+
+
+<style id="tz5r-fix-style">
+  .screen{display:none !important;}
+  .screen.active{display:block !important;}
+  .tab-content{display:none !important;}
+  .tab-content.active{display:block !important;}
+</style>
+<script id="tz5r-fix-script">
+(function(){
+  'use strict';
+
+  function $(sel, root){ return (root || document).querySelector(sel); }
+  function $$(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  function setActiveScreen(name){
+    var screens = $$('.screen');
+    var target = $('#screen-' + name) || $('#screen-menu');
+    screens.forEach(function(s){ s.classList.remove('active'); });
+    if(target) target.classList.add('active');
+
+    $$('.tabbar .tab[data-screen], .item[data-screen]').forEach(function(el){
+      if(el.classList && el.classList.contains('tab')) {
+        el.classList.toggle('active', el.dataset.screen === (target ? target.id.replace('screen-','') : 'menu'));
+      }
+    });
+
+    var resolved = target ? target.id.replace('screen-','') : 'menu';
+    var back = $('#backBtn');
+    if(back) back.style.visibility = resolved === 'menu' ? 'hidden' : 'visible';
+    var title = $('#topTitle');
+    if(title){
+      var map = {menu:'Aviation Pro', fuel:'Fuel', cost:'Cost', flight:'Flight', atmo:'Atmosphere', safety:'Safety', tools:'Tools', system:'System'};
+      title.textContent = map[resolved] || 'Aviation Pro';
+    }
+    var bg = $('#bgLayer');
+    if(bg) bg.className = 'bg bg-' + resolved;
+
+    if(window.App){
+      App.State = App.State || {};
+      App.State.currentScreen = resolved;
+    }
+    ensureTabs(target || document);
+    return resolved;
+  }
+
+  function ensureTabs(root){
+    $$('.calc-shell', root).forEach(function(shell){
+      var buttons = $$('.tabs-row .tab-btn', shell);
+      var panels = $$('.tab-content', shell);
+      if(!buttons.length || !panels.length) return;
+
+      var activeBtn = $('.tabs-row .tab-btn.active', shell) || buttons[0];
+      buttons.forEach(function(btn){ btn.classList.toggle('active', btn === activeBtn); });
+      var targetId = activeBtn.getAttribute('data-tab-target') || ('tab-' + activeBtn.getAttribute('data-tab'));
+      var targetPanel = $('#' + targetId, shell) || panels[0];
+      panels.forEach(function(panel){ panel.classList.toggle('active', panel === targetPanel); });
+    });
+  }
+
+  function bindTabs(){
+    document.addEventListener('click', function(ev){
+      var btn = ev.target.closest('.tabs-row .tab-btn');
+      if(!btn) return;
+      var shell = btn.closest('.calc-shell');
+      if(!shell) return;
+      ev.preventDefault();
+      var buttons = $$('.tabs-row .tab-btn', shell);
+      var panels = $$('.tab-content', shell);
+      buttons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+      var targetId = btn.getAttribute('data-tab-target') || ('tab-' + btn.getAttribute('data-tab'));
+      var targetPanel = $('#' + targetId, shell) || panels[0];
+      panels.forEach(function(panel){ panel.classList.toggle('active', panel === targetPanel); });
+    }, true);
+  }
+
+  function bindNavigation(){
+    document.addEventListener('click', function(ev){
+      var nav = ev.target.closest('.item[data-screen], .tabbar .tab[data-screen]');
+      if(nav){
+        ev.preventDefault();
+        setActiveScreen(nav.getAttribute('data-screen'));
+        return;
+      }
+      var back = ev.target.closest('#backBtn');
+      if(back){
+        ev.preventDefault();
+        setActiveScreen('menu');
+      }
+    }, true);
+  }
+
+  function init(){
+    bindNavigation();
+    bindTabs();
+    setActiveScreen((window.App && App.State && App.State.currentScreen) || 'menu');
+
+    if(window.App){
+      App.UI = App.UI || {};
+      App.UI.showScreen = setActiveScreen;
+      App.TZ5R = {
+        setActiveScreen: setActiveScreen,
+        ensureTabs: ensureTabs,
+        status: function(){
+          return {
+            activeScreen: (($('.screen.active')||{}).id || null),
+            activeTabs: $$('.calc-shell').map(function(shell){
+              var activePanel = $('.tab-content.active', shell);
+              return activePanel ? activePanel.id : null;
+            })
+          };
+        }
+      };
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init, {once:true});
+  } else {
+    init();
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  'use strict';
+  function $$(sel, root){ return Array.from((root || document).querySelectorAll(sel)); }
+  function $(sel, root){ return (root || document).querySelector(sel); }
+
+  function resolveTargetId(btn){
+    return btn.getAttribute('data-tab-target') || ('tab-' + (btn.getAttribute('data-tab') || ''));
+  }
+
+  function activateTab(shell, btn){
+    if(!shell || !btn) return false;
+    var buttons = $$('.tabs-row .tab-btn[data-tab], .tabs-row .tab-btn[data-tab-target]', shell);
+    var panels = $$('.tab-content', shell);
+    if(!buttons.length || !panels.length) return false;
+    buttons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+    var targetId = resolveTargetId(btn);
+    var target = $('#' + CSS.escape(targetId), shell) || panels[0];
+    panels.forEach(function(p){ p.classList.toggle('active', p === target); });
+    return true;
+  }
+
+  function ensureShell(shell){
+    if(!shell) return;
+    var buttons = $$('.tabs-row .tab-btn[data-tab], .tabs-row .tab-btn[data-tab-target]', shell);
+    var panels = $$('.tab-content', shell);
+    if(!buttons.length || !panels.length) return;
+    var activeBtn = $('.tabs-row .tab-btn.active[data-tab], .tabs-row .tab-btn.active[data-tab-target]', shell);
+    if(activeBtn && activateTab(shell, activeBtn)) return;
+    activateTab(shell, buttons[0]);
+  }
+
+  function ensureScreenTabs(screen){
+    if(!screen) return;
+    $$('.calc-shell', screen).forEach(ensureShell);
+  }
+
+  function activeScreen(){
+    return $('.screen.active') || $('#screen-' + (((window.App||{}).State||{}).currentScreen || 'menu')) || $('.screen');
+  }
+
+  function enforceActiveState(){
+    var screen = activeScreen();
+    if(screen){
+      $$('.screen').forEach(function(s){ s.classList.toggle('active', s === screen); });
+      ensureScreenTabs(screen);
+    }
+  }
+
+  document.addEventListener('click', function(ev){
+    var btn = ev.target.closest('.tabs-row .tab-btn[data-tab], .tabs-row .tab-btn[data-tab-target]');
+    if(btn){
+      var shell = btn.closest('.calc-shell');
+      if(shell){
+        ev.preventDefault();
+        activateTab(shell, btn);
+      }
+      return;
+    }
+
+    var nav = ev.target.closest('.item[data-screen], .tabbar .tab[data-screen], #backBtn');
+    if(nav){
+      setTimeout(enforceActiveState, 0);
+      setTimeout(enforceActiveState, 30);
+      setTimeout(enforceActiveState, 120);
+    }
+  }, true);
+
+  function hardShowScreen(name){
+    var wanted = document.getElementById('screen-' + name) || document.getElementById(name) || document.querySelector('.screen');
+    if(!wanted) return null;
+    $$('.screen').forEach(function(s){ s.classList.toggle('active', s === wanted); });
+    if(window.App){
+      App.State = App.State || {};
+      App.State.currentScreen = (wanted.id || '').replace(/^screen-/, '') || name;
+    }
+    ensureScreenTabs(wanted);
+    return wanted;
+  }
+
+  function install(){
+    enforceActiveState();
+    if(window.App){
+      App.UI = App.UI || {};
+      App.UI.showScreen = function(name){ return hardShowScreen(name); };
+      App.TZ6 = {
+        hardShowScreen: hardShowScreen,
+        ensureScreenTabs: ensureScreenTabs,
+        ensureShell: ensureShell,
+        status: function(){
+          var screen = activeScreen();
+          return {
+            activeScreen: screen ? screen.id : null,
+            activePanels: $$('.calc-shell', screen || document).map(function(shell){
+              var panel = $('.tab-content.active', shell) || $('.tab-content', shell);
+              return panel ? panel.id : null;
+            })
+          };
+        }
+      };
+    }
+    setTimeout(enforceActiveState, 0);
+    setTimeout(enforceActiveState, 50);
+    setTimeout(enforceActiveState, 150);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', install, {once:true});
+  } else {
+    install();
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  'use strict';
+  function $$(sel, root){ return Array.from((root || document).querySelectorAll(sel)); }
+  function $(sel, root){ return (root || document).querySelector(sel); }
+
+  function cssEscapeSafe(value){
+    if (window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(value);
+    return String(value).replace(/[^a-zA-Z0-9_-]/g, function(ch){ return '\\' + ch; });
+  }
+
+  function getShells(root){ return $$('.calc-shell', root || document); }
+
+  function resolvePanelForButton(shell, btn){
+    if(!shell || !btn) return null;
+    var key = btn.getAttribute('data-tab') || '';
+    var target = btn.getAttribute('data-tab-target') || '';
+    var candidates = [];
+    if (target) candidates.push(target);
+    if (key) {
+      candidates.push('tab-' + key);
+      candidates.push(key);
+    }
+    for (var i=0;i<candidates.length;i++){
+      var id = candidates[i];
+      var found = $('#' + cssEscapeSafe(id), shell);
+      if(found && found.classList.contains('tab-content')) return found;
+    }
+    var panels = $$('.tab-content', shell);
+    if(!key) return panels[0] || null;
+    var bySuffix = panels.find(function(panel){ return panel.id && panel.id.replace(/^tab-/, '') === key; });
+    if(bySuffix) return bySuffix;
+    return panels[0] || null;
+  }
+
+  function resolveButtonForPanel(shell, panel){
+    if(!shell || !panel) return null;
+    var buttons = $$('.tabs-row .tab-btn', shell);
+    return buttons.find(function(btn){ return resolvePanelForButton(shell, btn) === panel; }) || buttons[0] || null;
+  }
+
+  function panelHasRenderableContent(panel){
+    if(!panel) return false;
+    if(panel.querySelector('.field-row, .answer, .tool-card, .timer-card, .notes-wrap, .wb-table, .calc-status, .validation-summary, input, select, textarea, button')) return true;
+    return (panel.textContent || '').replace(/\s+/g,'').length > 0;
+  }
+
+  function syncShell(shell){
+    if(!shell) return null;
+    var buttons = $$('.tabs-row .tab-btn', shell);
+    var panels = $$('.tab-content', shell);
+    if(!buttons.length || !panels.length) return null;
+
+    var activePanel = $('.tab-content.active', shell);
+    var activeBtn = $('.tabs-row .tab-btn.active', shell);
+
+    if(activeBtn){
+      var mapped = resolvePanelForButton(shell, activeBtn);
+      if(mapped) activePanel = mapped;
+    }
+    if(!activePanel || !panels.includes(activePanel)){
+      activePanel = panels[0];
+    }
+    if(!panelHasRenderableContent(activePanel)){
+      var better = panels.find(panelHasRenderableContent);
+      if(better) activePanel = better;
+    }
+    activeBtn = resolveButtonForPanel(shell, activePanel) || activeBtn || buttons[0];
+
+    buttons.forEach(function(btn){ btn.classList.toggle('active', btn === activeBtn); });
+    panels.forEach(function(panel){ panel.classList.toggle('active', panel === activePanel); panel.hidden = panel !== activePanel; });
+
+    shell.setAttribute('data-active-tab-panel', activePanel.id || '');
+    shell.setAttribute('data-active-tab-key', activeBtn ? (activeBtn.getAttribute('data-tab') || '') : '');
+    return {button: activeBtn, panel: activePanel};
+  }
+
+  function syncScreen(screen){
+    if(!screen) return [];
+    return getShells(screen).map(syncShell).filter(Boolean);
+  }
+
+  function getActiveScreen(){
+    return $('.screen.active') || $('#screen-' + ((((window.App||{}).State||{}).currentScreen) || 'menu')) || $('.screen');
+  }
+
+  function syncAllVisible(){
+    var screen = getActiveScreen();
+    if(screen){
+      $$('.screen').forEach(function(s){ s.classList.toggle('active', s === screen); });
+      syncScreen(screen);
+    }
+  }
+
+  document.addEventListener('click', function(ev){
+    var btn = ev.target.closest('.tabs-row .tab-btn');
+    if(btn){
+      var shell = btn.closest('.calc-shell');
+      if(shell){
+        ev.preventDefault();
+        var panel = resolvePanelForButton(shell, btn);
+        if(panel){
+          $$('.tabs-row .tab-btn', shell).forEach(function(b){ b.classList.toggle('active', b === btn); });
+          $$('.tab-content', shell).forEach(function(p){ p.classList.toggle('active', p === panel); p.hidden = p !== panel; });
+          shell.setAttribute('data-active-tab-panel', panel.id || '');
+          shell.setAttribute('data-active-tab-key', btn.getAttribute('data-tab') || '');
+        }
+        setTimeout(function(){ syncShell(shell); }, 0);
+        setTimeout(function(){ syncShell(shell); }, 60);
+      }
+      return;
+    }
+
+    var nav = ev.target.closest('.item[data-screen], .tabbar .tab[data-screen], #backBtn');
+    if(nav){
+      setTimeout(syncAllVisible, 0);
+      setTimeout(syncAllVisible, 60);
+      setTimeout(syncAllVisible, 180);
+    }
+  }, true);
+
+  function installObserver(){
+    var obs = new MutationObserver(function(records){
+      for (var i=0;i<records.length;i++){
+        var r = records[i];
+        if(r.type === 'attributes' && r.attributeName === 'class'){
+          if(r.target.classList && r.target.classList.contains('screen') && r.target.classList.contains('active')){
+            syncScreen(r.target);
+          }
+        }
+      }
+    });
+    $$('.screen').forEach(function(screen){ obs.observe(screen, {attributes:true, attributeFilter:['class']}); });
+  }
+
+  function installShowScreenOverride(){
+    if(!(window.App && App.UI)) return;
+    var prev = App.UI.showScreen;
+    App.UI.showScreen = function(name){
+      var result = typeof prev === 'function' ? prev(name) : name;
+      setTimeout(syncAllVisible, 0);
+      setTimeout(syncAllVisible, 60);
+      setTimeout(syncAllVisible, 180);
+      return result;
+    };
+  }
+
+  function install(){
+    syncAllVisible();
+    installObserver();
+    installShowScreenOverride();
+    window.App = window.App || {};
+    App.TZ6R = {
+      syncShell: syncShell,
+      syncScreen: syncScreen,
+      syncAllVisible: syncAllVisible,
+      status: function(){
+        var screen = getActiveScreen();
+        return {
+          activeScreen: screen ? screen.id : null,
+          shells: getShells(screen || document).map(function(shell){
+            var buttons = $$('.tabs-row .tab-btn', shell);
+            var panels = $$('.tab-content', shell);
+            var activeBtn = $('.tabs-row .tab-btn.active', shell);
+            var activePanel = $('.tab-content.active', shell);
+            return {
+              shellIndex: getShells(screen || document).indexOf(shell),
+              buttons: buttons.length,
+              panels: panels.length,
+              activeTab: activeBtn ? (activeBtn.getAttribute('data-tab') || activeBtn.getAttribute('data-tab-target') || activeBtn.textContent.trim()) : null,
+              activePanel: activePanel ? activePanel.id : null,
+              renderablePanels: panels.filter(panelHasRenderableContent).map(function(p){ return p.id; })
+            };
+          })
+        };
+      }
+    };
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', install, {once:true});
+  } else {
+    install();
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  'use strict';
+  window.App = window.App || {};
+  App.TZ7 = App.TZ7 || {};
+
+  function q(sel, root){ return (root || document).querySelector(sel); }
+  function qa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function safeText(v){ return String(v || '').replace(/\s+/g,' ').trim(); }
+
+  function extractPanelKey(panel){
+    if(!panel) return '';
+    if(panel.dataset && panel.dataset.tab) return panel.dataset.tab;
+    if(panel.id && panel.id.indexOf('tab-') === 0) return panel.id.slice(4);
+    return '';
+  }
+
+  function findButtonForPanel(shell, panel){
+    var key = extractPanelKey(panel);
+    if(!key) return null;
+    return q('.tabs-row .tab-btn[data-tab="' + key + '"]', shell);
+  }
+
+  function getPanelContentNodes(panel){
+    if(!panel) return [];
+    return qa('.field-row, .answer, .tool-card, .timer-card, .notes-wrap, .wb-table, .wind-compass, .calc-status, .validation-summary, .answer-grid, .tool-grid, .field-list', panel)
+      .filter(function(node){
+        if(node.classList.contains('empty-state-card')) return false;
+        if(node.classList.contains('calc-status') && !node.classList.contains('active')) return false;
+        if(node.classList.contains('validation-summary') && !node.classList.contains('active')) return false;
+        return true;
+      });
+  }
+
+  function isPanelMeaningful(panel){
+    if(!panel) return false;
+    var directWidgets = getPanelContentNodes(panel);
+    if(directWidgets.length) return true;
+    var text = safeText(panel.textContent || '');
+    text = text.replace(/(PRO|PNR|TOD|W&B|AVAILABLE|LOCKED|NOT IMPLEMENTED|UNDER PREPARATION)/gi,'').trim();
+    return text.length > 120;
+  }
+
+  function buildPlaceholder(panel, button){
+    var existing = q('.empty-state-card', panel);
+    if(existing) return existing;
+    var isPro = !!(button && button.hasAttribute('data-pro-feature'));
+    var title = isPro ? 'PRO module available after unlock' : 'This tab is not filled yet';
+    var body = isPro
+      ? 'This section is reserved for the extended PRO workflow. The tab remains visible, but a standard content block is not available in the current state.'
+      : 'The navigation works, but this tab does not contain a finished content block yet. It should show either a working calculator or a clear product-ready module state.';
+
+    var wrap = document.createElement('div');
+    wrap.className = 'empty-state-card' + (isPro ? ' pro-state' : '');
+    wrap.setAttribute('data-empty-state','true');
+    wrap.innerHTML = '<div class="empty-state-badge">' + (isPro ? 'PRO' : 'PENDING') + '</div>' +
+      '<div class="empty-state-title">' + title + '</div>' +
+      '<div class="empty-state-text">' + body + '</div>';
+    panel.appendChild(wrap);
+    return wrap;
+  }
+
+  function annotateTab(shell, panel){
+    var button = findButtonForPanel(shell, panel);
+    if(!button) return {empty:false, button:null};
+    var empty = !isPanelMeaningful(panel);
+    button.classList.toggle('is-empty-tab', empty);
+    panel.dataset.emptyTab = empty ? 'true' : 'false';
+    if(empty){
+      buildPlaceholder(panel, button);
+    }
+    return {empty:empty, button:button};
+  }
+
+  function applyToShell(shell){
+    var panels = qa('.tab-content', shell);
+    var report = [];
+    panels.forEach(function(panel){
+      var key = extractPanelKey(panel);
+      var result = annotateTab(shell, panel);
+      report.push({ key:key, empty:result.empty, active:panel.classList.contains('active') });
+    });
+    return report;
+  }
+
+  function applyAll(){
+    var shells = qa('.calc-shell');
+    var summary = [];
+    shells.forEach(function(shell, idx){
+      var screen = shell.closest('.screen');
+      summary.push({
+        screen: screen ? screen.id : ('shell-' + idx),
+        tabs: applyToShell(shell)
+      });
+    });
+    App.TZ7._summary = summary;
+    return summary;
+  }
+
+  App.TZ7.apply = applyAll;
+  App.TZ7.status = function(){ return App.TZ7._summary || applyAll(); };
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyAll, { once:true });
+  } else {
+    applyAll();
+  }
+
+  window.addEventListener('load', function(){ setTimeout(applyAll, 60); }, { once:true });
+})();
+</script>
+
+
+<script>
+(function(){
+  'use strict';
+  window.App = window.App || {};
+  App.Diagnostics = App.Diagnostics || {};
+  App.TZ5 = App.TZ5 || {};
+
+  function q(sel, root){ return (root || document).querySelector(sel); }
+  function qa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function safeText(v){ return String(v || '').replace(/\s+/g,' ').trim(); }
+  function extractPanelKey(panel){
+    if(!panel) return '';
+    if(panel.dataset && panel.dataset.tab) return panel.dataset.tab;
+    if(panel.id && panel.id.indexOf('tab-') === 0) return panel.id.slice(4);
+    return panel.id || '';
+  }
+  function panelHasRenderableContent(panel){
+    if(!panel) return false;
+    var widgets = qa('.field-row, .answer, .tool-card, .timer-card, .notes-wrap, .wb-table, .wind-compass, .calc-status.active, .validation-summary.active, .answer-grid, .tool-grid, .field-list', panel)
+      .filter(function(node){ return !node.classList.contains('empty-state-card'); });
+    if(widgets.length) return true;
+    var txt = safeText(panel.textContent || '')
+      .replace(/(PRO|PENDING|AVAILABLE|LOCKED|NOT IMPLEMENTED|UNDER PREPARATION)/gi,'')
+      .trim();
+    return txt.length > 120;
+  }
+  function diagnoseShell(shell){
+    var buttons = qa('.tabs-row .tab-btn', shell);
+    var panels = qa('.tab-content', shell);
+    var activeBtn = q('.tabs-row .tab-btn.active', shell);
+    var activePanel = q('.tab-content.active', shell);
+    var buttonKeys = buttons.map(function(btn){ return btn.getAttribute('data-tab') || btn.getAttribute('data-tab-target') || safeText(btn.textContent); });
+    var panelKeys = panels.map(extractPanelKey);
+    var missingPanels = buttonKeys.filter(function(key){ return key && panelKeys.indexOf(key) === -1; });
+    var orphanPanels = panelKeys.filter(function(key){ return key && buttonKeys.indexOf(key) === -1; });
+    var emptyPanels = panels.filter(function(panel){ return !panelHasRenderableContent(panel); }).map(function(panel){ return panel.id || extractPanelKey(panel); });
+    var renderablePanels = panels.filter(panelHasRenderableContent).map(function(panel){ return panel.id || extractPanelKey(panel); });
+    return {
+      shellId: shell.id || null,
+      buttons: buttons.length,
+      panels: panels.length,
+      activeTab: activeBtn ? (activeBtn.getAttribute('data-tab') || activeBtn.getAttribute('data-tab-target') || safeText(activeBtn.textContent)) : null,
+      activePanel: activePanel ? (activePanel.id || extractPanelKey(activePanel)) : null,
+      missingPanels: missingPanels,
+      orphanPanels: orphanPanels,
+      emptyPanels: emptyPanels,
+      renderablePanels: renderablePanels,
+      hasMismatch: !!(activeBtn && activePanel && (extractPanelKey(activePanel) !== (activeBtn.getAttribute('data-tab') || activeBtn.getAttribute('data-tab-target') || safeText(activeBtn.textContent))))
+    };
+  }
+  function buildGlobalEmptyScreenDiagnosis(){
+    var screens = qa('.screen');
+    var activeScreen = q('.screen.active');
+    var report = {
+      activeScreen: activeScreen ? activeScreen.id : null,
+      screens: [],
+      totals: { screens: screens.length, shells: 0, emptyPanels: 0, mismatchedShells: 0, shellsWithoutRenderablePanels: 0 }
+    };
+    screens.forEach(function(screen){
+      var shells = qa('.calc-shell', screen);
+      var screenReport = {
+        screenId: screen.id || null,
+        active: screen.classList.contains('active'),
+        shells: [],
+        hasRenderableContent: false
+      };
+      shells.forEach(function(shell){
+        var shellReport = diagnoseShell(shell);
+        screenReport.shells.push(shellReport);
+        report.totals.shells += 1;
+        report.totals.emptyPanels += shellReport.emptyPanels.length;
+        if(shellReport.hasMismatch) report.totals.mismatchedShells += 1;
+        if(!shellReport.renderablePanels.length) report.totals.shellsWithoutRenderablePanels += 1;
+        if(shellReport.renderablePanels.length) screenReport.hasRenderableContent = true;
+      });
+      report.screens.push(screenReport);
+    });
+    return report;
+  }
+
+  App.Diagnostics.buildGlobalEmptyScreenDiagnosis = buildGlobalEmptyScreenDiagnosis;
+  App.Diagnostics.describeGlobalEmptyState = function(){ return buildGlobalEmptyScreenDiagnosis(); };
+  App.TZ5.status = function(){ return buildGlobalEmptyScreenDiagnosis(); };
+  App.TZ5.describe = function(){ return buildGlobalEmptyScreenDiagnosis(); };
 })();
 </script>
 
