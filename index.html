@@ -876,6 +876,67 @@
     .pro-status.success{color:#15803d}
     .pro-status.error{color:#b91c1c}
 
+    /* TZ-04: validation UI state */
+    .field-row-invalid,
+    .wb-row-invalid{
+      background:rgba(185,28,28,.08);
+    }
+    .field-row-warning,
+    .wb-row-warning{
+      background:rgba(217,119,6,.10);
+    }
+    .field-value.invalid-field,
+    .field-select.invalid-field,
+    .wb-weight.invalid-field,
+    .wb-arm.invalid-field,
+    input.invalid-field,
+    select.invalid-field,
+    textarea.invalid-field{
+      color:#b91c1c !important;
+    }
+    .field-value.warning-field,
+    .field-select.warning-field,
+    .wb-weight.warning-field,
+    .wb-arm.warning-field,
+    input.warning-field,
+    select.warning-field,
+    textarea.warning-field{
+      color:#b45309 !important;
+    }
+    .field-status{
+      margin:-8px 16px 10px;
+      font-size:12px;
+      line-height:1.35;
+      font-weight:700;
+      display:none;
+    }
+    .field-status.active{display:block}
+    .field-status-error{color:#b91c1c}
+    .field-status-warning{color:#b45309}
+    .validation-summary{
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:14px;
+      font-size:12px;
+      line-height:1.4;
+      font-weight:700;
+      display:none;
+      border:1px solid transparent;
+      background:rgba(0,0,0,.03);
+      color:#374151;
+    }
+    .validation-summary.active{display:block}
+    .validation-summary.error{
+      background:rgba(185,28,28,.08);
+      border-color:rgba(185,28,28,.18);
+      color:#991b1b;
+    }
+    .validation-summary.warning{
+      background:rgba(217,119,6,.10);
+      border-color:rgba(217,119,6,.18);
+      color:#92400e;
+    }
+
     @media (max-width:640px){
       .app{padding:0 0 94px}
       .phone{
@@ -2181,26 +2242,49 @@
         return typeof v === 'number' && isFinite(v) && v > 0;
       }
 
+      // TZ-04: centralized validation system
+      function createIssue(kind, code, message, meta){
+        return { code:code, message:message, meta:Object.assign({ kind:kind || 'critical_error' }, meta || {}) };
+      }
+
+      function fieldIssue(kind, field, code, message, meta){
+        return createIssue(kind, code, message, Object.assign({}, meta || {}, { field: field }));
+      }
+
+      function warningIssue(field, code, message, meta){
+        return fieldIssue('warning', field, code, message, meta);
+      }
+
+      function rangeIssue(field, code, message, meta){
+        return fieldIssue('range_issue', field, code, message, meta);
+      }
+
+      function criticalIssue(field, code, message, meta){
+        return fieldIssue('critical_error', field, code, message, meta);
+      }
+
       // TZ-03: unified calculation result contract
       // Every calculation now returns: { ok, result, errors, warnings, debug }
       // Backward-compatible aliases are preserved for the existing UI renderers.
-      function normalizeIssueList(items){
+      function normalizeIssueList(items, defaultKind){
         if(!Array.isArray(items)) return [];
         return items.map(function(item, index){
           if(typeof item === 'string'){
-            return { code:'msg_' + index, message:item, meta:{} };
+            return { code:'msg_' + index, message:item, meta:{ kind: defaultKind || 'critical_error' } };
           }
+          var meta = item && item.meta ? Object.assign({}, item.meta) : {};
+          if(!meta.kind) meta.kind = item && item.kind ? item.kind : (defaultKind || 'critical_error');
           return {
             code: item && item.code ? item.code : 'msg_' + index,
             message: item && item.message ? item.message : 'UNKNOWN',
-            meta: item && item.meta ? item.meta : {}
+            meta: meta
           };
         });
       }
 
       function createValidationResult(ok, result, errors, warnings, debug){
-        var normalizedErrors = normalizeIssueList(errors);
-        var normalizedWarnings = normalizeIssueList(warnings);
+        var normalizedErrors = normalizeIssueList(errors, 'critical_error');
+        var normalizedWarnings = normalizeIssueList(warnings, 'warning');
         var normalizedResult = result || {};
         var normalizedDebug = debug || {};
         var primaryMessage = '';
@@ -2233,15 +2317,19 @@
         return createValidationResult(true, result || {}, [], warnings || [], debug || {});
       }
 
+      function validationRange(result, warnings, debug){
+        return createValidationResult(true, result || {}, [], warnings || [], debug || {});
+      }
+
       function validationError(code, message, meta, debug){
-        var errorMeta = meta || {};
+        var errorMeta = Object.assign({ kind:'critical_error' }, meta || {});
         var debugPayload = debug || errorMeta || {};
         return createValidationResult(false, {}, [{ code:code, message:message, meta:errorMeta }], [], debugPayload);
       }
 
       function ensureCalculationResultShape(result){
         if(result && typeof result === 'object' && 'ok' in result && 'result' in result && 'errors' in result && 'warnings' in result && 'debug' in result){
-          return result;
+          return createValidationResult(result.ok, result.result || {}, result.errors || [], result.warnings || [], result.debug || {});
         }
         if(result && typeof result === 'object' && 'ok' in result && 'data' in result){
           return createValidationResult(!!result.ok, result.data || {}, result.errors || [], result.warnings || [], result.debug || result.details || {});
@@ -2270,6 +2358,89 @@
 
       function setStatusText(sel, result, okText){
         setText(sel, getValidationMessage(result, okText));
+      }
+
+      function clearValidationPresentation(root){
+        var scope = root || document;
+        Array.prototype.forEach.call(scope.querySelectorAll('.invalid-field, .warning-field'), function(el){
+          el.classList.remove('invalid-field');
+          el.classList.remove('warning-field');
+        });
+        Array.prototype.forEach.call(scope.querySelectorAll('.field-row-invalid, .field-row-warning, .wb-row-invalid, .wb-row-warning'), function(el){
+          el.classList.remove('field-row-invalid');
+          el.classList.remove('field-row-warning');
+          el.classList.remove('wb-row-invalid');
+          el.classList.remove('wb-row-warning');
+        });
+        Array.prototype.forEach.call(scope.querySelectorAll('.field-status'), function(node){
+          node.classList.remove('active','field-status-error','field-status-warning');
+          node.textContent = '';
+        });
+        Array.prototype.forEach.call(scope.querySelectorAll('.validation-summary'), function(node){
+          node.classList.remove('active','error','warning');
+          node.textContent = '';
+        });
+      }
+
+      function closestValidationContainer(el){
+        if(!el) return null;
+        return el.closest('.field-row, .wb-row, .tool-card, .answer, .calc-shell');
+      }
+
+      function ensureFieldStatusNode(container){
+        if(!container) return null;
+        var next = container.nextElementSibling;
+        if(next && next.classList && next.classList.contains('field-status')) return next;
+        var node = document.createElement('div');
+        node.className = 'field-status';
+        container.insertAdjacentElement('afterend', node);
+        return node;
+      }
+
+      function ensureSummaryNode(container){
+        if(!container) return null;
+        var node = container.querySelector('.validation-summary');
+        if(node) return node;
+        node = document.createElement('div');
+        node.className = 'validation-summary';
+        container.appendChild(node);
+        return node;
+      }
+
+      function applyIssuePresentation(issue){
+        if(!issue || !issue.meta) return;
+        var fieldRef = issue.meta.field;
+        if(!fieldRef) return;
+        var fieldEl = typeof fieldRef === 'string' ? $(fieldRef) : fieldRef;
+        if(!fieldEl) return;
+        var kind = issue.meta.kind || 'critical_error';
+        var isWarning = kind === 'warning' || kind === 'range_issue';
+        fieldEl.classList.add(isWarning ? 'warning-field' : 'invalid-field');
+        var container = closestValidationContainer(fieldEl);
+        if(container){
+          container.classList.add(container.classList.contains('wb-row') ? (isWarning ? 'wb-row-warning' : 'wb-row-invalid') : (isWarning ? 'field-row-warning' : 'field-row-invalid'));
+          var statusNode = ensureFieldStatusNode(container);
+          if(statusNode){
+            statusNode.textContent = issue.message;
+            statusNode.classList.add('active');
+            statusNode.classList.add(isWarning ? 'field-status-warning' : 'field-status-error');
+          }
+        }
+      }
+
+      function renderValidationPresentation(result){
+        clearValidationPresentation(document);
+        var errors = result && Array.isArray(result.errors) ? result.errors : [];
+        var warnings = result && Array.isArray(result.warnings) ? result.warnings : [];
+        errors.forEach(applyIssuePresentation);
+        warnings.forEach(applyIssuePresentation);
+        var calcShell = document.querySelector('.screen.active .calc-shell');
+        if(calcShell && ((errors && errors.length) || (warnings && warnings.length))){
+          var summary = ensureSummaryNode(calcShell);
+          summary.textContent = getValidationMessage(result, 'CHECK INPUTS');
+          summary.classList.add('active');
+          summary.classList.add(errors.length ? 'error' : 'warning');
+        }
       }
 
       // TZ-11: normalized reusable UI template helpers and markup roles
@@ -2369,6 +2540,21 @@
         });
       }
 
+      App.Validation = {
+        createIssue: createIssue,
+        criticalIssue: criticalIssue,
+        warningIssue: warningIssue,
+        rangeIssue: rangeIssue,
+        createResult: createValidationResult,
+        ok: validationOk,
+        warning: validationWarning,
+        range: validationRange,
+        error: validationError,
+        ensureShape: ensureCalculationResultShape,
+        renderPresentation: renderValidationPresentation,
+        clearPresentation: clearValidationPresentation
+      };
+
       App.UI.Templates = {
         buildTabContentId: buildTabContentId,
         buildFieldRowMarkup: buildFieldRowMarkup,
@@ -2390,6 +2576,7 @@
         var rawResult = typeof calculateFn === 'function' ? calculateFn(input) : validationError('core_missing', 'CALCULATION CORE NOT AVAILABLE');
         var result = ensureCalculationResultShape(rawResult);
         if(typeof renderFn === 'function') renderFn(result, input);
+        renderValidationPresentation(result);
         return result;
       }
 
@@ -2413,11 +2600,11 @@
       }
 
       function calculateFuel(input){
-        if(!validPositive(input.volume)) return validationError('fuel_volume_missing', 'ENTER VALID FUEL VOLUME');
+        if(!validPositive(input.volume)) return validationError('fuel_volume_missing', 'ENTER VALID FUEL VOLUME', { field:'#fuelVolume' });
         var temp = input.temp === null ? 15 : input.temp;
-        if(temp < -60 || temp > 60) return validationError('fuel_temp_range', 'CHECK FUEL TEMPERATURE');
+        if(temp < -60 || temp > 60) return validationError('fuel_temp_range', 'CHECK FUEL TEMPERATURE', { field:'#fuelTemp', kind:'range_issue' });
         var density = fuelDensity(input.type, temp);
-        if(density <= 0) return validationError('fuel_density_invalid', 'CHECK FUEL TYPE / TEMP');
+        if(density <= 0) return validationError('fuel_density_invalid', 'CHECK FUEL TYPE / TEMP', { field:'#fuelType' });
         var mass = input.volume * density;
         return validationOk({
           density:density,
@@ -2443,10 +2630,10 @@
       }
 
       function calculateFuelReq(input){
-        if(!validPositive(input.gs)) return validationError('fuel_req_gs', 'GROUND SPEED MUST BE ABOVE ZERO');
-        if(!validPositive(input.distance)) return validationError('fuel_req_distance', 'DISTANCE MUST BE ABOVE ZERO');
-        if(!validPositive(input.flow)) return validationError('fuel_req_flow', 'FUEL FLOW MUST BE ABOVE ZERO');
-        if(input.reserve === null || input.reserve < 0) return validationError('fuel_req_reserve', 'RESERVE CANNOT BE NEGATIVE');
+        if(!validPositive(input.gs)) return validationError('fuel_req_gs', 'GROUND SPEED MUST BE ABOVE ZERO', { field:'#reqGs' });
+        if(!validPositive(input.distance)) return validationError('fuel_req_distance', 'DISTANCE MUST BE ABOVE ZERO', { field:'#reqDist' });
+        if(!validPositive(input.flow)) return validationError('fuel_req_flow', 'FUEL FLOW MUST BE ABOVE ZERO', { field:'#reqFlow' });
+        if(input.reserve === null || input.reserve < 0) return validationError('fuel_req_reserve', 'RESERVE CANNOT BE NEGATIVE', { field:'#reqReserve', kind:'range_issue' });
         var time = input.distance / input.gs;
         var trip = time * input.flow;
         return validationOk({
@@ -2471,8 +2658,8 @@
       }
 
       function calculateEndurance(input){
-        if(!validPositive(input.fuel)) return validationError('endurance_fuel', 'USABLE FUEL MUST BE ABOVE ZERO');
-        if(!validPositive(input.flow)) return validationError('endurance_flow', 'FUEL FLOW MUST BE ABOVE ZERO');
+        if(!validPositive(input.fuel)) return validationError('endurance_fuel', 'USABLE FUEL MUST BE ABOVE ZERO', { field:'#endFuel' });
+        if(!validPositive(input.flow)) return validationError('endurance_flow', 'FUEL FLOW MUST BE ABOVE ZERO', { field:'#endFlow' });
         return validationOk({ hours: input.fuel / input.flow });
       }
 
@@ -2532,16 +2719,16 @@
 
       function calculateCost(input){
         if(!validPositive(input.flow) && !validPositive(input.price)){
-          return validationError('cost_missing', 'ENTER FLOW AND PRICE');
+          return validationError('cost_missing', 'ENTER FLOW AND PRICE', { field:'#costFlow' });
         }
         if(!validPositive(input.flow)){
-          return validationError('cost_flow', 'FLOW MUST BE ABOVE ZERO');
+          return validationError('cost_flow', 'FLOW MUST BE ABOVE ZERO', { field:'#costFlow' });
         }
         if(!validPositive(input.price)){
-          return validationError('cost_price', 'PRICE MUST BE ABOVE ZERO');
+          return validationError('cost_price', 'PRICE MUST BE ABOVE ZERO', { field:'#costPrice' });
         }
         if(input.gs !== null && !validPositive(input.gs)){
-          return validationError('cost_gs', 'GROUND SPEED MUST BE ABOVE ZERO');
+          return validationError('cost_gs', 'GROUND SPEED MUST BE ABOVE ZERO', { field:'#costGs' });
         }
 
         var perHour = input.flow * input.price;
@@ -2597,20 +2784,20 @@
 
       function calculateFlightBasic(input){
         if(input.tas === null || input.distance === null || input.course === null || input.windDir === null || input.windSpeed === null){
-          return validationError('flight_missing', 'ENTER TAS / DIST / CRS / WIND');
+          return validationError('flight_missing', 'ENTER TAS / DIST / CRS / WIND', { field:'#fltTas' });
         }
-        if(!validPositive(input.tas)) return validationError('flight_tas_invalid', 'TAS MUST BE ABOVE ZERO');
-        if(!validPositive(input.distance)) return validationError('flight_distance_invalid', 'DISTANCE MUST BE ABOVE ZERO');
-        if(input.windSpeed < 0) return validationError('flight_wind_invalid', 'WIND SPEED CANNOT BE NEGATIVE');
+        if(!validPositive(input.tas)) return validationError('flight_tas_invalid', 'TAS MUST BE ABOVE ZERO', { field:'#fltTas' });
+        if(!validPositive(input.distance)) return validationError('flight_distance_invalid', 'DISTANCE MUST BE ABOVE ZERO', { field:'#fltDist' });
+        if(input.windSpeed < 0) return validationError('flight_wind_invalid', 'WIND SPEED CANNOT BE NEGATIVE', { field:'#fltWindSpd', kind:'range_issue' });
         var rel = normalize180(input.windDir - input.course);
         var relRad = rel * Math.PI / 180;
         var cross = input.windSpeed * Math.sin(relRad);
         var head = input.windSpeed * Math.cos(relRad);
         var ratio = cross / input.tas;
-        if(ratio > 1 || ratio < -1) return validationError('flight_crosswind', 'WIND EXCEEDS TAS LIMIT');
+        if(ratio > 1 || ratio < -1) return validationError('flight_crosswind', 'WIND EXCEEDS TAS LIMIT', { field:'#fltWindSpd', kind:'warning' });
         var wca = Math.asin(ratio) * 180 / Math.PI;
         var gs = input.tas * Math.cos(wca * Math.PI / 180) - head;
-        if(!isFinite(gs) || gs <= 0) return validationError('flight_gs_invalid', 'RESULTING GS MUST BE ABOVE ZERO');
+        if(!isFinite(gs) || gs <= 0) return validationError('flight_gs_invalid', 'RESULTING GS MUST BE ABOVE ZERO', { field:'#fltTas' });
         var ete = input.distance / gs;
         var heading = clampHeading(input.course + wca);
         return validationOk({
@@ -2642,11 +2829,13 @@
       }
 
       function calculateDensityAltitude(input){
-        if(input.elevation === null || input.oat === null || !validPositive(input.qnh)) return validationError('density_altitude_invalid', 'ENTER ELEV / OAT / QNH');
+        if(input.elevation === null || input.oat === null || !validPositive(input.qnh)) return validationError('density_altitude_invalid', 'ENTER ELEV / OAT / QNH', { field:'#daElev' });
         var pressureAlt = input.elevation + (1013.25 - input.qnh) * 30;
         var isaTemp = 15 - (pressureAlt / 1000) * 2;
         var da = pressureAlt + 120 * (input.oat - isaTemp);
-        return validationOk({ densityAltitude:da, pressureAltitude:pressureAlt, isaTemp:isaTemp });
+        var warnings = [];
+        if(input.oat > 45 || input.oat < -40) warnings.push(rangeIssue('#daOat', 'oat_extreme', 'OAT IS OUTSIDE TYPICAL RANGE', { typicalMin:-40, typicalMax:45 }));
+        return validationOk({ densityAltitude:da, pressureAltitude:pressureAlt, isaTemp:isaTemp }, warnings, { input:input });
       }
 
       function renderDensityAltitude(result){
@@ -2699,7 +2888,7 @@
       }
 
       function calculateTasApprox(input){
-        if(!validPositive(input.ias) || input.altitude === null || input.oat === null) return validationError('tas_invalid', 'ENTER IAS / ALT / OAT');
+        if(!validPositive(input.ias) || input.altitude === null || input.oat === null) return validationError('tas_invalid', 'ENTER IAS / ALT / OAT', { field:'#tasIas' });
         return validationOk({ tas: input.ias * (1 + (input.altitude / 1000) * 0.02) });
       }
 
@@ -2717,7 +2906,7 @@
       }
 
       function calculateWind(input){
-        if(input.runway === null || input.direction === null || input.speed === null || input.speed < 0) return validationError('wind_invalid', 'ENTER RWY / WIND DATA');
+        if(input.runway === null || input.direction === null || input.speed === null || input.speed < 0) return validationError('wind_invalid', 'ENTER RWY / WIND DATA', { field:'#windRunway' });
         var rel = normalize180(input.direction - input.runway);
         var rad = rel * Math.PI / 180;
         var head = input.speed * Math.cos(rad);
@@ -2759,10 +2948,10 @@
           totalW += row.weight;
           totalM += row.weight * row.arm;
         }
-        if(!hasAny || totalW <= 0) return validationError('wb_empty', 'ENTER WEIGHT DATA');
+        if(!hasAny || totalW <= 0) return validationError('wb_empty', 'ENTER WEIGHT DATA', { field:'#wbEmptyW' });
         var cg = totalM / totalW;
         if(limits.maxWeight === null || limits.minCg === null || limits.maxCg === null){
-          return validationError('wb_limits_missing', 'LIMITS NOT SET');
+          return validationError('wb_limits_missing', 'LIMITS NOT SET', { field:'#wbMaxW' });
         }
         return validationOk({ totalWeight:totalW, totalMoment:totalM, cg:cg, inLimits: totalW <= limits.maxWeight && cg >= limits.minCg && cg <= limits.maxCg });
       }
@@ -2813,16 +3002,16 @@
       }
 
       function calculatePNR(input){
-        if(input.outGs === null || input.retGs === null || input.endurance === null) return validationError('pnr_missing', 'ENTER OUT GS / RETURN GS / ENDURANCE');
-        if(input.outGs <= 0 || input.retGs <= 0) return validationError('pnr_gs', 'GROUND SPEEDS MUST BE ABOVE ZERO');
-        if(input.endurance <= 0) return validationError('pnr_endurance', 'ENDURANCE MUST BE ABOVE ZERO');
+        if(input.outGs === null || input.retGs === null || input.endurance === null) return validationError('pnr_missing', 'ENTER OUT GS / RETURN GS / ENDURANCE', { field:'#pnrOutGs' });
+        if(input.outGs <= 0 || input.retGs <= 0) return validationError('pnr_gs', 'GROUND SPEEDS MUST BE ABOVE ZERO', { field:'#pnrOutGs' });
+        if(input.endurance <= 0) return validationError('pnr_endurance', 'ENDURANCE MUST BE ABOVE ZERO', { field:'#pnrEndurance' });
 
         var denominator = input.outGs + input.retGs;
-        if(!isFinite(denominator) || denominator <= 0) return validationError('pnr_sum', 'CHECK PNR SPEED DATA');
+        if(!isFinite(denominator) || denominator <= 0) return validationError('pnr_sum', 'CHECK PNR SPEED DATA', { field:'#pnrOutGs' });
 
         var pnrTime = (input.endurance * input.retGs) / denominator;
         var pnrDist = input.outGs * pnrTime;
-        if(!isFinite(pnrTime) || pnrTime < 0 || !isFinite(pnrDist) || pnrDist < 0) return validationError('pnr_math', 'CHECK PNR DATA');
+        if(!isFinite(pnrTime) || pnrTime < 0 || !isFinite(pnrDist) || pnrDist < 0) return validationError('pnr_math', 'CHECK PNR DATA', { field:'#pnrOutGs' });
 
         return validationOk({ timeHours:pnrTime, distanceNm:pnrDist });
       }
@@ -2851,14 +3040,14 @@
       }
 
       function calculateTOD(input){
-        if(input.altitudeToLose === null || input.verticalSpeed === null || input.groundSpeed === null) return validationError('tod_missing', 'ENTER ALTITUDE / VS / GS');
-        if(input.altitudeToLose <= 0) return validationError('tod_altitude', 'ALTITUDE TO LOSE MUST BE ABOVE ZERO');
-        if(input.verticalSpeed <= 0) return validationError('tod_vs', 'DESCENT RATE MUST BE ABOVE ZERO');
-        if(input.groundSpeed <= 0) return validationError('tod_gs', 'GROUND SPEED MUST BE ABOVE ZERO');
+        if(input.altitudeToLose === null || input.verticalSpeed === null || input.groundSpeed === null) return validationError('tod_missing', 'ENTER ALTITUDE / VS / GS', { field:'#todAltLose' });
+        if(input.altitudeToLose <= 0) return validationError('tod_altitude', 'ALTITUDE TO LOSE MUST BE ABOVE ZERO', { field:'#todAltLose' });
+        if(input.verticalSpeed <= 0) return validationError('tod_vs', 'DESCENT RATE MUST BE ABOVE ZERO', { field:'#todVs' });
+        if(input.groundSpeed <= 0) return validationError('tod_gs', 'GROUND SPEED MUST BE ABOVE ZERO', { field:'#todGs' });
 
         var timeMin = input.altitudeToLose / input.verticalSpeed;
         var dist = timeMin * (input.groundSpeed / 60);
-        if(!isFinite(timeMin) || timeMin < 0 || !isFinite(dist) || dist < 0) return validationError('tod_math', 'CHECK TOD DATA');
+        if(!isFinite(timeMin) || timeMin < 0 || !isFinite(dist) || dist < 0) return validationError('tod_math', 'CHECK TOD DATA', { field:'#todGs' });
         return validationOk({ timeMinutes:timeMin, distanceNm:dist });
       }
 
@@ -2890,20 +3079,20 @@
 
       function calculatePNRPro(input){
         if([input.fuel,input.reserve,input.flowOut,input.flowBack,input.gsOut,input.gsBack].some(function(v){ return v === null; })){
-          return validationError('MISSING_INPUT', 'ENTER ALL PNR PRO INPUTS');
+          return validationError('MISSING_INPUT', 'ENTER ALL PNR PRO INPUTS', { field:'#pnrProFuel' });
         }
         if(input.flowOut <= 0 || input.flowBack <= 0 || input.gsOut <= 0 || input.gsBack <= 0){
-          return validationError('INVALID_RANGE', 'FLOW / GS MUST BE ABOVE ZERO');
+          return validationError('INVALID_RANGE', 'FLOW / GS MUST BE ABOVE ZERO', { field:'#pnrProFlowOut' });
         }
         var usable = input.fuel - input.reserve;
         if(usable <= 0){
-          return validationError('INSUFFICIENT_FUEL', 'INSUFFICIENT FUEL', { usable: usable });
+          return validationError('INSUFFICIENT_FUEL', 'INSUFFICIENT FUEL', { usable: usable, field:'#pnrProReserve', kind:'warning' });
         }
         var pnrTime = usable / (input.flowOut + input.flowBack);
         var pnrDist = input.gsOut * pnrTime;
         var returnTime = pnrDist / input.gsBack;
         if(!isFinite(pnrTime) || !isFinite(pnrDist) || !isFinite(returnTime) || pnrTime < 0 || pnrDist < 0 || returnTime < 0){
-          return validationError('CALCULATION_ERROR', 'UNABLE TO COMPUTE PNR');
+          return validationError('CALCULATION_ERROR', 'UNABLE TO COMPUTE PNR', { field:'#pnrProFuel' });
         }
         return validationOk({ pnrTime: pnrTime, pnrDist: pnrDist, usable: usable, returnTime: returnTime });
       }
@@ -2944,13 +3133,13 @@
 
       function calculateTODPro(input){
         if([input.cruiseAlt,input.targetAlt,input.transAlt,input.tasMach,input.windCruise,input.vsMach,input.tasIas,input.windLow,input.vsIas].some(function(v){ return v === null; })){
-          return validationError('MISSING_INPUT', 'ENTER ALL TOD PRO INPUTS');
+          return validationError('MISSING_INPUT', 'ENTER ALL TOD PRO INPUTS', { field:'#todProCruiseAlt' });
         }
         if(input.vsMach <= 0 || input.vsIas <= 0 || input.tasMach <= 0 || input.tasIas <= 0){
-          return validationError('INVALID_RANGE', 'TAS / VS MUST BE ABOVE ZERO');
+          return validationError('INVALID_RANGE', 'TAS / VS MUST BE ABOVE ZERO', { field:'#todProTasMach' });
         }
         if(input.cruiseAlt < input.transAlt || input.transAlt < input.targetAlt){
-          return validationError('INVALID_ALTITUDE_ORDER', 'CHECK ALTITUDE ORDER');
+          return validationError('INVALID_ALTITUDE_ORDER', 'CHECK ALTITUDE ORDER', { field:'#todProCruiseAlt', kind:'range_issue' });
         }
         var gsMach = input.tasMach + input.windCruise;
         var gsIas = input.tasIas + input.windLow;
@@ -3913,5 +4102,172 @@
       if(App.Access && App.Access.init) App.Access.init();
     })();
   </script>
+
+<script>
+(function(){
+  function $(sel, root){ return (root||document).querySelector(sel); }
+  function $$(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
+
+  function safeCall(fn){
+    try { return fn && fn(); } catch(e){ console.error(e); return null; }
+  }
+
+  function activateScreen(name){
+    if(!name) name='menu';
+    $$('.screen').forEach(function(s){ s.classList.toggle('active', s.id === 'screen-' + name); });
+    $$('.tabbar .tab').forEach(function(t){ t.classList.toggle('active', t.dataset.screen === name); });
+    var back = $('#backBtn');
+    if(back) back.style.visibility = name === 'menu' ? 'hidden' : 'visible';
+    var title = $('#topTitle');
+    if(title){
+      var titles = {
+        menu:'Aviation Pro', fuel:'Fuel', cost:'Cost', flight:'Flight',
+        atmo:'Atmosphere', safety:'Safety', tools:'Tools', system:'System'
+      };
+      title.textContent = titles[name] || 'Aviation Pro';
+    }
+    var bg = $('#bgLayer');
+    if(bg){
+      bg.className = 'bg bg-' + name;
+    }
+    try {
+      if(window.App && App.State) App.State.currentScreen = name;
+      if(window.App && App.UI) App.UI.showScreen = activateScreen;
+    } catch(e){}
+  }
+
+  function bindNavigationRecovery(){
+    $$('.item[data-screen], .tabbar .tab[data-screen]').forEach(function(btn){
+      btn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        activateScreen(btn.dataset.screen);
+      }, {passive:false});
+    });
+    var back = $('#backBtn');
+    if(back){
+      back.addEventListener('click', function(ev){
+        ev.preventDefault();
+        activateScreen('menu');
+      }, {passive:false});
+    }
+    $$('.tabs-row').forEach(function(row){
+      row.addEventListener('click', function(ev){
+        var btn = ev.target.closest('.tab-btn');
+        if(!btn) return;
+        var shell = btn.closest('.calc-shell');
+        if(!shell) return;
+        row.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        var key = btn.dataset.tab;
+        shell.querySelectorAll('.tab-content').forEach(function(c){
+          c.classList.toggle('active', c.id === key);
+        });
+      });
+    });
+  }
+
+  function bindAction(id, fn){
+    var el = $('#'+id);
+    if(el && fn){
+      el.addEventListener('input', function(){ safeCall(fn); });
+      el.addEventListener('change', function(){ safeCall(fn); });
+      el.addEventListener('click', function(){ safeCall(fn); });
+    }
+  }
+
+  function bindCalcRecovery(){
+    if(!(window.App && App.Modules)) return;
+    [
+      ['fuelVolume', App.Modules.calcFuel], ['fuelTemp', App.Modules.calcFuel], ['fuelType', App.Modules.calcFuel],
+      ['reqDist', App.Modules.calcFuelReq], ['reqBurn', App.Modules.calcFuelReq], ['reqReserve', App.Modules.calcFuelReq],
+      ['endFuel', App.Modules.calcEndurance], ['endBurn', App.Modules.calcEndurance],
+      ['costBurn', App.Modules.calcCost], ['costPrice', App.Modules.calcCost], ['costGs', App.Modules.calcCost], ['costCurrency', App.Modules.calcCost],
+      ['fltDist', App.Modules.calcFlightBasic], ['fltTas', App.Modules.calcFlightBasic], ['fltWindDir', App.Modules.calcFlightBasic], ['fltWindSpd', App.Modules.calcFlightBasic], ['fltCourse', App.Modules.calcFlightBasic],
+      ['daAlt', App.Modules.calcDensityAltitude], ['daTemp', App.Modules.calcDensityAltitude], ['daQnh', App.Modules.calcDensityAltitude],
+      ['tasIas', App.Modules.calcTasApprox], ['tasAlt', App.Modules.calcTasApprox], ['tasTemp', App.Modules.calcTasApprox],
+      ['windRunway', App.Modules.calcWind], ['windDir', App.Modules.calcWind], ['windSpd', App.Modules.calcWind], ['windLimit', App.Modules.calcWind],
+      ['pnrFuel', App.Modules.calcPNR], ['pnrReserve', App.Modules.calcPNR], ['pnrBurn', App.Modules.calcPNR], ['pnrGsOut', App.Modules.calcPNR], ['pnrGsHome', App.Modules.calcPNR],
+      ['todAlt', App.Modules.calcTOD], ['todVs', App.Modules.calcTOD], ['todGs', App.Modules.calcTOD],
+      ['pnrProFuel', App.Modules.calcPNRPro], ['pnrProReserve', App.Modules.calcPNRPro], ['pnrProFlowOut', App.Modules.calcPNRPro], ['pnrProFlowBack', App.Modules.calcPNRPro], ['pnrProGsOut', App.Modules.calcPNRPro], ['pnrProGsBack', App.Modules.calcPNRPro],
+      ['todProCruiseAlt', App.Modules.calcTODPro], ['todProTargetAlt', App.Modules.calcTODPro], ['todProTransAlt', App.Modules.calcTODPro], ['todProTasMach', App.Modules.calcTODPro], ['todProWindCruise', App.Modules.calcTODPro], ['todProVsMach', App.Modules.calcTODPro], ['todProTasIas', App.Modules.calcTODPro], ['todProWindLow', App.Modules.calcTODPro], ['todProVsIas', App.Modules.calcTODPro]
+    ].forEach(function(pair){ bindAction(pair[0], pair[1]); });
+
+    ['wbEmptyW','wbEmptyA','wbPilotW','wbPilotA','wbBaggageW','wbBaggageA','wbFuelW','wbFuelA','wbMaxW','wbMinCg','wbMaxCg'].forEach(function(id){ bindAction(id, App.Modules.calcWB); });
+    ['wbProPilotW','wbProPilotA','wbProCopilotW','wbProCopilotA','wbProPaxW','wbProPaxA','wbProCargoW','wbProCargoA','wbProFuelW','wbProFuelA','wbProBurn','wbProMinCg','wbProMaxCg','wbProMaxW'].forEach(function(id){ bindAction(id, App.Modules.calcWBPro); });
+
+    safeCall(App.Modules.calcFuel);
+    safeCall(App.Modules.calcFuelReq);
+    safeCall(App.Modules.calcEndurance);
+    safeCall(App.Modules.calcCost);
+    safeCall(App.Modules.calcFlightBasic);
+    safeCall(App.Modules.calcDensityAltitude);
+    safeCall(App.Modules.calcTasApprox);
+    safeCall(App.Modules.calcWind);
+    safeCall(App.Modules.calcWB);
+    safeCall(App.Modules.calcPNR);
+    safeCall(App.Modules.calcTOD);
+    safeCall(App.Modules.calcPNRPro);
+    safeCall(App.Modules.calcTODPro);
+    safeCall(App.Modules.calcWBPro);
+  }
+
+  function bindNotesRecovery(){
+    var box = $('#notesBox'), save = $('#notesSave'), copy = $('#notesCopy'), clear = $('#notesClear');
+    if(save && box) save.addEventListener('click', function(){
+      try { localStorage.setItem('aviation_notes', box.value || ''); } catch(e){}
+    });
+    if(copy && box) copy.addEventListener('click', function(){
+      try { navigator.clipboard.writeText(box.value || ''); } catch(e){}
+    });
+    if(clear && box) clear.addEventListener('click', function(){ box.value=''; });
+  }
+
+  function bindTimerRecovery(){
+    var display = $('#timerDisplay'), start = $('#timerStart'), stop = $('#timerStop'), reset = $('#timerReset'), mins = $('#timerMinutes');
+    if(!display) return;
+    var interval = null, remaining = 0;
+    function render(){
+      var m = Math.floor(remaining/60), s = remaining%60;
+      display.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+    function startTimer(){
+      if(!remaining){
+        remaining = Math.max(0, parseInt(mins && mins.value || '0', 10) || 0) * 60;
+      }
+      if(interval || remaining<=0) { render(); return; }
+      interval = setInterval(function(){
+        remaining--;
+        render();
+        if(remaining<=0){
+          clearInterval(interval); interval=null; remaining=0; render();
+        }
+      },1000);
+      render();
+    }
+    function stopTimer(){ if(interval){ clearInterval(interval); interval=null; } }
+    function resetTimer(){ stopTimer(); remaining = Math.max(0, parseInt(mins && mins.value || '0', 10) || 0) * 60; render(); }
+    if(start) start.addEventListener('click', startTimer);
+    if(stop) stop.addEventListener('click', stopTimer);
+    if(reset) reset.addEventListener('click', resetTimer);
+    if(mins) mins.addEventListener('input', resetTimer);
+    resetTimer();
+  }
+
+  function boot(){
+    bindNavigationRecovery();
+    bindCalcRecovery();
+    bindNotesRecovery();
+    bindTimerRecovery();
+    activateScreen((window.App && App.State && App.State.currentScreen) || 'menu');
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
 </body>
 </html>
