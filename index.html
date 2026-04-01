@@ -723,6 +723,22 @@
     }
     .tab.active .dot{background:var(--blue)}
 
+    .lang-toggle{
+      border:none;
+      border-radius:10px;
+      padding:6px 10px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.4px;
+      background:rgba(255,255,255,.14);
+      color:#fff;
+      cursor:pointer;
+      transition:transform .12s ease, background .18s ease, opacity .18s ease;
+      margin-right:10px;
+    }
+    .lang-toggle:hover{background:rgba(255,255,255,.20)}
+    .lang-toggle:active{transform:scale(.98)}
+
     @media (max-width:640px){
       .app{padding:0 0 94px}
       .phone{
@@ -751,7 +767,7 @@
           <span>Back</span>
         </div>
         <div class="title" id="topTitle">Aviation Pro</div>
-        <div class="right mono" id="clockDisplay">00:00Z</div>
+        <div class="right"><button class="lang-toggle" id="langToggle" type="button">EN</button><span class="mono" id="clockDisplay">00:00Z</span></div>
       </header>
 
       <section class="screen active" id="screen-menu">
@@ -1783,6 +1799,7 @@
         App.DOM.topTitle = $('#topTitle');
         App.DOM.backBtn = $('#backBtn');
         App.DOM.clockDisplay = $('#clockDisplay');
+        App.DOM.langToggle = $('#langToggle');
         App.DOM.screens = $$('.screen');
         App.DOM.tabbarTabs = $$('.tabbar .tab');
         App.DOM.menuButtons = $$('.item[data-screen]');
@@ -1812,7 +1829,7 @@
         });
 
         var cfg = (App.Config.screenConfig && App.Config.screenConfig[name]) || App.Config.screenConfig.menu;
-        if(App.DOM.topTitle) App.DOM.topTitle.textContent = cfg.title;
+        if(App.DOM.topTitle) App.DOM.topTitle.textContent = translateText(cfg.title);
         if(App.DOM.bgLayer) App.DOM.bgLayer.className = 'bg ' + cfg.bg;
         if(App.DOM.backBtn) App.DOM.backBtn.style.visibility = name === 'menu' ? 'hidden' : 'visible';
       }
@@ -1826,8 +1843,7 @@
 
             var shell = row.parentElement;
             shell.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
-            var targetId = btn.dataset.tabTarget || buildTabContentId(btn.dataset.tab);
-            var tab = shell.querySelector('#' + targetId);
+            var tab = shell.querySelector('#tab-' + btn.dataset.tab);
             if(tab) tab.classList.add('active');
           });
         });
@@ -1918,6 +1934,265 @@
         return typeof v === 'number' && isFinite(v) && v > 0;
       }
 
+      // TZ-12: i18n stabilization layer
+      var staticTranslations = {
+        ru: {
+          'Back':'Назад',
+          'Aviation Pro':'Aviation Pro',
+          'Professional quick-reference calculations for fuel, flight, atmosphere, safety margins, conversions, and cockpit utility tools.':'Профессиональные быстрые расчёты для топлива, полёта, атмосферы, запасов безопасности, конвертеров и полезных cockpit-инструментов.',
+          'Calculators':'Калькуляторы',
+          'Fuel':'Топливо',
+          'Cost':'Стоимость',
+          'Flight':'Полёт',
+          'Atmosphere':'Атмосфера',
+          'Safety':'Безопасность',
+          'Tools':'Инструменты',
+          'System':'Система',
+          'Mass, gallons, required fuel, endurance':'Масса, галлоны, требуемое топливо, запас',
+          'Hourly, per minute, per NM, per 100 NM':'За час, за минуту, за NM, за 100 NM',
+          'GS, ETE, WCA, heading, PNR, TOD':'GS, ETE, WCA, курс, PNR, TOD',
+          'Density altitude, QNH, TAS approximation':'Плотностная высота, QNH, приближённый TAS',
+          'Wind components, weight & balance':'Компоненты ветра, центровка и вес',
+          'Converters, timer, notes':'Конвертеры, таймер, заметки',
+          'Quick-access grouped pages':'Страницы быстрого доступа',
+
+          'Required':'Требуемое',
+          'Endurance':'Запас',
+          'Basic':'Базовый',
+          'Density Alt':'Плотн. выс.',
+          'QNH':'QNH',
+          'TAS':'TAS',
+          'Wind':'Ветер',
+          'W&B':'Вес и баланс',
+          'Mass':'Масса',
+          'Temp':'Темп.',
+          'Timer':'Таймер',
+          'Notes':'Заметки',
+
+          'Fuel Mass':'Масса топлива',
+          'Fuel Required':'Требуемое топливо',
+          'Operating Cost':'Эксплуатационная стоимость',
+          'Flight Planning':'Планирование полёта',
+          'Point of No Return':'Точка невозврата',
+          'Top of Descent':'Начало снижения',
+          'Density Altitude':'Плотностная высота',
+          'QNH Converter':'Конвертер QNH',
+          'TAS Approximation':'Приближённый TAS',
+          'Runway Wind Components':'Компоненты ветра на ВПП',
+          'Weight & Balance':'Вес и баланс',
+          'Speed Converter':'Конвертер скорости',
+          'Distance Converter':'Конвертер дистанции',
+          'Mass / Volume':'Масса / объём',
+          'Temperature Converter':'Конвертер температуры',
+          'Cockpit Timer':'Cockpit-таймер',
+          'System Pages':'Системные страницы',
+
+          'Fuel Type':'Тип топлива',
+          'Volume':'Объём',
+          'Fuel Temp':'Температура топлива',
+          'GS':'GS',
+          'Distance':'Дистанция',
+          'Fuel Flow':'Расход топлива',
+          'Reserve':'Резерв',
+          'Fuel On Board':'Топливо на борту',
+          'Fuel Price':'Цена топлива',
+          'Ground Speed':'Путевая скорость',
+          'TAS':'TAS',
+          'Course':'Курс',
+          'Wind From':'Ветер от',
+          'Wind Speed':'Скорость ветра',
+          'Out GS':'GS туда',
+          'Return GS':'GS обратно',
+          'Altitude to Lose':'Высота для потери',
+          'Descent Rate':'Вертикальная скорость снижения',
+          'Total Fuel':'Общее топливо',
+          'Reserve Fuel':'Резерв топлива',
+          'Flow OUT':'Расход туда',
+          'Flow BACK':'Расход обратно',
+          'GS OUT':'GS туда',
+          'GS BACK':'GS обратно',
+          'Cruise Alt':'Крейсерская высота',
+          'IAS':'IAS',
+          'OAT':'OAT',
+          'Elevation':'Превышение',
+          'Pressure Alt':'Баро-высота',
+          'Runway Heading':'Курс ВПП',
+          'Pilot':'Пилот',
+          'Front Pax':'Передний пасс.',
+          'Rear Pax':'Задний пасс.',
+          'Baggage':'Багаж',
+          'Fuel Arm':'Плечо топлива',
+          'Takeoff Fuel':'Взлётное топливо',
+
+          'Required Fuel':'Требуемое топливо',
+          'Cost Summary':'Сводка стоимости',
+          'Flight Solution':'Результат полёта',
+          'PNR':'PNR',
+          'TOD Distance':'Дистанция TOD',
+          'Density Altitude':'Плотностная высота',
+          'QNH Sync':'Синхронизация QNH',
+          'Estimated TAS':'Расчётный TAS',
+          'Wind Components':'Компоненты ветра',
+          'W&B Status':'Статус W&B',
+          'W&B PRO+ Status':'Статус W&B PRO+',
+
+          'Pounds':'Фунты',
+          'US Gallons':'Галлоны US',
+          'Imp Gallons':'Галлоны Imp',
+          'Trip':'Маршрут',
+          'Time':'Время',
+          'Per Hour':'За час',
+          'Per Minute':'За минуту',
+          'Per NM':'За NM',
+          'Per 100 NM':'За 100 NM',
+          'Heading':'Курс',
+          'WCA':'WCA',
+          'ETE':'ETE',
+          'Crosswind':'Боковой',
+          'Head/Tail':'Встречн./попутн.',
+          'Distance to PNR':'До PNR',
+          'Time to PNR':'Время до PNR',
+          'Descent Time':'Время снижения',
+          'Vertical':'Вертик.',
+          'QNH hPa':'QNH гПа',
+          'QNH inHg':'QNH inHg',
+          'Pressure Altitude':'Баро-высота',
+          'Headwind':'Встречный',
+          'Tailwind':'Попутный',
+          'Left XW':'Лев. XW',
+          'Right XW':'Прав. XW',
+          'Status':'Статус',
+          'Envelope':'Огибающая',
+          'Fuel':'Топливо',
+          'Flight':'Полёт',
+          'Atmosphere':'Атмосфера',
+          'Safety':'Безопасность',
+
+          'Calculated from density approximation and entered volume':'Расчёт по приближённой плотности и введённому объёму',
+          'Trip fuel plus reserve':'Маршрутное топливо плюс резерв',
+          'Usable endurance based on fuel flow':'Полезный запас по расходу топлива',
+          'Fuel-only operating estimate':'Оценка эксплуатационных затрат только по топливу',
+          'Groundspeed adjusted for wind':'Путевая скорость с учётом ветра',
+          'Simplified endurance-based point of no return':'Упрощённая точка невозврата по запасу',
+          'Quick descent estimate based on VS and groundspeed':'Быстрая оценка снижения по VS и GS',
+          'Advanced fuel-flow based point of no return':'Расширенный расчёт точки невозврата по расходу топлива',
+          'Two-phase descent profile with wind layers':'Двухэтапный профиль снижения со слоями ветра',
+          'Approximate ISA-derived density altitude':'Приближённая плотностная высота по ISA',
+          'Fields stay synchronized without circular overwrite loops':'Поля синхронизируются без циклической перезаписи',
+          'Rule-of-thumb estimate using IAS and altitude':'Приближённая оценка по IAS и высоте',
+          'After-burn CG and envelope point are shown below':'Ниже показаны CG и точка огибающей после сгорания топлива',
+          'Uses optional data-max-weight, data-min-cg and data-max-cg attributes on the W&B table':'Используются опциональные атрибуты data-max-weight, data-min-cg и data-max-cg таблицы W&B',
+
+          'Start':'Старт',
+          'Stop':'Стоп',
+          'Reset':'Сброс',
+          'Save':'Сохранить',
+          'Copy':'Копировать',
+          'Clear':'Очистить'
+        }
+      };
+
+      var messageTranslations = {
+        ru: {
+          'VALID':'Готово',
+          'INVALID INPUT':'НЕКОРРЕКТНЫЙ ВВОД',
+          'ENTER VALID FUEL VOLUME':'ВВЕДИ КОРРЕКТНЫЙ ОБЪЁМ ТОПЛИВА',
+          'CHECK FUEL TEMPERATURE':'ПРОВЕРЬ ТЕМПЕРАТУРУ ТОПЛИВА',
+          'CHECK FUEL TYPE / TEMP':'ПРОВЕРЬ ТИП ТОПЛИВА / ТЕМПЕРАТУРУ',
+          'GROUND SPEED MUST BE ABOVE ZERO':'ПУТЕВАЯ СКОРОСТЬ ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
+          'DISTANCE MUST BE ABOVE ZERO':'ДИСТАНЦИЯ ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
+          'FUEL FLOW MUST BE ABOVE ZERO':'РАСХОД ТОПЛИВА ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
+          'RESERVE CANNOT BE NEGATIVE':'РЕЗЕРВ НЕ МОЖЕТ БЫТЬ ОТРИЦАТЕЛЬНЫМ',
+          'USABLE FUEL MUST BE ABOVE ZERO':'ПОЛЕЗНОЕ ТОПЛИВО ДОЛЖНО БЫТЬ БОЛЬШЕ НУЛЯ',
+          'ENTER FLOW AND PRICE':'ВВЕДИ РАСХОД И ЦЕНУ',
+          'FLOW MUST BE ABOVE ZERO':'РАСХОД ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
+          'PRICE MUST BE ABOVE ZERO':'ЦЕНА ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
+          'ENTER TAS / DIST / CRS / WIND':'ВВЕДИ TAS / ДИСТ / КУРС / ВЕТЕР',
+          'TAS MUST BE ABOVE ZERO':'TAS ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
+          'WIND SPEED CANNOT BE NEGATIVE':'СКОРОСТЬ ВЕТРА НЕ МОЖЕТ БЫТЬ ОТРИЦАТЕЛЬНОЙ',
+          'WIND EXCEEDS TAS LIMIT':'ВЕТЕР ПРЕВЫШАЕТ ДОПУСТИМЫЙ ПРЕДЕЛ ДЛЯ TAS',
+          'RESULTING GS MUST BE ABOVE ZERO':'РАСЧЁТНЫЙ GS ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
+          'ENTER OUT GS / RETURN GS / ENDURANCE':'ВВЕДИ GS ТУДА / GS ОБРАТНО / ЗАПАС',
+          'GROUND SPEEDS MUST BE ABOVE ZERO':'GS ДОЛЖНЫ БЫТЬ БОЛЬШЕ НУЛЯ',
+          'ENDURANCE MUST BE ABOVE ZERO':'ЗАПАС ДОЛЖЕН БЫТЬ БОЛЬШЕ НУЛЯ',
+          'CHECK PNR DATA':'ПРОВЕРЬ ДАННЫЕ PNR',
+          'CHECK PNR SPEED DATA':'ПРОВЕРЬ ДАННЫЕ СКОРОСТИ PNR',
+          'UNABLE TO COMPUTE PNR':'НЕ УДАЛОСЬ РАССЧИТАТЬ PNR',
+          'ENTER ALTITUDE / VS / GS':'ВВЕДИ ВЫСОТУ / VS / GS',
+          'ALTITUDE TO LOSE MUST BE ABOVE ZERO':'ПОТЕРЯ ВЫСОТЫ ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
+          'DESCENT RATE MUST BE ABOVE ZERO':'СКОРОСТЬ СНИЖЕНИЯ ДОЛЖНА БЫТЬ БОЛЬШЕ НУЛЯ',
+          'CHECK TOD DATA':'ПРОВЕРЬ ДАННЫЕ TOD',
+          'UNABLE TO COMPUTE TOD':'НЕ УДАЛОСЬ РАССЧИТАТЬ TOD',
+          'ENTER ALL PNR PRO INPUTS':'ВВЕДИ ВСЕ ДАННЫЕ PNR PRO',
+          'FLOW / GS MUST BE ABOVE ZERO':'РАСХОД / GS ДОЛЖНЫ БЫТЬ БОЛЬШЕ НУЛЯ',
+          'INSUFFICIENT FUEL':'НЕДОСТАТОЧНО ТОПЛИВА',
+          'ENTER ALL TOD PRO INPUTS':'ВВЕДИ ВСЕ ДАННЫЕ TOD PRO',
+          'CHECK ALTITUDE ORDER':'ПРОВЕРЬ ПОРЯДОК ВЫСОТ',
+          'GROUND SPEED MUST STAY ABOVE ZERO':'GS ДОЛЖЕН ОСТАВАТЬСЯ БОЛЬШЕ НУЛЯ',
+          'TAS / VS MUST BE ABOVE ZERO':'TAS / VS ДОЛЖНЫ БЫТЬ БОЛЬШЕ НУЛЯ',
+          'ENTER ELEV / OAT / QNH':'ВВЕДИ ПРЕВЫШЕНИЕ / OAT / QNH',
+          'ENTER IAS / ALT / OAT':'ВВЕДИ IAS / ВЫСОТУ / OAT',
+          'ENTER RWY / WIND DATA':'ВВЕДИ ДАННЫЕ ВПП / ВЕТРА',
+          'ENTER WEIGHT DATA':'ВВЕДИ ДАННЫЕ ВЕСА',
+          'CHECK WEIGHT / ARM INPUT':'ПРОВЕРЬ ВЕС / ПЛЕЧО',
+          'IN LIMITS':'В ПРЕДЕЛАХ',
+          'OUT OF LIMITS':'ВНЕ ПРЕДЕЛОВ',
+          'CHECK WB PRO INPUTS':'ПРОВЕРЬ ДАННЫЕ WB PRO',
+          'LIMITS NOT SET':'ПРЕДЕЛЫ НЕ ЗАДАНЫ'
+        }
+      };
+
+      function translateText(text){
+        var lang = (App.State && App.State.language) || 'en';
+        if(!text) return text;
+        if(lang === 'en') return text;
+        return (staticTranslations[lang] && staticTranslations[lang][text]) || text;
+      }
+
+      function translateMessage(text){
+        var lang = (App.State && App.State.language) || 'en';
+        if(!text) return text;
+        if(lang === 'en') return text;
+        return (messageTranslations[lang] && messageTranslations[lang][text]) || translateText(text);
+      }
+
+      function translateStaticDom(){
+        var selectors = [
+          '.hero h1','.hero p','.group-label','.item-title','.item-sub','.tab-btn',
+          '.section-title','.field-label','.answer-label','.answer-item-label','.tool-label',
+          '.answer-sub','.topbar .back span','.note-btn','.timer-btn'
+        ];
+        selectors.forEach(function(sel){
+          $$(sel).forEach(function(el){
+            if(!el.dataset.i18nBase){
+              el.dataset.i18nBase = el.textContent.trim();
+            }
+            el.textContent = translateText(el.dataset.i18nBase);
+          });
+        });
+      }
+
+      function setLanguage(lang){
+        App.State.language = lang === 'ru' ? 'ru' : 'en';
+        try { localStorage.setItem('aviationpro_language', App.State.language); } catch(e){}
+        document.documentElement.lang = App.State.language;
+        if(App.DOM.langToggle){
+          App.DOM.langToggle.textContent = App.State.language.toUpperCase();
+          App.DOM.langToggle.setAttribute('aria-label', App.State.language === 'en' ? 'Switch to Russian' : 'Переключить на английский');
+        }
+        translateStaticDom();
+        if(App.State.currentScreen){
+          showScreen(App.State.currentScreen);
+        }
+        if(App.Init && typeof App.Init.renderInitialState === 'function'){
+          App.Init.renderInitialState();
+        }
+      }
+
+      function toggleLanguage(){
+        setLanguage(((App.State && App.State.language) || 'en') === 'en' ? 'ru' : 'en');
+      }
+
       // TZ-03: validation result system
       function createValidationResult(ok, data, errors, warnings){
         return {
@@ -1942,12 +2217,12 @@
           if(result.warnings && result.warnings.length){
             return result.warnings[0].message;
           }
-          return fallback || 'VALID';
+          return translateMessage(fallback || 'VALID');
         }
         if(result.errors && result.errors.length){
-          return result.errors[0].message;
+          return translateMessage(result.errors[0].message);
         }
-        return fallback || 'INVALID INPUT';
+        return translateMessage(fallback || 'INVALID INPUT');
       }
 
       function clearTextTargets(selectors){
@@ -1955,117 +2230,8 @@
       }
 
       function setStatusText(sel, result, okText){
-        setText(sel, getValidationMessage(result, okText));
+        setText(sel, translateMessage(getValidationMessage(result, okText)));
       }
-
-      // TZ-11: normalized reusable UI template helpers and markup roles
-      function buildTabContentId(tabKey){
-        return 'tab-' + tabKey;
-      }
-
-      function buildFieldRowMarkup(label, controlMarkup, unitMarkup){
-        return [
-          '<div class="field-row" data-ui-component="field-row">',
-          '<div class="field-label" data-ui-role="label">' + label + '</div>',
-          controlMarkup,
-          unitMarkup || '<div class="field-unit" data-ui-role="unit"></div>',
-          '</div>'
-        ].join('');
-      }
-
-      function buildAnswerItemMarkup(label, valueMarkup){
-        return [
-          '<div class="answer-item" data-ui-component="answer-item">',
-          '<div class="answer-item-label" data-ui-role="label">' + label + '</div>',
-          '<div class="answer-item-value" data-ui-role="value">' + valueMarkup + '</div>',
-          '</div>'
-        ].join('');
-      }
-
-      function buildToolCardMarkup(label, valueMarkup){
-        return [
-          '<div class="tool-card" data-ui-component="tool-card">',
-          '<div class="tool-label" data-ui-role="label">' + label + '</div>',
-          '<div class="tool-value" data-ui-role="value">' + valueMarkup + '</div>',
-          '</div>'
-        ].join('');
-      }
-
-      function normalizeFieldRowMarkup(row){
-        if(!row) return;
-        row.dataset.uiComponent = 'field-row';
-        var children = Array.from(row.children || []);
-        if(children[0]) children[0].dataset.uiRole = children[0].dataset.uiRole || 'label';
-        if(children[1]) children[1].dataset.uiRole = children[1].dataset.uiRole || 'control';
-        if(children[2]) children[2].dataset.uiRole = children[2].dataset.uiRole || 'unit';
-      }
-
-      function normalizeAnswerMarkup(answer){
-        if(!answer) return;
-        answer.dataset.uiComponent = 'answer-card';
-        var label = answer.querySelector('.answer-label');
-        var value = answer.querySelector('.answer-value');
-        var sub = answer.querySelector('.answer-sub');
-        var grid = answer.querySelector('.answer-grid');
-        if(label) label.dataset.uiRole = label.dataset.uiRole || 'label';
-        if(value) value.dataset.uiRole = value.dataset.uiRole || 'value';
-        if(sub) sub.dataset.uiRole = sub.dataset.uiRole || 'status';
-        if(grid) grid.dataset.uiComponent = 'answer-grid';
-        answer.querySelectorAll('.answer-item').forEach(function(item){
-          item.dataset.uiComponent = 'answer-item';
-          var itemLabel = item.querySelector('.answer-item-label');
-          var itemValue = item.querySelector('.answer-item-value');
-          if(itemLabel) itemLabel.dataset.uiRole = itemLabel.dataset.uiRole || 'label';
-          if(itemValue) itemValue.dataset.uiRole = itemValue.dataset.uiRole || 'value';
-        });
-      }
-
-      function normalizeToolCardMarkup(card){
-        if(!card) return;
-        card.dataset.uiComponent = 'tool-card';
-        var label = card.querySelector('.tool-label');
-        var value = card.querySelector('.tool-value');
-        if(label) label.dataset.uiRole = label.dataset.uiRole || 'label';
-        if(value) value.dataset.uiRole = value.dataset.uiRole || 'value';
-      }
-
-      function normalizeTabMarkup(shell){
-        if(!shell) return;
-        shell.querySelectorAll('.tabs-row .tab-btn').forEach(function(btn){
-          btn.dataset.uiComponent = 'tab-button';
-          if(btn.dataset.tab && !btn.dataset.tabTarget){
-            btn.dataset.tabTarget = buildTabContentId(btn.dataset.tab);
-          }
-        });
-        shell.querySelectorAll('.tab-content').forEach(function(tab){
-          tab.dataset.uiComponent = 'tab-content';
-          if(!tab.dataset.tabId && tab.id && tab.id.indexOf('tab-') === 0){
-            tab.dataset.tabId = tab.id.substring(4);
-          }
-        });
-      }
-
-      function normalizeMarkup(){
-        $$('.calc-shell').forEach(function(shell){
-          shell.dataset.uiComponent = 'calc-shell';
-          shell.querySelectorAll('.field-row').forEach(normalizeFieldRowMarkup);
-          shell.querySelectorAll('.answer').forEach(normalizeAnswerMarkup);
-          shell.querySelectorAll('.tool-card').forEach(normalizeToolCardMarkup);
-          normalizeTabMarkup(shell);
-        });
-      }
-
-      App.UI.Templates = {
-        buildTabContentId: buildTabContentId,
-        buildFieldRowMarkup: buildFieldRowMarkup,
-        buildAnswerItemMarkup: buildAnswerItemMarkup,
-        buildToolCardMarkup: buildToolCardMarkup,
-        normalizeMarkup: normalizeMarkup,
-        normalizeFieldRowMarkup: normalizeFieldRowMarkup,
-        normalizeAnswerMarkup: normalizeAnswerMarkup,
-        normalizeToolCardMarkup: normalizeToolCardMarkup,
-        normalizeTabMarkup: normalizeTabMarkup
-      };
 
       function updateClock(){
         var d = new Date();
@@ -2543,7 +2709,6 @@
         renderTOD(result);
         return result;
       }
-
 
       function readPNRProInput(){
         return {
@@ -3212,7 +3377,6 @@
 
       function initDOM(){
         cacheDom();
-        App.UI.Templates.normalizeMarkup();
       }
 
       function initNavigation(){
