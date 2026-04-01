@@ -4746,12 +4746,57 @@
       })();
 
 
+      App.State = App.State || {};
+      App.Init = App.Init || {};
+
+      App.Init.__postBootHooks = App.Init.__postBootHooks || {};
+      App.Init.__postBootOrder = App.Init.__postBootOrder || [];
+
+      App.Init.registerPostBoot = function(name, fn){
+        if(!name || typeof fn !== 'function') return;
+        if(!App.Init.__postBootHooks[name]){
+          App.Init.__postBootHooks[name] = fn;
+          App.Init.__postBootOrder.push(name);
+        } else {
+          App.Init.__postBootHooks[name] = fn;
+        }
+
+        if(App.State.__appBooted){
+          try {
+            fn();
+          } catch(e){
+            console.error('[postBoot:' + name + ']', e);
+          }
+        }
+      };
+
+      App.Init.runPostBootHooks = function(){
+        if(App.State.__postBootRan) return;
+        App.State.__postBootRan = true;
+
+        App.Init.__postBootOrder.forEach(function(name){
+          var fn = App.Init.__postBootHooks[name];
+          if(typeof fn !== 'function') return;
+          try {
+            fn();
+          } catch(e){
+            console.error('[postBoot:' + name + ']', e);
+          }
+        });
+      };
+
       function initApp(){
+        if(App.State.__appBooted) return;
+        App.State.__appBooted = true;
+
         initDOM();
         initNavigation();
         initBindings();
         initModules();
         renderInitialState();
+
+        if(App.Access && App.Access.init) App.Access.init();
+        if(App.Init && App.Init.runPostBootHooks) App.Init.runPostBootHooks();
       }
 
       App.Init.initDOM = initDOM;
@@ -4761,19 +4806,66 @@
       App.Init.renderInitialState = renderInitialState;
       App.Init.initApp = initApp;
 
-      initApp();
-      if(App.Access && App.Access.init) App.Access.init();
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', initApp, { once:true });
+      } else {
+        initApp();
+      }
     })();
   </script>
 
 <script>
 (function(){
+  window.App = window.App || {};
+  App.LegacyRecovery = App.LegacyRecovery || {};
+
   function $(sel, root){ return (root||document).querySelector(sel); }
   function $$(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
+  function safeCall(fn){ try { return typeof fn === 'function' ? fn() : null; } catch(e){ console.error(e); return null; } }
 
-  function safeCall(fn){
-    try { return fn && fn(); } catch(e){ console.error(e); return null; }
+  var registry = App.LegacyRecovery.registry = App.LegacyRecovery.registry || {};
+  var order = App.LegacyRecovery.order = App.LegacyRecovery.order || [];
+
+  function registerRecovery(name, category, fn){
+    if(!name || typeof fn !== 'function') return;
+    if(!registry[name]) order.push(name);
+    registry[name] = {
+      name: name,
+      category: category || 'misc',
+      run: fn,
+      enabled: true
+    };
   }
+
+  function runRecovery(name){
+    var entry = registry[name];
+    if(!entry || entry.enabled === false || typeof entry.run !== 'function') return;
+    try {
+      entry.run();
+    } catch(e){
+      console.error('[LegacyRecovery:' + name + ']', e);
+    }
+  }
+
+  function runAllRecovery(){
+    order.forEach(runRecovery);
+  }
+
+  function listRecovery(){
+    return order.map(function(name){
+      var entry = registry[name];
+      return {
+        name: entry.name,
+        category: entry.category,
+        enabled: entry.enabled !== false
+      };
+    });
+  }
+
+  App.LegacyRecovery.register = registerRecovery;
+  App.LegacyRecovery.run = runRecovery;
+  App.LegacyRecovery.runAll = runAllRecovery;
+  App.LegacyRecovery.list = listRecovery;
 
   function activateScreen(name){
     if(!name) name='menu';
@@ -4790,12 +4882,13 @@
       title.textContent = titles[name] || 'Aviation Pro';
     }
     var bg = $('#bgLayer');
-    if(bg){
-      bg.className = 'bg bg-' + name;
-    }
+    if(bg) bg.className = 'bg bg-' + name;
     try {
       if(window.App && App.State) App.State.currentScreen = name;
-      if(window.App && App.UI) App.UI.showScreen = activateScreen;
+      if(window.App){
+        App.UI = App.UI || {};
+        App.UI.showScreen = activateScreen;
+      }
     } catch(e){}
   }
 
@@ -4916,28 +5009,13 @@
     resetTimer();
   }
 
-  function boot(){
+  function bootLegacyBindings(){
     bindNavigationRecovery();
     bindCalcRecovery();
     bindNotesRecovery();
     bindTimerRecovery();
     activateScreen((window.App && App.State && App.State.currentScreen) || 'menu');
   }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-})();
-</script>
-
-
-<script>
-(function(){
-  function $(sel, root){ return (root||document).querySelector(sel); }
-  function $$(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
-  function callSafe(fn){ try { return typeof fn === 'function' ? fn() : null; } catch(e){ console.error(e); return null; } }
 
   function ensureShowScreen(){
     function show(name){
@@ -5014,7 +5092,7 @@
       var id = ev.target && ev.target.id;
       if(!id) return;
       var fn = getCalcMap()[id];
-      if(fn) callSafe(fn);
+      if(fn) safeCall(fn);
       if(id === 'notesBox'){
         try { localStorage.setItem('aviation_notes', ev.target.value || ''); } catch(e){}
       }
@@ -5090,10 +5168,10 @@
       'safety-wbpro': M.calcWBPro,
       'cost-main': M.calcCost
     };
-    callSafe(map[id]);
+    safeCall(map[id]);
   }
 
-  function boot(){
+  function bootLegacyScreenWire(){
     var showScreen = ensureShowScreen();
     wireNavigation(showScreen);
     wireInputs();
@@ -5101,15 +5179,35 @@
     restoreNotes();
     resetTimer();
     if(window.App && App.Modules){
-      ['calcFuel','calcFuelReq','calcEndurance','calcCost','calcFlightBasic','calcPNR','calcTOD','calcPNRPro','calcTODPro','calcDensityAltitude','calcTasApprox','calcWind','calcWB','calcWBPro'].forEach(function(name){ callSafe(App.Modules[name]); });
+      ['calcFuel','calcFuelReq','calcEndurance','calcCost','calcFlightBasic','calcPNR','calcTOD','calcPNRPro','calcTODPro','calcDensityAltitude','calcTasApprox','calcWind','calcWB','calcWBPro'].forEach(function(name){ safeCall(App.Modules[name]); });
     }
     showScreen((window.App && App.State && App.State.currentScreen) || 'menu');
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  registerRecovery('legacyNavigationBindings', 'navigation', bindNavigationRecovery);
+  registerRecovery('legacyCalculatorBindings', 'calculation-bindings', bindCalcRecovery);
+  registerRecovery('legacyNotesBindings', 'notes', bindNotesRecovery);
+  registerRecovery('legacyTimerBindings', 'timer', bindTimerRecovery);
+  registerRecovery('legacyScreenState', 'screen-state', activateScreen.bind(null, (window.App && App.State && App.State.currentScreen) || 'menu'));
+  registerRecovery('legacyScreenWire', 'screen-wire', bootLegacyScreenWire);
+
+  App.LegacyRecovery.activateScreen = activateScreen;
+  App.LegacyRecovery.triggerActivePanelCalculation = triggerActivePanelCalculation;
+  App.LegacyRecovery.bootLegacyBindings = bootLegacyBindings;
+  App.LegacyRecovery.bootLegacyScreenWire = bootLegacyScreenWire;
+
+  function boot(){
+    bootLegacyBindings();
+    bootLegacyScreenWire();
+  }
+
+  if(window.App && App.Init && typeof App.Init.registerPostBoot === 'function'){
+    App.Init.registerPostBoot('legacyRecoverySuite', boot);
+  } else {
+    boot();
+  }
 })();
 </script>
-
 
 <script>
 (function(){
