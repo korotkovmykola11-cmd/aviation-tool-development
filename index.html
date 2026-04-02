@@ -723,7 +723,6 @@
     }
     .tab.active .dot{background:var(--blue)}
 
-
     .pro-toggle{
       background:rgba(217,119,6,.18);
       color:#fff3d6;
@@ -1032,10 +1031,11 @@
   <script>
     window.App = window.App || {};
     App.Audit = App.Audit || {};
-    App.Audit.tz8 = {
+    App.Audit.tz11 = {
       status: 'completed',
-      removedCssMergeOverrides: true,
-      note: 'Old UI visual merge overrides block removed; primary CSS token layer kept as canonical.'
+      cleanMasterPrepared: true,
+      oldUiMergeOverridesRemoved: true,
+      note: 'Final clean-master stabilization: legacy visual merge overrides block removed from source.'
     };
   </script>
 
@@ -2070,7 +2070,6 @@
     </div>
   </div>
 
-
   <div class="pro-modal-backdrop" id="proModal" aria-hidden="true">
     <div class="pro-modal">
       <div class="pro-modal-head">
@@ -2192,7 +2191,6 @@
           'Then normalize repeated markup / binding patterns'
         ]
       };
-
 
       function $(sel){ return document.querySelector(sel); }
       function $$(sel){ return Array.from(document.querySelectorAll(sel)); }
@@ -3357,7 +3355,6 @@
         return executeCorePipeline(readTODInput, App.Core.Flight.calculateTOD, renderTOD);
       }
 
-
       function readPNRProInput(){
         return {
           fuel: readFuelQuantity('#pnrProFuel', { min:0 }),
@@ -4051,7 +4048,6 @@
         });
       }
 
-
       /*
        * TZ-05: standardized calculator workflow layer
        * Every calculator now follows a single template:
@@ -4258,7 +4254,6 @@
         ],
         notes: 'TZ-4: one canonical pilot calculator selected for Stage 1 work.'
       };
-
 
       /*
        * TZ-05A: fuel pilot emptiness diagnosis
@@ -4528,7 +4523,6 @@
         App.UI.showScreen(App.State.currentScreen || 'menu');
       }
 
-
       App.Access = App.Access || (function(){
         var ACCESS_KEY = 'aviation_pro_access_v1';
         var TRIAL_DAYS = 7;
@@ -4768,7 +4762,6 @@
           resetAccess: resetAccess
         };
       })();
-
 
       App.State = App.State || {};
       App.Init = App.Init || {};
@@ -5341,7 +5334,6 @@
 })();
 </script>
 
-
 <style id="tz5r-fix-style">
   .screen{display:none !important;}
   .screen.active{display:block !important;}
@@ -5464,7 +5456,6 @@
 })();
 </script>
 
-
 <script>
 (function(){
   'use strict';
@@ -5578,7 +5569,6 @@
   }
 })();
 </script>
-
 
 <script>
 (function(){
@@ -5767,7 +5757,6 @@
 })();
 </script>
 
-
 <script>
 (function(){
   'use strict';
@@ -5880,7 +5869,6 @@
 })();
 </script>
 
-
 <script>
 (function(){
   'use strict';
@@ -5968,251 +5956,790 @@
 })();
 </script>
 
-
-<script id="tz9-navigation-events-refactor">
+<script id="tz10d-contract-reconciliation-runtime">
 (function(){
   'use strict';
 
   window.App = window.App || {};
-  App.Events = App.Events || {};
-  App.Navigation = App.Navigation || {};
+  App.DirectCalc = App.DirectCalc || {};
   App.Audit = App.Audit || {};
 
-  var bound = App.Events._bound = App.Events._bound || [];
+  function $(sel, root){ return (root || document).querySelector(sel); }
+  function $$(sel, root){ return Array.from((root || document).querySelectorAll(sel)); }
 
-  function on(target, type, handler, options){
-    if(!target || typeof handler !== 'function') return null;
-    target.addEventListener(type, handler, options || false);
-    var token = { target: target, type: type, handler: handler, options: options || false };
-    bound.push(token);
-    return token;
+  function num(sel){
+    var el = $(sel);
+    if(!el) return null;
+    var raw = String(el.value || '').replace(',', '.').trim();
+    if(raw === '') return null;
+    var v = parseFloat(raw);
+    return Number.isFinite(v) ? v : null;
   }
 
-  function off(token){
-    if(!token || !token.target) return;
-    try{
-      token.target.removeEventListener(token.type, token.handler, token.options || false);
-    }catch(e){}
+  function setText(sel, value){
+    var el = $(sel);
+    if(el) el.textContent = value;
   }
 
-  function bindSingleton(key, binder){
-    App.Events._singleton = App.Events._singleton || {};
-    if(App.Events._singleton[key]) return App.Events._singleton[key];
-    var token = binder();
-    App.Events._singleton[key] = token || true;
-    return App.Events._singleton[key];
+  function setValue(sel, value){
+    var el = $(sel);
+    if(el) el.value = value;
   }
 
-  App.Events.on = on;
-  App.Events.off = off;
-  App.Events.bindSingleton = bindSingleton;
-
-  function $ (sel, root){ return (root || document).querySelector(sel); }
-  function $$ (sel, root){ return Array.from((root || document).querySelectorAll(sel)); }
-
-  function getScreen(name){
-    return document.getElementById('screen-' + name);
+  function formatNum(v, digits){
+    if(v === null || !Number.isFinite(v)) return '-';
+    return Number(v).toFixed(digits == null ? 2 : digits);
   }
 
-  function getScreenNameFromNode(node){
-    if(!node) return null;
-    var screen = node.closest('.screen');
-    return screen ? screen.id.replace(/^screen-/, '') : null;
+  function formatSigned(v, digits){
+    if(v === null || !Number.isFinite(v)) return '-';
+    var n = Number(v).toFixed(digits == null ? 1 : digits);
+    return (v > 0 ? '+' : '') + n;
   }
 
-  function getShellFromNode(node){
-    return node ? node.closest('.calc-shell') : null;
+  function formatHours(h){
+    if(h === null || !Number.isFinite(h) || h < 0) return '-';
+    var totalMin = Math.round(h * 60);
+    var hh = Math.floor(totalMin / 60);
+    var mm = totalMin % 60;
+    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
   }
 
-  function buildTabContentId(tabKey){
-    if(!tabKey) return null;
-    return /^tab-/.test(tabKey) ? tabKey : ('tab-' + tabKey);
+  function normalize180(a){
+    var v = ((a + 180) % 360 + 360) % 360 - 180;
+    return v;
   }
 
-  function getTabButtons(shell){
-    return shell ? $$('.tab-btn', shell) : [];
+  function fuelDensity(type, tempC){
+    var t = Number.isFinite(tempC) ? tempC : 15;
+    var table = {
+      jeta1: { base:0.804, slope:0.00064 },
+      jeta:  { base:0.800, slope:0.00064 },
+      avgas: { base:0.720, slope:0.00095 }
+    };
+    var d = table[type] || table.jeta1;
+    return d.base - d.slope * (t - 15);
   }
 
-  function getTabPanels(shell){
-    return shell ? $$('.tab-content', shell) : [];
+  function currencySymbol(){
+    var map = { USD:'$', AED:'د.إ', EUR:'€', GBP:'£', RUB:'₽', INR:'₹', PHP:'₱' };
+    var el = $('#costCurrency');
+    return map[(el && el.value) || 'USD'] || '$';
   }
 
-  function findPanelForButton(shell, btn){
-    if(!shell || !btn) return null;
-    var targetId = btn.dataset.tabTarget || buildTabContentId(btn.dataset.tab);
-    return targetId ? $('#' + targetId, shell) : null;
-  }
-
-  function panelHasMeaningfulContent(panel){
-    if(!panel) return false;
-    var selectors = [
-      'input', 'select', 'textarea',
-      '.field-row', '.answer', '.tool-card', '.wb-table',
-      '.timer-card', '.notes-wrap', '.calc-status',
-      '.pending-card', '.empty-state-card', '.pro-panel-card'
-    ];
-    if(selectors.some(function(sel){ return !!panel.querySelector(sel); })) return true;
-    var text = (panel.textContent || '').replace(/\s+/g, ' ').trim();
-    return text.length > 0;
-  }
-
-  function getFirstUsablePanel(shell){
-    var panels = getTabPanels(shell);
-    for(var i = 0; i < panels.length; i++){
-      if(panelHasMeaningfulContent(panels[i])) return panels[i];
+  function calcFuelDirect(){
+    var type = ($('#fuelType') || {}).value || 'jeta1';
+    var vol = num('#fuelVol');
+    var temp = num('#fuelTemp');
+    var density = fuelDensity(type, temp);
+    if(!Number.isFinite(vol) || vol <= 0){
+      setText('#fuelMass', '-');
+      setText('#fuelLbs', '-');
+      setText('#fuelUsg', '-');
+      setText('#fuelImp', '-');
+      setText('#fuelMassStatus', 'Enter valid fuel volume');
+      return;
     }
-    return panels[0] || null;
+    var kg = vol * density;
+    setText('#fuelMass', formatNum(kg, 1));
+    setText('#fuelLbs', formatNum(kg * 2.20462, 0));
+    setText('#fuelUsg', formatNum(vol / 3.78541, 1));
+    setText('#fuelImp', formatNum(vol / 4.54609, 1));
+    setText('#fuelMassStatus', 'Density ' + density.toFixed(3) + ' kg/L');
   }
 
-  function syncTabs(shell, preferredButton){
-    if(!shell) return null;
+  function calcCostDirect(){
+    var flow = num('#costFlow');
+    var price = num('#costPrice');
+    var gs = num('#costGs');
+    var sym = currencySymbol();
+    setText('#costSym', sym);
+    setText('#costUnit', sym + ' /L');
 
-    var buttons = getTabButtons(shell);
-    var panels = getTabPanels(shell);
+    if(!(flow > 0) || !(price > 0)){
+      setText('#costHour', '-');
+      setText('#costMin', '-');
+      setText('#costNm', '-');
+      setText('#cost100', '-');
+      setText('#costStatus', 'Enter flow and price');
+      return;
+    }
+    var perHour = flow * price;
+    var perMin = perHour / 60;
+    setText('#costHour', formatNum(perHour, 2));
+    setText('#costMin', formatNum(perMin, 2));
 
-    buttons.forEach(function(btn){ btn.classList.remove('active'); });
-    panels.forEach(function(panel){
-      panel.classList.remove('active');
-      panel.hidden = true;
-    });
+    if(gs > 0){
+      var perNm = perHour / gs;
+      setText('#costNm', formatNum(perNm, 2));
+      setText('#cost100', formatNum(perNm * 100, 2));
+      setText('#costStatus', 'Fuel-only operating estimate');
+    } else {
+      setText('#costNm', '-');
+      setText('#cost100', '-');
+      setText('#costStatus', 'Enter ground speed for NM cost');
+    }
+  }
 
-    var activeButton = preferredButton || buttons.find(function(btn){ return btn.classList.contains('active'); }) || buttons[0] || null;
-    var activePanel = activeButton ? findPanelForButton(shell, activeButton) : null;
+  function calcFlightBasicDirect(){
+    var tas = num('#flightTas');
+    var dist = num('#flightDist');
+    var crs = num('#flightCrs');
+    var wdir = num('#flightWdir');
+    var wspd = num('#flightWspd');
 
-    if(!activePanel || !panels.includes(activePanel) || !panelHasMeaningfulContent(activePanel)){
-      activePanel = getFirstUsablePanel(shell);
-      if(activePanel){
-        activeButton = buttons.find(function(btn){ return findPanelForButton(shell, btn) === activePanel; }) || activeButton;
+    if(!(tas > 0) || !(dist > 0) || crs === null || wdir === null || wspd === null || wspd < 0){
+      setText('#flightGs', '-');
+      setText('#flightEte', '-');
+      setText('#flightWca', '-');
+      setText('#flightHdg', '-');
+      setText('#flightStatus', 'Enter TAS / DIST / CRS / WIND');
+      return;
+    }
+
+    var rel = normalize180(wdir - crs);
+    var relRad = rel * Math.PI / 180;
+    var cross = wspd * Math.sin(relRad);
+    var head = wspd * Math.cos(relRad);
+    var ratio = Math.max(-1, Math.min(1, cross / tas));
+    var wca = Math.asin(ratio) * 180 / Math.PI;
+    var hdg = ((crs + wca) % 360 + 360) % 360;
+    var gs = tas - head;
+
+    if(!(gs > 0)){
+      setText('#flightGs', '-');
+      setText('#flightEte', '-');
+      setText('#flightWca', formatSigned(wca, 1));
+      setText('#flightHdg', formatNum(hdg, 0));
+      setText('#flightStatus', 'Headwind too strong for positive GS');
+      return;
+    }
+
+    var ete = dist / gs;
+    setText('#flightGs', formatNum(gs, 0));
+    setText('#flightEte', formatHours(ete));
+    setText('#flightWca', formatSigned(wca, 1));
+    setText('#flightHdg', formatNum(hdg, 0));
+    setText('#flightStatus', 'Groundspeed adjusted for wind');
+  }
+
+  function calcFuelRequiredDirect(){
+    var gs = num('#freqGs');
+    var dist = num('#freqDist');
+    var flow = num('#freqFlow');
+    var reserve = num('#freqRes');
+
+    if(!(gs > 0) || !(dist > 0) || !(flow > 0) || reserve === null || reserve < 0){
+      setText('#freqTotal', '-');
+      setText('#freqTrip', '-');
+      setText('#freqReserve', '-');
+      setText('#freqTime', '-');
+      setText('#fuelReqStatus', 'Trip fuel plus reserve');
+      return;
+    }
+
+    var time = dist / gs;
+    var trip = time * flow;
+    var total = trip + reserve;
+    setText('#freqTotal', formatNum(total, 1));
+    setText('#freqTrip', formatNum(trip, 1));
+    setText('#freqReserve', formatNum(reserve, 1));
+    setText('#freqTime', formatHours(time));
+    setText('#fuelReqStatus', 'Trip fuel plus reserve');
+  }
+
+  function calcEnduranceDirect(){
+    var fuel = num('#endFuel');
+    var flow = num('#endFlow');
+    if(!(fuel > 0) || !(flow > 0)){
+      setText('#endTime', '-');
+      return;
+    }
+    setText('#endTime', formatHours(fuel / flow));
+  }
+
+  function calcDensityAltitudeDirect(){
+    var elev = num('#atmoElev');
+    var oat = num('#atmoOat');
+    var qnh = num('#atmoQnh');
+    if(elev === null || oat === null || qnh === null){
+      setText('#atmoDa', '-');
+      return;
+    }
+    var pressureAlt = elev + (1013.25 - qnh) * 30;
+    var isaTemp = 15 - 2 * (pressureAlt / 1000);
+    var da = pressureAlt + 120 * (oat - isaTemp);
+    setText('#atmoDa', formatNum(da, 0));
+  }
+
+  function syncQnhFrom(source){
+    var hpa, inhg, mmhg;
+    if(source === 'hpa'){
+      hpa = num('#qnhHpa');
+      if(hpa === null) return;
+      inhg = hpa * 0.0295299830714;
+      mmhg = hpa * 0.750061683;
+    } else if(source === 'inhg'){
+      inhg = num('#qnhInhg');
+      if(inhg === null) return;
+      hpa = inhg / 0.0295299830714;
+      mmhg = hpa * 0.750061683;
+    } else {
+      mmhg = num('#qnhMmhg');
+      if(mmhg === null) return;
+      hpa = mmhg / 0.750061683;
+      inhg = hpa * 0.0295299830714;
+    }
+    if(source !== 'hpa') setValue('#qnhHpa', hpa.toFixed(2));
+    if(source !== 'inhg') setValue('#qnhInhg', inhg.toFixed(2));
+    if(source !== 'mmhg') setValue('#qnhMmhg', mmhg.toFixed(2));
+  }
+
+  function calcTasApproxDirect(){
+    var ias = num('#tasIas');
+    var alt = num('#tasAlt');
+    if(!(ias > 0) || alt === null){
+      setText('#tasOut', '-');
+      return;
+    }
+    var tas = ias * (1 + 0.02 * (alt / 1000));
+    setText('#tasOut', formatNum(tas, 0));
+  }
+
+  function calcWindDirect(){
+    var rwy = num('#windRwy');
+    var dir = num('#windDir');
+    var spd = num('#windSpd');
+    if(rwy === null || dir === null || !(spd >= 0)){
+      setText('#windHead', '-');
+      setText('#windCross', '-');
+      setText('#windSide', '-');
+      return;
+    }
+    var rel = normalize180(dir - rwy);
+    var relRad = rel * Math.PI / 180;
+    var head = spd * Math.cos(relRad);
+    var cross = Math.abs(spd * Math.sin(relRad));
+    var side = (spd * Math.sin(relRad)) >= 0 ? 'R' : 'L';
+    setText('#windHead', formatNum(head, 1));
+    setText('#windCross', formatNum(cross, 1));
+    setText('#windSide', side);
+    var runway = $('#compassRunway');
+    var wind = $('#compassWind');
+    if(runway) runway.style.transform = 'translate(-50%,-100%) rotate(' + rwy + 'deg)';
+    if(wind) wind.style.transform = 'translate(-50%,-100%) rotate(' + dir + 'deg)';
+  }
+
+  function calcWbDirect(){
+    var table = $('#wbTable');
+    if(!table) return;
+    var rows = $$('.wb-row', table);
+    var totalW = 0, totalM = 0;
+    rows.forEach(function(row){
+      var w = parseFloat((row.querySelector('.wb-weight') || {}).value || '');
+      var a = parseFloat((row.querySelector('.wb-arm') || {}).value || '');
+      var momentNode = row.querySelector('.wb-moment');
+      if(Number.isFinite(w) && Number.isFinite(a)){
+        var m = w * a;
+        totalW += w;
+        totalM += m;
+        if(momentNode) momentNode.textContent = m.toFixed(1);
+      } else if(momentNode) {
+        momentNode.textContent = '-';
       }
-    }
-
-    if(activeButton) activeButton.classList.add('active');
-    if(activePanel){
-      activePanel.classList.add('active');
-      activePanel.hidden = false;
-    }
-
-    return { button: activeButton, panel: activePanel };
-  }
-
-  function syncScreen(name){
-    var screen = getScreen(name);
-    if(!screen) return null;
-    $$('.tabs-row', screen).forEach(function(row){
-      syncTabs(getShellFromNode(row) || row.parentElement);
     });
-    return screen;
+    setText('#wbTotalW', totalW > 0 ? totalW.toFixed(1) : '-');
+    setText('#wbTotalM', totalM > 0 ? totalM.toFixed(1) : '-');
+    setText('#wbCg', totalW > 0 ? (totalM / totalW).toFixed(2) : '-');
+    setText('#wbStatus', totalW > 0 ? 'Current loading summary' : 'Enter weights and arms');
   }
 
-  function showScreen(name){
-    var screens = $$('.screen');
-    screens.forEach(function(screen){
-      screen.classList.toggle('active', screen.id === 'screen-' + name);
-    });
-
-    $$('.tabbar .tab').forEach(function(tab){
-      tab.classList.toggle('active', tab.dataset.screen === name);
-    });
-
-    if(window.App && App.State) App.State.currentScreen = name;
-
-    var cfg = (App.Config && App.Config.screenConfig && App.Config.screenConfig[name]) || (App.Config && App.Config.screenConfig && App.Config.screenConfig.menu) || null;
-    if(cfg){
-      if(App.DOM && App.DOM.topTitle) App.DOM.topTitle.textContent = cfg.title;
-      var bg = (App.DOM && App.DOM.bgLayer) || document.getElementById('bgLayer');
-      if(bg) bg.className = 'bg ' + cfg.bg;
+  function calcPnrDirect(){
+    var outGs = num('#pnrOutGs');
+    var retGs = num('#pnrRetGs');
+    var end = num('#pnrEnd');
+    if(!(outGs > 0) || !(retGs > 0) || !(end > 0)){
+      setText('#pnrTime', '-');
+      setText('#pnrDist', '-');
+      setText('#pnrStatus', 'Simplified endurance-based point of no return');
+      return;
     }
+    var t = end * retGs / (outGs + retGs);
+    var d = t * outGs;
+    setText('#pnrTime', formatHours(t));
+    setText('#pnrDist', formatNum(d, 1));
+    setText('#pnrStatus', 'Simplified endurance-based point of no return');
+  }
 
-    var backBtn = (App.DOM && App.DOM.backBtn) || document.getElementById('backBtn');
-    if(backBtn) backBtn.style.visibility = name === 'menu' ? 'hidden' : 'visible';
-
-    syncScreen(name);
-
-    if(App.I18n && typeof App.I18n.applyTranslations === 'function'){
-      try{ App.I18n.applyTranslations(); }catch(e){}
+  function calcTodDirect(){
+    var alt = num('#todAlt');
+    var vs = num('#todVs');
+    var gs = num('#todGs');
+    if(!(alt > 0) || !(vs > 0) || !(gs > 0)){
+      setText('#todDist', '-');
+      setText('#todStatus', 'Quick descent estimate');
+      return;
     }
-
-    return getScreen(name);
+    var timeMin = alt / vs;
+    var dist = gs * (timeMin / 60);
+    setText('#todDist', formatNum(dist, 1));
+    setText('#todStatus', 'Quick descent estimate');
   }
 
-  function activateTab(btn){
-    if(!btn) return null;
-    var shell = getShellFromNode(btn);
-    var result = syncTabs(shell, btn);
-    return result ? result.panel : null;
+  function calcPnrProDirect(){
+    var fuel = num('#pnrProFuel');
+    var reserve = num('#pnrProReserve');
+    var flowOut = num('#pnrProFlowOut');
+    var flowBack = num('#pnrProFlowBack');
+    var gsOut = num('#pnrProGsOut');
+    var gsBack = num('#pnrProGsBack');
+    if(!(fuel > 0) || reserve === null || !(flowOut > 0) || !(flowBack > 0) || !(gsOut > 0) || !(gsBack > 0) || fuel <= reserve){
+      setText('#pnrProTime', '-');
+      setText('#pnrProDist', '-');
+      setText('#pnrProUsable', fuel && reserve !== null ? formatNum(Math.max(fuel-reserve,0),1) : '-');
+      setText('#pnrProReturn', '-');
+      setText('#pnrProStatus', 'Advanced fuel-flow based point of no return');
+      return;
+    }
+    var usable = fuel - reserve;
+    var tOut = usable / (flowOut + flowBack * (gsOut / gsBack));
+    var dist = tOut * gsOut;
+    var tBack = dist / gsBack;
+    setText('#pnrProTime', formatHours(tOut));
+    setText('#pnrProDist', formatNum(dist, 1));
+    setText('#pnrProUsable', formatNum(usable, 1));
+    setText('#pnrProReturn', formatHours(tBack));
+    setText('#pnrProStatus', 'Advanced fuel-flow based point of no return');
   }
 
-  function clickRouter(event){
-    var target = event.target;
-    if(!target) return;
+  function calcTodProDirect(){
+    var cruise = num('#todProCruiseAlt');
+    var target = num('#todProTargetAlt');
+    var trans = num('#todProTransAlt');
+    var tasMach = num('#todProTasMach');
+    var windCruise = num('#todProWindCruise');
+    var vsMach = num('#todProVsMach');
+    var tasIas = num('#todProTasIas');
+    var windLow = num('#todProWindLow');
+    var vsIas = num('#todProVsIas');
 
-    var tabBtn = target.closest('.tab-btn');
-    if(tabBtn){
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      activateTab(tabBtn);
+    if(cruise === null || target === null || trans === null || !(tasMach > 0) || windCruise === null || !(vsMach > 0) || !(tasIas > 0) || windLow === null || !(vsIas > 0) || cruise <= target){
+      setText('#todProDist', '-');
+      setText('#todProTime', '-');
+      setText('#todProGsMach', '-');
+      setText('#todProGsIas', '-');
+      setText('#todProStatus', 'Two-phase descent profile with wind layers');
       return;
     }
 
-    var menuBtn = target.closest('.item[data-screen]');
-    if(menuBtn){
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      showScreen(menuBtn.dataset.screen);
-      return;
-    }
+    var alt1 = Math.max(cruise - Math.max(trans, target), 0);
+    var alt2 = Math.max(Math.min(trans, cruise) - target, 0);
+    var time1 = alt1 / vsMach;
+    var time2 = alt2 / vsIas;
+    var gs1 = tasMach + windCruise;
+    var gs2 = tasIas + windLow;
+    var dist = gs1 * (time1/60) + gs2 * (time2/60);
 
-    var tabbarBtn = target.closest('.tabbar .tab[data-screen]');
-    if(tabbarBtn){
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      showScreen(tabbarBtn.dataset.screen);
-      return;
-    }
+    setText('#todProDist', formatNum(dist, 1));
+    setText('#todProTime', formatHours((time1 + time2) / 60));
+    setText('#todProGsMach', formatNum(gs1, 0));
+    setText('#todProGsIas', formatNum(gs2, 0));
+    setText('#todProStatus', 'Two-phase descent profile with wind layers');
+  }
 
-    var backBtn = target.closest('#backBtn');
-    if(backBtn){
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      showScreen('menu');
-    }
+  function calcWbProDirect(){
+    var pairs = [
+      ['#wbProPilotW','#wbProPilotA','#wbProPilotM'],
+      ['#wbProCopilotW','#wbProCopilotA','#wbProCopilotM'],
+      ['#wbProPaxW','#wbProPaxA','#wbProPaxM'],
+      ['#wbProCargoW','#wbProCargoA','#wbProCargoM'],
+      ['#wbProFuelW','#wbProFuelA','#wbProFuelM']
+    ];
+    var totalW = 0, totalM = 0;
+    pairs.forEach(function(p){
+      var w = num(p[0]), a = num(p[1]);
+      if(Number.isFinite(w) && Number.isFinite(a)){
+        var m = w * a;
+        totalW += w;
+        totalM += m;
+        setText(p[2], m.toFixed(1));
+      } else {
+        setText(p[2], '-');
+      }
+    });
+    var cg = totalW > 0 ? totalM / totalW : null;
+    setText('#wbProTotalW', totalW > 0 ? totalW.toFixed(1) : '-');
+    setText('#wbProTotalM', totalM > 0 ? totalM.toFixed(1) : '-');
+    setText('#wbProCg', cg !== null ? cg.toFixed(2) : '-');
+
+    var burn = num('#wbProBurn') || 0;
+    var fuelW = num('#wbProFuelW') || 0;
+    var fuelA = num('#wbProFuelA') || 0;
+    var afterW = totalW - burn;
+    var afterM = totalM - Math.min(burn, fuelW) * fuelA;
+    var afterCg = afterW > 0 ? afterM / afterW : null;
+    setText('#wbProWAfter', afterW > 0 ? afterW.toFixed(1) : '-');
+    setText('#wbProCgAfter', afterCg !== null ? afterCg.toFixed(2) : '-');
+
+    var minCg = num('#wbProMinCg');
+    var maxCg = num('#wbProMaxCg');
+    var maxW = num('#wbProMaxW');
+    var ok = true;
+    if(maxW !== null && totalW > maxW) ok = false;
+    if(minCg !== null && cg !== null && cg < minCg) ok = false;
+    if(maxCg !== null && cg !== null && cg > maxCg) ok = false;
+    setText('#wbProEnvelope', ok ? 'IN LIMITS' : 'OUT OF LIMITS');
+    setText('#wbProStatus', totalW > 0 ? 'Advanced loading envelope summary' : 'Enter weights and arms');
+  }
+
+  function convertSpeedFrom(source){
+    var kt;
+    if(source === 'kt') kt = num('#spdKt');
+    if(source === 'kmh') kt = (num('#spdKmh') || 0) / 1.852;
+    if(source === 'mph') kt = (num('#spdMph') || 0) / 1.150779;
+    if(!Number.isFinite(kt)) return;
+    if(source !== 'kt') setValue('#spdKt', kt.toFixed(2));
+    if(source !== 'kmh') setValue('#spdKmh', (kt * 1.852).toFixed(2));
+    if(source !== 'mph') setValue('#spdMph', (kt * 1.150779).toFixed(2));
+  }
+
+  function convertDistanceFrom(source){
+    var nm;
+    if(source === 'nm') nm = num('#dstNm');
+    if(source === 'km') nm = (num('#dstKm') || 0) / 1.852;
+    if(source === 'sm') nm = (num('#dstSm') || 0) / 1.150779;
+    if(!Number.isFinite(nm)) return;
+    if(source !== 'nm') setValue('#dstNm', nm.toFixed(2));
+    if(source !== 'km') setValue('#dstKm', (nm * 1.852).toFixed(2));
+    if(source !== 'sm') setValue('#dstSm', (nm * 1.150779).toFixed(2));
+  }
+
+  function convertMassFrom(source){
+    var kg, density = 0.8;
+    if(source === 'kg') kg = num('#massKg');
+    if(source === 'lbs') kg = (num('#massLbs') || 0) / 2.20462;
+    if(source === 'l') kg = (num('#volL') || 0) * density;
+    if(source === 'us') kg = (num('#volUs') || 0) * 3.78541 * density;
+    if(!Number.isFinite(kg)) return;
+    if(source !== 'kg') setValue('#massKg', kg.toFixed(2));
+    if(source !== 'lbs') setValue('#massLbs', (kg * 2.20462).toFixed(2));
+    if(source !== 'l') setValue('#volL', (kg / density).toFixed(2));
+    if(source !== 'us') setValue('#volUs', ((kg / density) / 3.78541).toFixed(2));
+  }
+
+  function convertTempFrom(source){
+    var c;
+    if(source === 'c') c = num('#tmpC');
+    if(source === 'f') c = ((num('#tmpF') || 0) - 32) * 5/9;
+    if(source === 'k') c = (num('#tmpK') || 0) - 273.15;
+    if(!Number.isFinite(c)) return;
+    if(source !== 'c') setValue('#tmpC', c.toFixed(2));
+    if(source !== 'f') setValue('#tmpF', (c * 9/5 + 32).toFixed(2));
+    if(source !== 'k') setValue('#tmpK', (c + 273.15).toFixed(2));
+  }
+
+  function recalcAll(){
+    calcFuelDirect();
+    calcCostDirect();
+    calcFlightBasicDirect();
+    calcFuelRequiredDirect();
+    calcEnduranceDirect();
+    calcDensityAltitudeDirect();
+    calcTasApproxDirect();
+    calcWindDirect();
+    calcWbDirect();
+    calcPnrDirect();
+    calcTodDirect();
+    calcPnrProDirect();
+    calcTodProDirect();
+    calcWbProDirect();
+  }
+
+  function bind(sel, fn){
+    var el = $(sel);
+    if(!el) return;
+    ['input','change'].forEach(function(evt){ el.addEventListener(evt, fn, true); });
   }
 
   function init(){
-    bindSingleton('tz9-click-router', function(){
-      return on(document, 'click', clickRouter, true);
-    });
+    ['#fuelType','#fuelVol','#fuelTemp'].forEach(function(s){ bind(s, calcFuelDirect); });
+    ['#costFlow','#costPrice','#costCurrency','#costGs'].forEach(function(s){ bind(s, calcCostDirect); });
+    ['#flightTas','#flightDist','#flightCrs','#flightWdir','#flightWspd'].forEach(function(s){ bind(s, calcFlightBasicDirect); });
+    ['#freqGs','#freqDist','#freqFlow','#freqRes'].forEach(function(s){ bind(s, calcFuelRequiredDirect); });
+    ['#endFuel','#endFlow'].forEach(function(s){ bind(s, calcEnduranceDirect); });
+    ['#atmoElev','#atmoOat','#atmoQnh'].forEach(function(s){ bind(s, calcDensityAltitudeDirect); });
+    bind('#qnhHpa', function(){ syncQnhFrom('hpa'); });
+    bind('#qnhInhg', function(){ syncQnhFrom('inhg'); });
+    bind('#qnhMmhg', function(){ syncQnhFrom('mmhg'); });
+    ['#tasIas','#tasAlt','#tasOat'].forEach(function(s){ bind(s, calcTasApproxDirect); });
+    ['#windRwy','#windDir','#windSpd'].forEach(function(s){ bind(s, calcWindDirect); });
+    $$('.wb-row .wb-weight, .wb-row .wb-arm').forEach(function(el){ ['input','change'].forEach(function(evt){ el.addEventListener(evt, calcWbDirect, true); }); });
+    ['#pnrOutGs','#pnrRetGs','#pnrEnd'].forEach(function(s){ bind(s, calcPnrDirect); });
+    ['#todAlt','#todVs','#todGs'].forEach(function(s){ bind(s, calcTodDirect); });
+    ['#pnrProFuel','#pnrProReserve','#pnrProFlowOut','#pnrProFlowBack','#pnrProGsOut','#pnrProGsBack'].forEach(function(s){ bind(s, calcPnrProDirect); });
+    ['#todProCruiseAlt','#todProTargetAlt','#todProTransAlt','#todProTasMach','#todProWindCruise','#todProVsMach','#todProTasIas','#todProWindLow','#todProVsIas'].forEach(function(s){ bind(s, calcTodProDirect); });
+    ['#wbProPilotW','#wbProPilotA','#wbProCopilotW','#wbProCopilotA','#wbProPaxW','#wbProPaxA','#wbProCargoW','#wbProCargoA','#wbProFuelW','#wbProFuelA','#wbProBurn','#wbProMinCg','#wbProMaxCg','#wbProMaxW'].forEach(function(s){ bind(s, calcWbProDirect); });
 
-    var current = (window.App && App.State && App.State.currentScreen) || (($$('.screen.active')[0] || {}).id || 'screen-menu').replace(/^screen-/, '');
-    showScreen(current || 'menu');
+    bind('#spdKt', function(){ convertSpeedFrom('kt'); });
+    bind('#spdKmh', function(){ convertSpeedFrom('kmh'); });
+    bind('#spdMph', function(){ convertSpeedFrom('mph'); });
+    bind('#dstNm', function(){ convertDistanceFrom('nm'); });
+    bind('#dstKm', function(){ convertDistanceFrom('km'); });
+    bind('#dstSm', function(){ convertDistanceFrom('sm'); });
+    bind('#massKg', function(){ convertMassFrom('kg'); });
+    bind('#massLbs', function(){ convertMassFrom('lbs'); });
+    bind('#volL', function(){ convertMassFrom('l'); });
+    bind('#volUs', function(){ convertMassFrom('us'); });
+    bind('#tmpC', function(){ convertTempFrom('c'); });
+    bind('#tmpF', function(){ convertTempFrom('f'); });
+    bind('#tmpK', function(){ convertTempFrom('k'); });
+
+    document.addEventListener('click', function(){
+      setTimeout(recalcAll, 0);
+    }, true);
+
+    setTimeout(recalcAll, 0);
+    setTimeout(recalcAll, 200);
   }
 
-  App.Navigation.showScreen = showScreen;
-  App.Navigation.activateTab = activateTab;
-  App.Navigation.syncTabs = syncTabs;
-  App.Navigation.syncScreen = syncScreen;
-  App.Navigation.init = init;
-
-  App.UI = App.UI || {};
-  App.UI.showScreen = showScreen;
-  App.UI.setupTabs = function(row){
-    var shell = getShellFromNode(row) || row.parentElement;
-    return syncTabs(shell);
-  };
-
-  App.Audit.tz9 = {
+  App.DirectCalc.recalcAll = recalcAll;
+  App.DirectCalc.calcCost = calcCostDirect;
+  App.DirectCalc.calcFuel = calcFuelDirect;
+  App.Audit.tz10d = {
     status: 'completed',
-    navigationControllerUnified: true,
-    tabSwitchingUnified: true,
-    delegatedClickRouter: true,
-    duplicateNavHandlersSuppressed: true,
-    note: 'Navigation and tab switching moved to a centralized controller with delegated capture-phase routing.'
+    calculatorContractsUnifiedByDirectLayer: true,
+    note: 'Direct calculator layer bypasses conflicting legacy contracts and updates real DOM outputs.'
   };
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init, { once: true });
+    document.addEventListener('DOMContentLoaded', init, { once:true });
   } else {
     init();
+  }
+})();
+</script>
+
+<script id="tz10e-fix4-todpro-canvas-envelope">
+(function(){
+  'use strict';
+  window.App = window.App || {};
+  App.ProRuntime = App.ProRuntime || {};
+  App.Audit = App.Audit || {};
+
+  function $(sel){ return document.querySelector(sel); }
+  function num(sel){
+    var el = $(sel);
+    if(!el) return null;
+    var raw = String(el.value || '').replace(',', '.').trim();
+    if(raw === '') return null;
+    var v = parseFloat(raw);
+    return Number.isFinite(v) ? v : null;
+  }
+  function txt(sel, value){
+    var el = $(sel);
+    if(el) el.textContent = value;
+  }
+  function fmt(v, d){
+    if(!Number.isFinite(v)) return '-';
+    return Number(v).toFixed(d == null ? 1 : d);
+  }
+  function fmtH(h){
+    if(!Number.isFinite(h) || h < 0) return '-';
+    var totalMin = Math.round(h * 60);
+    var hh = Math.floor(totalMin / 60);
+    var mm = totalMin % 60;
+    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+  }
+
+  function calcTODProRobust(){
+    var cruise = num('#todProCruiseAlt');
+    var target = num('#todProTargetAlt');
+    var trans = num('#todProTransAlt');
+    var tasMach = num('#todProTasMach');
+    var windCruise = num('#todProWindCruise');
+    var vsMach = num('#todProVsMach');
+    var tasIas = num('#todProTasIas');
+    var windLow = num('#todProWindLow');
+    var vsIas = num('#todProVsIas');
+
+    if (windCruise === null) windCruise = 0;
+    if (windLow === null) windLow = 0;
+    if (trans === null && cruise !== null && target !== null) trans = Math.max(target, Math.round((cruise + target) / 2));
+
+    if (!(cruise > target) || !(tasMach > 0) || !(vsMach > 0) || !(tasIas > 0) || !(vsIas > 0)) {
+      txt('#todProDist', '-');
+      txt('#todProTime', '-');
+      txt('#todProGsMach', '-');
+      txt('#todProGsIas', '-');
+      txt('#todProStatus', 'Enter cruise/target altitudes, TAS and VS values');
+      return;
+    }
+
+    var altHigh = Math.max(cruise - Math.max(trans, target), 0);
+    var altLow = Math.max(Math.min(trans, cruise) - target, 0);
+    var timeHighMin = altHigh / vsMach;
+    var timeLowMin = altLow / vsIas;
+    var gsHigh = tasMach + windCruise;
+    var gsLow = tasIas + windLow;
+    var dist = gsHigh * (timeHighMin / 60) + gsLow * (timeLowMin / 60);
+
+    txt('#todProDist', fmt(dist, 1));
+    txt('#todProTime', fmtH((timeHighMin + timeLowMin) / 60));
+    txt('#todProGsMach', fmt(gsHigh, 0));
+    txt('#todProGsIas', fmt(gsLow, 0));
+    txt('#todProStatus', 'Two-phase descent profile with wind layers');
+  }
+
+  function drawEnvelope(canvas, state){
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width || 680;
+    var h = canvas.height || 260;
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+
+    var pad = 46;
+    var plotW = w - pad * 2;
+    var plotH = h - pad * 2;
+
+    var minCg = Number.isFinite(state.minCg) ? state.minCg : (Number.isFinite(state.cg) ? state.cg - 5 : 15);
+    var maxCg = Number.isFinite(state.maxCg) ? state.maxCg : (Number.isFinite(state.cg) ? state.cg + 5 : 35);
+    if (minCg === maxCg) maxCg = minCg + 1;
+
+    var maxWeight = Number.isFinite(state.maxW) && state.maxW > 0 ? state.maxW : Math.max(state.totalW || 1, state.afterW || 1) * 1.2;
+    if (maxWeight <= 0) maxWeight = 1;
+
+    function xOf(cg){ return pad + ((cg - minCg) / (maxCg - minCg)) * plotW; }
+    function yOf(weight){ return pad + plotH - (weight / maxWeight) * plotH; }
+
+    ctx.strokeStyle = '#d1d5db';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.rect(pad, pad, plotW, plotH);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(34,197,94,0.12)';
+    ctx.fillRect(pad, pad, plotW, plotH);
+
+    ctx.fillStyle = '#111827';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('CG', w / 2 - 8, h - 12);
+    ctx.save();
+    ctx.translate(14, h / 2 + 14);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Weight', 0, 0);
+    ctx.restore();
+
+    ctx.fillStyle = '#6b7280';
+    ctx.fillText(minCg.toFixed(1), pad - 8, h - 18);
+    ctx.fillText(maxCg.toFixed(1), w - pad - 10, h - 18);
+    ctx.fillText(maxWeight.toFixed(0), 8, pad + 4);
+
+    if (Number.isFinite(state.cg) && Number.isFinite(state.totalW)) {
+      ctx.fillStyle = state.ok ? '#16a34a' : '#dc2626';
+      ctx.beginPath();
+      ctx.arc(xOf(state.cg), yOf(state.totalW), 6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (Number.isFinite(state.afterCg) && Number.isFinite(state.afterW)) {
+      ctx.fillStyle = '#2563eb';
+      ctx.beginPath();
+      ctx.arc(xOf(state.afterCg), yOf(state.afterW), 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function calcWBProRobust(){
+    var pairs = [
+      ['#wbProPilotW','#wbProPilotA','#wbProPilotM'],
+      ['#wbProCopilotW','#wbProCopilotA','#wbProCopilotM'],
+      ['#wbProPaxW','#wbProPaxA','#wbProPaxM'],
+      ['#wbProCargoW','#wbProCargoA','#wbProCargoM'],
+      ['#wbProFuelW','#wbProFuelA','#wbProFuelM']
+    ];
+
+    var totalW = 0, totalM = 0;
+    pairs.forEach(function(p){
+      var w = num(p[0]), a = num(p[1]);
+      if (Number.isFinite(w) && Number.isFinite(a)) {
+        var m = w * a;
+        totalW += w;
+        totalM += m;
+        txt(p[2], m.toFixed(1));
+      } else {
+        txt(p[2], '-');
+      }
+    });
+
+    var cg = totalW > 0 ? totalM / totalW : null;
+    txt('#wbProTotalW', totalW > 0 ? totalW.toFixed(1) : '-');
+    txt('#wbProTotalM', totalM > 0 ? totalM.toFixed(1) : '-');
+    txt('#wbProCg', cg !== null ? cg.toFixed(2) : '-');
+
+    var burn = num('#wbProBurn') || 0;
+    var fuelW = num('#wbProFuelW') || 0;
+    var fuelA = num('#wbProFuelA') || 0;
+    var afterW = totalW - burn;
+    var afterM = totalM - Math.min(burn, fuelW) * fuelA;
+    var afterCg = afterW > 0 ? afterM / afterW : null;
+
+    txt('#wbProWAfter', afterW > 0 ? afterW.toFixed(1) : '-');
+    txt('#wbProCgAfter', afterCg !== null ? afterCg.toFixed(2) : '-');
+
+    var minCg = num('#wbProMinCg');
+    var maxCg = num('#wbProMaxCg');
+    var maxW = num('#wbProMaxW');
+
+    var ok = true;
+    var reasons = [];
+
+    if (maxW !== null && totalW > maxW) { ok = false; reasons.push('WEIGHT > MAX'); }
+    if (minCg !== null && cg !== null && cg < minCg) { ok = false; reasons.push('CG < MIN'); }
+    if (maxCg !== null && cg !== null && cg > maxCg) { ok = false; reasons.push('CG > MAX'); }
+
+    txt('#wbProStatus', totalW > 0 ? (ok ? 'IN LIMITS' : reasons.join(' / ')) : 'LIMITS NOT SET');
+
+    drawEnvelope($('#wbProEnvelope'), {
+      totalW: totalW,
+      cg: cg,
+      afterW: afterW > 0 ? afterW : null,
+      afterCg: afterCg,
+      minCg: minCg,
+      maxCg: maxCg,
+      maxW: maxW,
+      ok: ok
+    });
+  }
+
+  function start(){
+    if (App.ProRuntime.fix4Loop) clearInterval(App.ProRuntime.fix4Loop);
+    App.ProRuntime.fix4Loop = setInterval(function(){
+      try { calcTODProRobust(); } catch (e) {}
+      try { calcWBProRobust(); } catch (e) {}
+    }, 200);
+
+    setTimeout(function(){
+      try { calcTODProRobust(); } catch (e) {}
+      try { calcWBProRobust(); } catch (e) {}
+    }, 0);
+  }
+
+  App.ProRuntime.calcTODProRobust = calcTODProRobust;
+  App.ProRuntime.calcWBProRobust = calcWBProRobust;
+  App.Audit.tz10e_fix4 = {
+    status: 'completed',
+    todProForced: true,
+    wbProEnvelopeCanvasPatched: true,
+    note: 'TOD PRO result fields are forced directly, and W&B PRO constraints now update status plus the envelope canvas.'
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once:true });
+  } else {
+    start();
   }
 })();
 </script>
