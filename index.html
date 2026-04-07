@@ -4867,7 +4867,28 @@
   App.LegacyRecovery = App.LegacyRecovery || {};
 
   App.LegacyRecovery.disabled = true;
-  App.LegacyRecovery.note = 'Legacy recovery suite removed from active bootstrap path for TZ1 point 1. App.Init.initApp is the only allowed entry point.';
+  App.LegacyRecovery.note = 'Legacy recovery suite disabled in TZ1 hotfix. Main App.Init pipeline is the single active bootstrap path.';
+
+  function safeBoot(){
+    try {
+      if(window.App && App.Init && typeof App.Init.initApp === 'function'){
+        App.Init.initApp();
+      }
+      if(window.App && App.Tools){
+        if(typeof App.Tools.bindTimerControls === 'function') App.Tools.bindTimerControls();
+        if(typeof App.Tools.updateClock === 'function') App.Tools.updateClock();
+        if(typeof App.Tools.renderTimer === 'function') App.Tools.renderTimer();
+      }
+    } catch(err){
+      console.error('[TZ1 safeBoot]', err);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', safeBoot, { once:true });
+  } else {
+    safeBoot();
+  }
 })();
 </script>
 
