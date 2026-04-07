@@ -1035,7 +1035,6 @@
       status: 'completed',
       tz1HotfixApplied: true,
       tz1TimerFixApplied: true,
-      tz1CleanupPhase2Applied: true,
       cleanMasterPrepared: true,
       oldUiMergeOverridesRemoved: true,
       note: 'Final clean-master stabilization: legacy visual merge overrides block removed from source.'
@@ -4868,28 +4867,7 @@
   App.LegacyRecovery = App.LegacyRecovery || {};
 
   App.LegacyRecovery.disabled = true;
-  App.LegacyRecovery.note = 'Legacy recovery suite disabled in TZ1 hotfix. Main App.Init pipeline is the single active bootstrap path.';
-
-  function safeBoot(){
-    try {
-      if(window.App && App.Init && typeof App.Init.initApp === 'function'){
-        App.Init.initApp();
-      }
-      if(window.App && App.Tools){
-        if(typeof App.Tools.bindTimerControls === 'function') App.Tools.bindTimerControls();
-        if(typeof App.Tools.updateClock === 'function') App.Tools.updateClock();
-        if(typeof App.Tools.renderTimer === 'function') App.Tools.renderTimer();
-      }
-    } catch(err){
-      console.error('[TZ1 safeBoot]', err);
-    }
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', safeBoot, { once:true });
-  } else {
-    safeBoot();
-  }
+  App.LegacyRecovery.note = 'Legacy recovery suite removed from active bootstrap path for TZ1 point 1. App.Init.initApp is the only allowed entry point.';
 })();
 </script>
 
@@ -6128,19 +6106,53 @@
   }
 
   function init(){
-    App.State = App.State || {};
-    App.State.__tz1DirectCalcDisabled = true;
-    return false;
+    ['#fuelType','#fuelVol','#fuelTemp'].forEach(function(s){ bind(s, calcFuelDirect); });
+    ['#costFlow','#costPrice','#costCurrency','#costGs'].forEach(function(s){ bind(s, calcCostDirect); });
+    ['#flightTas','#flightDist','#flightCrs','#flightWdir','#flightWspd'].forEach(function(s){ bind(s, calcFlightBasicDirect); });
+    ['#freqGs','#freqDist','#freqFlow','#freqRes'].forEach(function(s){ bind(s, calcFuelRequiredDirect); });
+    ['#endFuel','#endFlow'].forEach(function(s){ bind(s, calcEnduranceDirect); });
+    ['#atmoElev','#atmoOat','#atmoQnh'].forEach(function(s){ bind(s, calcDensityAltitudeDirect); });
+    bind('#qnhHpa', function(){ syncQnhFrom('hpa'); });
+    bind('#qnhInhg', function(){ syncQnhFrom('inhg'); });
+    bind('#qnhMmhg', function(){ syncQnhFrom('mmhg'); });
+    ['#tasIas','#tasAlt','#tasOat'].forEach(function(s){ bind(s, calcTasApproxDirect); });
+    ['#windRwy','#windDir','#windSpd'].forEach(function(s){ bind(s, calcWindDirect); });
+    $$('.wb-row .wb-weight, .wb-row .wb-arm').forEach(function(el){ ['input','change'].forEach(function(evt){ el.addEventListener(evt, calcWbDirect, true); }); });
+    ['#pnrOutGs','#pnrRetGs','#pnrEnd'].forEach(function(s){ bind(s, calcPnrDirect); });
+    ['#todAlt','#todVs','#todGs'].forEach(function(s){ bind(s, calcTodDirect); });
+    ['#pnrProFuel','#pnrProReserve','#pnrProFlowOut','#pnrProFlowBack','#pnrProGsOut','#pnrProGsBack'].forEach(function(s){ bind(s, calcPnrProDirect); });
+    ['#todProCruiseAlt','#todProTargetAlt','#todProTransAlt','#todProTasMach','#todProWindCruise','#todProVsMach','#todProTasIas','#todProWindLow','#todProVsIas'].forEach(function(s){ bind(s, calcTodProDirect); });
+    ['#wbProPilotW','#wbProPilotA','#wbProCopilotW','#wbProCopilotA','#wbProPaxW','#wbProPaxA','#wbProCargoW','#wbProCargoA','#wbProFuelW','#wbProFuelA','#wbProBurn','#wbProMinCg','#wbProMaxCg','#wbProMaxW'].forEach(function(s){ bind(s, calcWbProDirect); });
+
+    bind('#spdKt', function(){ convertSpeedFrom('kt'); });
+    bind('#spdKmh', function(){ convertSpeedFrom('kmh'); });
+    bind('#spdMph', function(){ convertSpeedFrom('mph'); });
+    bind('#dstNm', function(){ convertDistanceFrom('nm'); });
+    bind('#dstKm', function(){ convertDistanceFrom('km'); });
+    bind('#dstSm', function(){ convertDistanceFrom('sm'); });
+    bind('#massKg', function(){ convertMassFrom('kg'); });
+    bind('#massLbs', function(){ convertMassFrom('lbs'); });
+    bind('#volL', function(){ convertMassFrom('l'); });
+    bind('#volUs', function(){ convertMassFrom('us'); });
+    bind('#tmpC', function(){ convertTempFrom('c'); });
+    bind('#tmpF', function(){ convertTempFrom('f'); });
+    bind('#tmpK', function(){ convertTempFrom('k'); });
+
+    document.addEventListener('click', function(){
+      setTimeout(recalcAll, 0);
+    }, true);
+
+    setTimeout(recalcAll, 0);
+    setTimeout(recalcAll, 200);
   }
 
   App.DirectCalc.recalcAll = recalcAll;
   App.DirectCalc.calcCost = calcCostDirect;
   App.DirectCalc.calcFuel = calcFuelDirect;
   App.Audit.tz10d = {
-    status: 'disabled',
-    calculatorContractsUnifiedByDirectLayer: false,
-    disabledForTz1Cleanup: true,
-    note: 'Direct calculator layer disabled in TZ1 cleanup to avoid duplicate bindings and second calculation pipeline.'
+    status: 'completed',
+    calculatorContractsUnifiedByDirectLayer: true,
+    note: 'Direct calculator layer bypasses conflicting legacy contracts and updates real DOM outputs.'
   };
 
   if(document.readyState === 'loading'){
