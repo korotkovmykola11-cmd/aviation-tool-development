@@ -1033,6 +1033,7 @@
     App.Audit = App.Audit || {};
     App.Audit.tz11 = {
       status: 'completed',
+      tz1HotfixApplied: true,
       cleanMasterPrepared: true,
       oldUiMergeOverridesRemoved: true,
       note: 'Final clean-master stabilization: legacy visual merge overrides block removed from source.'
@@ -2864,6 +2865,11 @@
           String(d.getUTCMinutes()).padStart(2,'0') + 'Z'
         );
       }
+
+      addEvent(window, 'focus', updateClock);
+      addEvent(document, 'visibilitychange', function(){
+        if(document.visibilityState === 'visible') updateClock();
+      });
 
       function fuelDensity(type, tempC){
         var t = typeof tempC === 'number' ? tempC : 15;
@@ -4836,393 +4842,27 @@
   window.App = window.App || {};
   App.LegacyRecovery = App.LegacyRecovery || {};
 
-  function $(sel, root){ return (root||document).querySelector(sel); }
-  function $$(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
-  function safeCall(fn){ try { return typeof fn === 'function' ? fn() : null; } catch(e){ console.error(e); return null; } }
+  App.LegacyRecovery.disabled = true;
+  App.LegacyRecovery.note = 'Legacy recovery suite disabled in TZ1 hotfix. Main App.Init pipeline is the single active bootstrap path.';
 
-  var registry = App.LegacyRecovery.registry = App.LegacyRecovery.registry || {};
-  var order = App.LegacyRecovery.order = App.LegacyRecovery.order || [];
-
-  function registerRecovery(name, category, fn){
-    if(!name || typeof fn !== 'function') return;
-    if(!registry[name]) order.push(name);
-    registry[name] = {
-      name: name,
-      category: category || 'misc',
-      run: fn,
-      enabled: true
-    };
-  }
-
-  function runRecovery(name){
-    var entry = registry[name];
-    if(!entry || entry.enabled === false || typeof entry.run !== 'function') return;
+  function safeBoot(){
     try {
-      entry.run();
-    } catch(e){
-      console.error('[LegacyRecovery:' + name + ']', e);
-    }
-  }
-
-  function runAllRecovery(){
-    order.forEach(runRecovery);
-  }
-
-  function listRecovery(){
-    return order.map(function(name){
-      var entry = registry[name];
-      return {
-        name: entry.name,
-        category: entry.category,
-        enabled: entry.enabled !== false
-      };
-    });
-  }
-
-  App.LegacyRecovery.register = registerRecovery;
-  App.LegacyRecovery.run = runRecovery;
-  App.LegacyRecovery.runAll = runAllRecovery;
-  App.LegacyRecovery.list = listRecovery;
-
-  function activateScreen(name){
-    if(!name) name='menu';
-    $$('.screen').forEach(function(s){ s.classList.toggle('active', s.id === 'screen-' + name); });
-    $$('.tabbar .tab').forEach(function(t){ t.classList.toggle('active', t.dataset.screen === name); });
-    var back = $('#backBtn');
-    if(back) back.style.visibility = name === 'menu' ? 'hidden' : 'visible';
-    var title = $('#topTitle');
-    if(title){
-      var titles = {
-        menu:'Aviation Pro', fuel:'Fuel', cost:'Cost', flight:'Flight',
-        atmo:'Atmosphere', safety:'Safety', tools:'Tools', system:'System'
-      };
-      title.textContent = titles[name] || 'Aviation Pro';
-    }
-    var bg = $('#bgLayer');
-    if(bg) bg.className = 'bg bg-' + name;
-    try {
-      if(window.App && App.State) App.State.currentScreen = name;
-      if(window.App){
-        App.UI = App.UI || {};
-        App.UI.showScreen = activateScreen;
+      if(window.App && App.Init && typeof App.Init.initApp === 'function'){
+        App.Init.initApp();
       }
-    } catch(e){}
-  }
-
-  function bindNavigationRecovery(){
-    $$('.item[data-screen], .tabbar .tab[data-screen]').forEach(function(btn){
-      btn.addEventListener('click', function(ev){
-        ev.preventDefault();
-        activateScreen(btn.dataset.screen);
-      }, {passive:false});
-    });
-    var back = $('#backBtn');
-    if(back){
-      back.addEventListener('click', function(ev){
-        ev.preventDefault();
-        activateScreen('menu');
-      }, {passive:false});
-    }
-    $$('.tabs-row').forEach(function(row){
-      row.addEventListener('click', function(ev){
-        var btn = ev.target.closest('.tab-btn');
-        if(!btn) return;
-        var shell = btn.closest('.calc-shell');
-        if(!shell) return;
-        row.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-        btn.classList.add('active');
-        var key = btn.dataset.tab;
-        shell.querySelectorAll('.tab-content').forEach(function(c){
-          c.classList.toggle('active', c.id === key);
-        });
-      });
-    });
-  }
-
-  function bindAction(id, fn){
-    var el = $('#'+id);
-    if(el && fn){
-      el.addEventListener('input', function(){ safeCall(fn); });
-      el.addEventListener('change', function(){ safeCall(fn); });
-      el.addEventListener('click', function(){ safeCall(fn); });
-    }
-  }
-
-  function bindCalcRecovery(){
-    if(!(window.App && App.Modules)) return;
-    [
-      ['fuelVol', App.Modules.calcFuel], ['fuelTemp', App.Modules.calcFuel], ['fuelType', App.Modules.calcFuel],
-      ['freqGs', App.Modules.calcFuelReq], ['freqDist', App.Modules.calcFuelReq], ['freqFlow', App.Modules.calcFuelReq], ['freqRes', App.Modules.calcFuelReq],
-      ['endFuel', App.Modules.calcEndurance], ['endFlow', App.Modules.calcEndurance],
-      ['costFlow', App.Modules.calcCost], ['costPrice', App.Modules.calcCost], ['costGs', App.Modules.calcCost], ['costCurrency', App.Modules.calcCost],
-      ['flightDist', App.Modules.calcFlightBasic], ['flightTas', App.Modules.calcFlightBasic], ['flightWdir', App.Modules.calcFlightBasic], ['flightWspd', App.Modules.calcFlightBasic], ['flightCrs', App.Modules.calcFlightBasic],
-      ['atmoElev', App.Modules.calcDensityAltitude], ['atmoOat', App.Modules.calcDensityAltitude], ['atmoQnh', App.Modules.calcDensityAltitude],
-      ['tasIas', App.Modules.calcTasApprox], ['tasAlt', App.Modules.calcTasApprox], ['tasOat', App.Modules.calcTasApprox],
-      ['windRwy', App.Modules.calcWind], ['windDir', App.Modules.calcWind], ['windSpd', App.Modules.calcWind],
-      ['pnrOutGs', App.Modules.calcPNR], ['pnrRetGs', App.Modules.calcPNR], ['pnrEnd', App.Modules.calcPNR],
-      ['todAlt', App.Modules.calcTOD], ['todVs', App.Modules.calcTOD], ['todGs', App.Modules.calcTOD],
-      ['pnrProFuel', App.Modules.calcPNRPro], ['pnrProReserve', App.Modules.calcPNRPro], ['pnrProFlowOut', App.Modules.calcPNRPro], ['pnrProFlowBack', App.Modules.calcPNRPro], ['pnrProGsOut', App.Modules.calcPNRPro], ['pnrProGsBack', App.Modules.calcPNRPro],
-      ['todProCruiseAlt', App.Modules.calcTODPro], ['todProTargetAlt', App.Modules.calcTODPro], ['todProTransAlt', App.Modules.calcTODPro], ['todProTasMach', App.Modules.calcTODPro], ['todProWindCruise', App.Modules.calcTODPro], ['todProVsMach', App.Modules.calcTODPro], ['todProTasIas', App.Modules.calcTODPro], ['todProWindLow', App.Modules.calcTODPro], ['todProVsIas', App.Modules.calcTODPro]
-    ].forEach(function(pair){ bindAction(pair[0], pair[1]); });
-
-    ['wbEmptyW','wbEmptyA','wbPilotW','wbPilotA','wbBaggageW','wbBaggageA','wbFuelW','wbFuelA','wbMaxW','wbMinCg','wbMaxCg'].forEach(function(id){ bindAction(id, App.Modules.calcWB); });
-    ['wbProPilotW','wbProPilotA','wbProCopilotW','wbProCopilotA','wbProPaxW','wbProPaxA','wbProCargoW','wbProCargoA','wbProFuelW','wbProFuelA','wbProBurn','wbProMinCg','wbProMaxCg','wbProMaxW'].forEach(function(id){ bindAction(id, App.Modules.calcWBPro); });
-
-    safeCall(App.Modules.calcFuel);
-    safeCall(App.Modules.calcFuelReq);
-    safeCall(App.Modules.calcEndurance);
-    safeCall(App.Modules.calcCost);
-    safeCall(App.Modules.calcFlightBasic);
-    safeCall(App.Modules.calcDensityAltitude);
-    safeCall(App.Modules.calcTasApprox);
-    safeCall(App.Modules.calcWind);
-    safeCall(App.Modules.calcWB);
-    safeCall(App.Modules.calcPNR);
-    safeCall(App.Modules.calcTOD);
-    safeCall(App.Modules.calcPNRPro);
-    safeCall(App.Modules.calcTODPro);
-    safeCall(App.Modules.calcWBPro);
-  }
-
-  function bindNotesRecovery(){
-    var box = $('#notesBox'), save = $('#notesSave'), copy = $('#notesCopy'), clear = $('#notesClear');
-    if(save && box) save.addEventListener('click', function(){
-      try { localStorage.setItem('aviation_notes', box.value || ''); } catch(e){}
-    });
-    if(copy && box) copy.addEventListener('click', function(){
-      try { navigator.clipboard.writeText(box.value || ''); } catch(e){}
-    });
-    if(clear && box) clear.addEventListener('click', function(){ box.value=''; });
-  }
-
-  function bindTimerRecovery(){
-    var display = $('#timerDisplay'), start = $('#timerStart'), stop = $('#timerStop'), reset = $('#timerReset'), mins = $('#timerMinutes');
-    if(!display) return;
-    var interval = null, remaining = 0;
-    function render(){
-      var m = Math.floor(remaining/60), s = remaining%60;
-      display.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-    }
-    function startTimer(){
-      if(!remaining){
-        remaining = Math.max(0, parseInt(mins && mins.value || '0', 10) || 0) * 60;
+      if(window.App && App.Tools){
+        if(typeof App.Tools.updateClock === 'function') App.Tools.updateClock();
+        if(typeof App.Tools.renderTimer === 'function') App.Tools.renderTimer();
       }
-      if(interval || remaining<=0) { render(); return; }
-      interval = setInterval(function(){
-        remaining--;
-        render();
-        if(remaining<=0){
-          clearInterval(interval); interval=null; remaining=0; render();
-        }
-      },1000);
-      render();
+    } catch(err){
+      console.error('[TZ1 safeBoot]', err);
     }
-    function stopTimer(){ if(interval){ clearInterval(interval); interval=null; } }
-    function resetTimer(){ stopTimer(); remaining = Math.max(0, parseInt(mins && mins.value || '0', 10) || 0) * 60; render(); }
-    if(start) start.addEventListener('click', startTimer);
-    if(stop) stop.addEventListener('click', stopTimer);
-    if(reset) reset.addEventListener('click', resetTimer);
-    if(mins) mins.addEventListener('input', resetTimer);
-    resetTimer();
   }
 
-  function bootLegacyBindings(){
-    bindNavigationRecovery();
-    bindCalcRecovery();
-    bindNotesRecovery();
-    bindTimerRecovery();
-    activateScreen((window.App && App.State && App.State.currentScreen) || 'menu');
-  }
-
-  function ensureShowScreen(){
-    function show(name){
-      name = name || 'menu';
-      $$('.screen').forEach(function(s){ s.classList.toggle('active', s.id === 'screen-' + name); });
-      $$('.tabbar .tab[data-screen]').forEach(function(t){ t.classList.toggle('active', t.dataset.screen === name); });
-      var back = $('#backBtn');
-      if(back) back.style.visibility = name === 'menu' ? 'hidden' : 'visible';
-      var topTitle = $('#topTitle');
-      if(topTitle){
-        var map = {menu:'Aviation Pro', fuel:'Fuel', cost:'Cost', flight:'Flight', atmo:'Atmosphere', safety:'Safety', tools:'Tools', system:'System'};
-        topTitle.textContent = map[name] || 'Aviation Pro';
-      }
-      var bg = $('#bgLayer');
-      if(bg) bg.className = 'bg bg-' + name;
-      if(window.App && App.State) App.State.currentScreen = name;
-    }
-    window.__tz7_showScreen = show;
-    if(window.App){
-      App.UI = App.UI || {};
-      App.UI.showScreen = show;
-    }
-    return show;
-  }
-
-  function wireNavigation(showScreen){
-    document.addEventListener('click', function(ev){
-      var menuBtn = ev.target.closest('.item[data-screen], .tabbar .tab[data-screen]');
-      if(menuBtn){
-        ev.preventDefault();
-        showScreen(menuBtn.dataset.screen);
-        return;
-      }
-      var back = ev.target.closest('#backBtn');
-      if(back){
-        ev.preventDefault();
-        showScreen('menu');
-        return;
-      }
-      var tabBtn = ev.target.closest('.tabs-row .tab-btn[data-tab]');
-      if(tabBtn){
-        ev.preventDefault();
-        var shell = tabBtn.closest('.calc-shell');
-        if(!shell) return;
-        $$('.tabs-row .tab-btn', shell).forEach(function(btn){ btn.classList.toggle('active', btn === tabBtn); });
-        var targetId = tabBtn.dataset.tabTarget || ('tab-' + tabBtn.dataset.tab);
-        $$('.tab-content', shell).forEach(function(panel){ panel.classList.toggle('active', panel.id === targetId); });
-        triggerActivePanelCalculation(shell);
-      }
-    }, true);
-  }
-
-  function getCalcMap(){
-    var M = window.App && App.Modules ? App.Modules : {};
-    return {
-      fuelVol: M.calcFuel, fuelTemp: M.calcFuel, fuelType: M.calcFuel,
-      freqGs: M.calcFuelReq, freqDist: M.calcFuelReq, freqFlow: M.calcFuelReq, freqRes: M.calcFuelReq,
-      endFuel: M.calcEndurance, endFlow: M.calcEndurance,
-      costFlow: M.calcCost, costPrice: M.calcCost, costGs: M.calcCost, costCurrency: M.calcCost,
-      flightDist: M.calcFlightBasic, flightTas: M.calcFlightBasic, flightWdir: M.calcFlightBasic, flightWspd: M.calcFlightBasic, flightCrs: M.calcFlightBasic,
-      atmoElev: M.calcDensityAltitude, atmoOat: M.calcDensityAltitude, atmoQnh: M.calcDensityAltitude,
-      tasIas: M.calcTasApprox, tasAlt: M.calcTasApprox, tasOat: M.calcTasApprox,
-      windRwy: M.calcWind, windDir: M.calcWind, windSpd: M.calcWind,
-      pnrOutGs: M.calcPNR, pnrRetGs: M.calcPNR, pnrEnd: M.calcPNR,
-      todAlt: M.calcTOD, todVs: M.calcTOD, todGs: M.calcTOD,
-      pnrProFuel: M.calcPNRPro, pnrProReserve: M.calcPNRPro, pnrProFlowOut: M.calcPNRPro, pnrProFlowBack: M.calcPNRPro, pnrProGsOut: M.calcPNRPro, pnrProGsBack: M.calcPNRPro,
-      todProCruiseAlt: M.calcTODPro, todProTargetAlt: M.calcTODPro, todProTransAlt: M.calcTODPro, todProTasMach: M.calcTODPro, todProWindCruise: M.calcTODPro, todProVsMach: M.calcTODPro, todProTasIas: M.calcTODPro, todProWindLow: M.calcTODPro, todProVsIas: M.calcTODPro,
-      wbEmptyW: M.calcWB, wbEmptyA: M.calcWB, wbPilotW: M.calcWB, wbPilotA: M.calcWB, wbBaggageW: M.calcWB, wbBaggageA: M.calcWB, wbFuelW: M.calcWB, wbFuelA: M.calcWB, wbMaxW: M.calcWB, wbMinCg: M.calcWB, wbMaxCg: M.calcWB,
-      wbProPilotW: M.calcWBPro, wbProPilotA: M.calcWBPro, wbProCopilotW: M.calcWBPro, wbProCopilotA: M.calcWBPro, wbProPaxW: M.calcWBPro, wbProPaxA: M.calcWBPro, wbProCargoW: M.calcWBPro, wbProCargoA: M.calcWBPro, wbProFuelW: M.calcWBPro, wbProFuelA: M.calcWBPro, wbProBurn: M.calcWBPro, wbProMinCg: M.calcWBPro, wbProMaxCg: M.calcWBPro, wbProMaxW: M.calcWBPro
-    };
-  }
-
-  function wireInputs(){
-    function handler(ev){
-      var id = ev.target && ev.target.id;
-      if(!id) return;
-      var fn = getCalcMap()[id];
-      if(fn) safeCall(fn);
-      if(id === 'notesBox'){
-        try { localStorage.setItem('aviation_notes', ev.target.value || ''); } catch(e){}
-      }
-      if(id === 'timerMinutes') resetTimer();
-    }
-    document.addEventListener('input', handler, true);
-    document.addEventListener('change', handler, true);
-  }
-
-  var timerInterval = null, timerRemaining = 0;
-  function renderTimer(){
-    var display = $('#timerDisplay');
-    if(!display) return;
-    var m = Math.floor(timerRemaining / 60), s = timerRemaining % 60;
-    display.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-  }
-  function stopTimer(){ if(timerInterval){ clearInterval(timerInterval); timerInterval = null; } }
-  function resetTimer(){
-    stopTimer();
-    var mins = parseInt($('#timerMinutes') && $('#timerMinutes').value || '0', 10);
-    timerRemaining = Math.max(0, isFinite(mins) ? mins : 0) * 60;
-    renderTimer();
-  }
-  function startTimer(){
-    if(timerRemaining <= 0) resetTimer();
-    if(timerRemaining <= 0 || timerInterval) return;
-    timerInterval = setInterval(function(){
-      timerRemaining = Math.max(0, timerRemaining - 1);
-      renderTimer();
-      if(timerRemaining <= 0) stopTimer();
-    }, 1000);
-    renderTimer();
-  }
-
-  function wireButtons(){
-    document.addEventListener('click', function(ev){
-      var id = ev.target && ev.target.id;
-      if(!id) return;
-      if(id === 'notesSave'){ ev.preventDefault(); try { localStorage.setItem('aviation_notes', ($('#notesBox')||{}).value || ''); } catch(e){} }
-      if(id === 'notesClear'){ ev.preventDefault(); var box = $('#notesBox'); if(box){ box.value=''; try { localStorage.removeItem('aviation_notes'); } catch(e){} } }
-      if(id === 'notesCopy'){ ev.preventDefault(); var box2 = $('#notesBox'); if(box2 && navigator.clipboard) navigator.clipboard.writeText(box2.value || '').catch(function(){}); }
-      if(id === 'timerStart'){ ev.preventDefault(); startTimer(); }
-      if(id === 'timerStop'){ ev.preventDefault(); stopTimer(); }
-      if(id === 'timerReset'){ ev.preventDefault(); resetTimer(); }
-    }, true);
-  }
-
-  function restoreNotes(){
-    var box = $('#notesBox');
-    if(!box) return;
-    try { box.value = localStorage.getItem('aviation_notes') || box.value || ''; } catch(e){}
-  }
-
-  function triggerActivePanelCalculation(scope){
-    var M = window.App && App.Modules ? App.Modules : {};
-    if(!scope) return;
-    var active = $('.tab-content.active', scope) || $('.tab-content', scope);
-    if(!active) return;
-    var id = normalizeLegacyTabKey(active.id);
-    var map = {
-      'fuel-main': M.calcFuel,
-      'fuel-required': M.calcFuelReq,
-      'fuel-endurance': M.calcEndurance,
-      'flight-basic': M.calcFlightBasic,
-      'flight-pnr': M.calcPNR,
-      'flight-tod': M.calcTOD,
-      'flight-pnrpro': M.calcPNRPro,
-      'flight-todpro': M.calcTODPro,
-      'atmo-da': M.calcDensityAltitude,
-      'atmo-tas': M.calcTasApprox,
-      'safety-wind': M.calcWind,
-      'safety-wb': M.calcWB,
-      'safety-wbpro': M.calcWBPro,
-      'cost-main': M.calcCost
-    };
-    safeCall(map[id]);
-  }
-
-  function bootLegacyScreenWire(){
-    var showScreen = ensureShowScreen();
-    wireNavigation(showScreen);
-    wireInputs();
-    wireButtons();
-    restoreNotes();
-    resetTimer();
-    if(window.App && App.Modules){
-      ['calcFuel','calcFuelReq','calcEndurance','calcCost','calcFlightBasic','calcPNR','calcTOD','calcPNRPro','calcTODPro','calcDensityAltitude','calcTasApprox','calcWind','calcWB','calcWBPro'].forEach(function(name){ safeCall(App.Modules[name]); });
-    }
-    showScreen((window.App && App.State && App.State.currentScreen) || 'menu');
-  }
-
-  registerRecovery('legacyNavigationBindings', 'navigation', bindNavigationRecovery);
-  registerRecovery('legacyCalculatorBindings', 'calculation-bindings', bindCalcRecovery);
-  registerRecovery('legacyNotesBindings', 'notes', bindNotesRecovery);
-  registerRecovery('legacyTimerBindings', 'timer', bindTimerRecovery);
-  registerRecovery('legacyScreenState', 'screen-state', activateScreen.bind(null, (window.App && App.State && App.State.currentScreen) || 'menu'));
-  registerRecovery('legacyScreenWire', 'screen-wire', bootLegacyScreenWire);
-
-  App.LegacyRecovery.activateScreen = activateScreen;
-  App.LegacyRecovery.triggerActivePanelCalculation = triggerActivePanelCalculation;
-  App.LegacyRecovery.bootLegacyBindings = bootLegacyBindings;
-  App.LegacyRecovery.bootLegacyScreenWire = bootLegacyScreenWire;
-
-  function boot(){
-    bootLegacyBindings();
-    bootLegacyScreenWire();
-  }
-
-  if(window.App && App.Init && typeof App.Init.registerPostBoot === 'function'){
-    App.Init.registerPostBoot('legacyRecoverySuite', boot);
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', safeBoot, { once:true });
   } else {
-    boot();
+    safeBoot();
   }
 })();
 </script>
