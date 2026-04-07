@@ -1034,6 +1034,7 @@
     App.Audit.tz11 = {
       status: 'completed',
       tz1HotfixApplied: true,
+      tz1TimerFixApplied: true,
       cleanMasterPrepared: true,
       oldUiMergeOverridesRemoved: true,
       note: 'Final clean-master stabilization: legacy visual merge overrides block removed from source.'
@@ -3731,7 +3732,7 @@
         }
       }
 
-      var timerState = { start:0, elapsed:0, running:false, iv:null };
+      var timerState = { start:0, elapsed:0, running:false, iv:null, bound:false };
 
       function renderTimer(){
         var total = timerState.elapsed;
@@ -3740,30 +3741,53 @@
         var hh = String(Math.floor(s / 3600)).padStart(2,'0');
         var mm = String(Math.floor((s % 3600) / 60)).padStart(2,'0');
         var ss = String(s % 60).padStart(2,'0');
-        if($('#timerDisplay')) $('#timerDisplay').textContent = hh + ':' + mm + ':' + ss;
+        var display = $('#timerDisplay');
+        if(display) display.textContent = hh + ':' + mm + ':' + ss;
       }
 
       function timerStart(){
         if(timerState.running) return;
         timerState.running = true;
-        timerState.start = Date.now();
+        timerState.start = Date.now() - timerState.elapsed;
+        if(timerState.iv) clearInterval(timerState.iv);
         timerState.iv = setInterval(renderTimer, 200);
+        renderTimer();
       }
 
       function timerStop(){
         if(!timerState.running) return;
-        timerState.elapsed += Date.now() - timerState.start;
+        timerState.elapsed = Date.now() - timerState.start;
         timerState.running = false;
-        clearInterval(timerState.iv);
-        calcPNRPro();
-      calcTODPro();
-      calcWBPro();
-      renderTimer();
+        if(timerState.iv) clearInterval(timerState.iv);
+        timerState.iv = null;
+        renderTimer();
       }
 
       function timerReset(){
         timerState.elapsed = 0;
         timerState.start = Date.now();
+        timerState.running = false;
+        if(timerState.iv) clearInterval(timerState.iv);
+        timerState.iv = null;
+        renderTimer();
+      }
+
+      function bindTimerControls(){
+        if(timerState.bound) return;
+        var startBtn = $('#timerStart');
+        var stopBtn = $('#timerStop');
+        var resetBtn = $('#timerReset');
+        if(!startBtn || !stopBtn || !resetBtn) return;
+
+        startBtn.type = 'button';
+        stopBtn.type = 'button';
+        resetBtn.type = 'button';
+
+        startBtn.onclick = timerStart;
+        stopBtn.onclick = timerStop;
+        resetBtn.onclick = timerReset;
+
+        timerState.bound = true;
         renderTimer();
       }
 
@@ -3844,6 +3868,7 @@
       App.Tools.timerStart = timerStart;
       App.Tools.timerStop = timerStop;
       App.Tools.timerReset = timerReset;
+      App.Tools.bindTimerControls = bindTimerControls;
       App.Tools.renderTimer = renderTimer;
       App.Tools.updateClock = updateClock;
       App.Tools.initNotes = initNotes;
@@ -4488,9 +4513,7 @@
         addEvent($('#tmpF'), 'input', function(){ setTempFrom('f'); });
         addEvent($('#tmpK'), 'input', function(){ setTempFrom('k'); });
 
-        addEvent($('#timerStart'), 'click', App.Tools.timerStart);
-        addEvent($('#timerStop'), 'click', App.Tools.timerStop);
-        addEvent($('#timerReset'), 'click', App.Tools.timerReset);
+        App.Tools.bindTimerControls();
 
         bindInputs(['#pnrProFuel','#pnrProReserve','#pnrProFlowOut','#pnrProFlowBack','#pnrProGsOut','#pnrProGsBack'], App.Modules.calcPNRPro);
         bindInputs(['#todProCruiseAlt','#todProTargetAlt','#todProTransAlt','#todProTasMach','#todProWindCruise','#todProVsMach','#todProTasIas','#todProWindLow','#todProVsIas'], App.Modules.calcTODPro);
@@ -4505,6 +4528,7 @@
 
       function initModules(){
         App.Tools.initNotes();
+        App.Tools.bindTimerControls();
         App.Tools.updateClock();
         if(App.State.clockTimerId) clearInterval(App.State.clockTimerId);
         App.State.clockTimerId = setInterval(App.Tools.updateClock, 1000);
@@ -4851,6 +4875,7 @@
         App.Init.initApp();
       }
       if(window.App && App.Tools){
+        if(typeof App.Tools.bindTimerControls === 'function') App.Tools.bindTimerControls();
         if(typeof App.Tools.updateClock === 'function') App.Tools.updateClock();
         if(typeof App.Tools.renderTimer === 'function') App.Tools.renderTimer();
       }
